@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Business 4/4</title>
+	<link rel="stylesheet" href="https://simdara.github.io/OneColSlide.css">
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script type="text/javascript">
+		google.charts.load('current',{'packages':['corechart']});
+		google.charts.setOnLoadCallback(draw2Chart);
+		
+		function draw2Chart(){
+			<!-- Chart 1 -->
+			var data1 = google.visualization.arrayToDataTable([
+				["Year", "Container throughputs (TEUs)", { role: "style" } ],
+				["2010", 55582, "gold"],
+				["2011", 94115, "gold"],
+				["2012", 116693, "gold"],
+				["2013", 164733, "gold"],
+				["2014", 269848, "gold"],
+				["2015", 299030, "gold"]
+			  ]);
+
+			var view = new google.visualization.DataView(data1);
+			view.setColumns([0, 1,
+							   { calc: "stringify",
+								 sourceColumn: 1,
+								 type: "string",
+								 role: "annotation" },
+							   2]);
+
+			var options1 = {
+				chartArea: {left:'10%','width': '70%', 'height': '60%'},
+				title: "Bulk cargo throughputs (tonnes) at PPAP",
+				width: 650,
+				height: 220,
+				bar: {groupWidth: "50%"},
+				legend: { position: "none" },
+				annotations: {
+					alwaysOutside: true,
+					textStyle: {
+						fontSize: 11,
+						color: 'gray',
+						auraColor: 'white'
+					}
+				},
+			  };
+			var chart1 = new google.visualization.ColumnChart(document.getElementById("Bulkcargo"));
+			chart1.draw(view, options1);
+					
+			<!-- Chart 2 -->
+			var data2 = google.visualization.arrayToDataTable([
+				['Year', 'Stevedoring', 'LOLO', 'Port Services', 'Storage','Others'],
+				['2011', 14.23, 11.15, 6.26, 0.66, 2.05],
+				['2012', 16.14, 13.13, 7.72, 0.96, 4.83],
+				['2013', 18.67, 15.09, 8.04, 1.04, 3.08],
+				['2014', 22.72, 18.19, 8.59, 2.22, 1.96],
+				['2015', 24.49, 20.01, 10.13, 1.18, 5.65]
+			]);
+			var view2 = new google.visualization.DataView(data2);
+				view2.setColumns([0, 1,
+						   { calc: "stringify",
+							 sourceColumn: 1,
+							 type: "string",
+							 role: "annotation" },
+						   2,
+						   { calc: "stringify",
+							 sourceColumn: 2,
+							 type: "string",
+							 role: "annotation" },
+						   3,
+						   { calc: "stringify",
+							 sourceColumn: 3,
+							 type: "string",
+							 role: "annotation" },
+							4,5,					
+						   ]);
+			var options2 = {
+				chartArea: {left:'10%','width': '70%', 'height': '60%'},
+				title: 'Revenue breakdown',
+				isStacked:'percent',
+				height: 220,
+				width:650,
+				bar: {groupWidth: "50%"},
+				legend: { position: 'right', maxLines: 3 },
+				vAxis:{
+					minValue:0,
+					ticks:[]
+				},
+				opacity:0.8
+			};
+
+			var chart2 = new google.visualization.ColumnChart(document.getElementById('revBreakdown'));
+
+			chart2.draw(view2, options2);
+		};
+    </script>
+	
+  </head>
+
+  <body> 
+	<header> 
+		<h3> Business 4/4</h3>
+	</header>
+	<div class="slidecontent">
+		<div id='Bulkcargo'></div>
+		<div id='revBreakdown'></div>
+	</div>
+	<footer>
+	<p>Slide #6</p>
+	</footer>
+  </body>
+</html>
