@@ -1,0 +1,564 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Josefin+Sans">
+	<!-- <meta name="viewport" content="width=device-width, initial-scale=1" /> -->
+    <title>
+      Cambodian Banking Database Viewer Ver. 1.0
+    </title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {packages: ['controls']});
+    </script>
+    <script type="text/javascript">
+	// Define global variables
+	var table;
+	var filteredDT;
+	var YearArr;
+	var NameArr;
+	var ColHeader;
+	var perFormatter;
+	//
+function drawCharts() {
+    var query = new google.visualization.Query('http://spreadsheets.google.com/tq?key=1UgM52SB6iu7ucnDVQn3O3M7IH716QBxQ50eoY_IIEq8&gid=0&range=B2:BU58');
+	//
+    query.send(handleQueryResponse);
+}
+
+function handleQueryResponse(response) {
+    if (response.isError()) {
+        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+        return;
+    }
+
+    var data = response.getDataTable();
+	// Filter for License
+    var filterLicense = new google.visualization.ControlWrapper({ 
+        containerId: 'filterLicense_div',
+        controlType: 'CategoryFilter',
+        options: {
+            filterColumnLabel: 'License',
+            ui: {
+				'labelStacking':'vertical',
+				'label':'NBC License',
+				'allowTyping': false
+            },
+        },
+		//state:{'selectedValues':['MFI','Specialized']}
+	});
+	// Filter for Name of Companies
+	var filterName = new google.visualization.ControlWrapper({
+        containerId: 'filterName_div',
+        controlType: 'CategoryFilter',
+        options: {
+            filterColumnLabel: 'Name',
+            ui: {
+				'labelStacking':'vertical',
+				'label':'Institutions',
+				'allowTyping': false
+            },
+        },
+		state:{'selectedValues':['First Finance','Tomato']}
+	});
+	// Filter for Year
+    var filterYear = new google.visualization.ControlWrapper({
+        containerId: 'filterYear_div',
+        controlType: 'NumberRangeFilter',
+        options: {
+            filterColumnLabel: 'Year',
+            ui: {
+				'labelStacking':'vertical',
+				'lable':'Year',
+				'format': {'pattern':'####'}
+            },
+        }
+	});
+
+	// Creat a table
+	table = new google.visualization.ChartWrapper({
+		containerId:'table_div',
+		chartType:'Table',
+		dataTable:data,
+		options:{'width':'0px','height':'0px'}
+	});
+	// Table 'ready' event
+	google.visualization.events.addListener(table,'ready',reDrawCharts);
+	// define dashboard and establish dependencies
+    var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard'));
+    dashboard.bind([filterLicense],[filterName]);
+	dashboard.bind([filterLicense],[filterYear]);
+	dashboard.bind([filterName],[filterYear]);
+	dashboard.bind([filterLicense,filterName,filterYear], [table]);
+    dashboard.draw(data);
+
+}
+
+google.charts.load('current', {packages:['controls'], callback: drawCharts});
+
+function reDrawCharts(){
+	// Get filtered datatable from ChartWraper
+	filteredDT = table.getDataTable();
+	YearArr	= filteredDT.getDistinctValues(2);//
+	NameArr	= filteredDT.getDistinctValues(0);
+	perFormatter = new google.visualization.NumberFormat({pattern:'0.00%'});
+	//
+	ColHeader = [];
+	for (var n=0;n<NameArr.length;n++) {
+		ColHeader.push({label:NameArr[n],type:'number'});
+	}
+	ColHeader.unshift('Year');	
+	// Selected option for BSIS Items
+	var BSISitem_SelectedID = document.getElementById("BSISitem").selectedIndex;
+	var BSISitem_SelectedText = document.getElementById("BSISitem").options[BSISitem_SelectedID].text;
+	// Selected option for Profitability Ratios
+	var Profit_SelectedID = document.getElementById("ProfitabilityRatios").selectedIndex;
+	var Profit_SelectedText = document.getElementById("ProfitabilityRatios").options[Profit_SelectedID].text; 
+	// Selected option for Default Risk Ratios
+	var Default_SelectedID = document.getElementById("DefaultRatios").selectedIndex;
+	var Default_SelectedText = document.getElementById("DefaultRatios").options[Default_SelectedID].text; 
+	// Define Data Array for Chart
+	var dataforChart1 = [ColHeader];
+	var dataforChart2 = [ColHeader];
+	var dataforChart3 = [ColHeader];
+	var dataforChart4 = [ColHeader];
+		for (var i=0; i<YearArr.length;i++) {
+			var Rowi1 = [];
+			var Rowi2 = [];
+			var Rowi3 = [];
+			var Rowi4 = [];
+			for (var j=0; j<NameArr.length;j++) {
+				var rIndx = filteredDT.getFilteredRows([{column:0,value: NameArr[j]},{column:2,value: YearArr[i]}]);
+				if (rIndx[0]==null) {
+					Rowi1.push(null); Rowi2.push(null);Rowi3.push(null); Rowi4.push(null);
+					} else {
+					Rowi1.push(filteredDT.getValue(rIndx[0],BSISitem_SelectedID+3));
+					Rowi2.push(filteredDT.getValue(rIndx[0],BSISitem_SelectedID+16));
+					Rowi3.push(filteredDT.getValue(rIndx[0],Profit_SelectedID+29));
+					Rowi4.push(filteredDT.getValue(rIndx[0],Default_SelectedID+34));
+				};
+			}
+			
+			Rowi1.unshift(YearArr[i].toFixed(0));
+			Rowi2.unshift(YearArr[i].toFixed(0));
+			Rowi3.unshift(YearArr[i].toFixed(0));
+			Rowi4.unshift(YearArr[i].toFixed(0));			
+			//
+			dataforChart1[i+1] = Rowi1;
+			dataforChart2[i+1] = Rowi2;
+			dataforChart3[i+1] = Rowi3;
+			dataforChart4[i+1] = Rowi4;
+	
+		}
+	// Define DataTable for Chart
+	var DTforChart1 = new google.visualization.arrayToDataTable(dataforChart1);
+	var DTforChart2 = new google.visualization.arrayToDataTable(dataforChart2);
+	var DTforChart3 = new google.visualization.arrayToDataTable(dataforChart3);
+	var DTforChart4 = new google.visualization.arrayToDataTable(dataforChart4);
+	// Formatting columns
+	for (var i=1;i<=NameArr.length;i++) {
+		perFormatter.format(DTforChart2,i);
+		perFormatter.format(DTforChart3,i);
+		perFormatter.format(DTforChart4,i);
+	};
+	// Draw Charts
+	var chart1 = new google.visualization.ChartWrapper({
+	containerId: 'chart1_div',
+	chartType: 'ColumnChart',
+	dataTable: DTforChart1,
+	options: {
+		title: BSISitem_SelectedText+' (USD)',
+		vAxis:{format:'short'},
+	}
+	});
+	var chart2 = new google.visualization.ChartWrapper({
+	containerId: 'chart2_div',
+	chartType: 'LineChart',
+	dataTable: DTforChart2,
+	options: {
+		title:BSISitem_SelectedText+' (% Change YoY)',
+		vAxis:{format:'percent'},
+	}
+	});
+	var chart3 = new google.visualization.ChartWrapper({
+	containerId: 'chart3_div',
+	chartType: 'BarChart',
+	dataTable: DTforChart3,
+	options: {
+		title:Profit_SelectedText,
+		hAxis:{format:'percent'},
+		//pointSize:5,
+	}
+	});
+	var chart4 = new google.visualization.ChartWrapper({
+	containerId: 'chart4_div',
+	chartType: 'LineChart',
+	dataTable: DTforChart4,
+	options: {
+		title:Default_SelectedText,
+		vAxis:{format:'percent'},
+		pointSize:5,
+		//pointShape:'diamond',
+		//lineDashStyle:[4,4],
+	}
+	});
+	chart1.draw();
+	chart2.draw();
+	chart3.draw();
+	chart4.draw();
+	// 4. Breakdown Portfolio Yield
+	constrYearOptions();
+	reDrawChart5();
+	//
+}
+function reDrawChart12(){
+	//
+	var BSISitem_SelectedID = document.getElementById("BSISitem").selectedIndex;
+	var BSISitem_SelectedText = document.getElementById("BSISitem").options[BSISitem_SelectedID].text;
+	
+	// Define Data Array for Chart
+	var dataforChart1 = [ColHeader];
+	var dataforChart2 = [ColHeader];
+		for (var i=0; i<YearArr.length;i++) {
+			var Rowi1 = [];
+			var Rowi2 = [];
+			for (var j=0; j<NameArr.length;j++) {
+				var rIndx = filteredDT.getFilteredRows([{column:0,value: NameArr[j]},{column:2,value: YearArr[i]}]);
+				if (rIndx[0]==null) {Rowi1.push(null); Rowi2.push(null)} else {
+					Rowi1.push(filteredDT.getValue(rIndx[0],BSISitem_SelectedID+3));
+					Rowi2.push(filteredDT.getValue(rIndx[0],BSISitem_SelectedID+16))
+				};
+			}
+			Rowi1.unshift(YearArr[i].toFixed(0));
+			Rowi2.unshift(YearArr[i].toFixed(0));
+			dataforChart1[i+1] = Rowi1;
+			dataforChart2[i+1] = Rowi2;
+		}
+	// Define DataTable for Chart
+	var DTforChart1 = new google.visualization.arrayToDataTable(dataforChart1);
+	var DTforChart2 = new google.visualization.arrayToDataTable(dataforChart2);
+	// Formatting columns
+	for (var i=1;i<=NameArr.length;i++) {
+		perFormatter.format(DTforChart2,i);
+	};
+	// Draw Charts
+	var chart1 = new google.visualization.ChartWrapper({
+	containerId: 'chart1_div',
+	chartType: 'ColumnChart',
+	dataTable: DTforChart1,
+	options: {
+		title: BSISitem_SelectedText+' (USD)',
+		vAxis:{format:'short'},
+	}
+	});
+	var chart2 = new google.visualization.ChartWrapper({
+	containerId: 'chart2_div',
+	chartType: 'LineChart',
+	dataTable: DTforChart2,
+	options: {
+		title:BSISitem_SelectedText+' (% Change YoY)',
+		vAxis:{format:'percent'},
+	}
+	});
+	chart1.draw();
+	chart2.draw();
+}
+function reDrawChart3(){
+	// Selected option for Profitability Ratios
+	var Profit_SelectedID = document.getElementById("ProfitabilityRatios").selectedIndex;
+	var Profit_SelectedText = document.getElementById("ProfitabilityRatios").options[Profit_SelectedID].text; 
+	// Define Data Array for Chart
+	var dataforChart3 = [ColHeader];
+		for (var i=0; i<YearArr.length;i++) {
+			var Rowi3 = [];
+			for (var j=0; j<NameArr.length;j++) {
+				var rIndx = filteredDT.getFilteredRows([{column:0,value: NameArr[j]},{column:2,value: YearArr[i]}]);
+				if (rIndx[0]==null) {Rowi3.push(null);} else {
+					Rowi3.push(filteredDT.getValue(rIndx[0],Profit_SelectedID+29));
+				};
+			}
+			Rowi3.unshift(YearArr[i].toFixed(0));
+			dataforChart3[i+1] = Rowi3;
+		}
+	// Define DataTable for Chart
+	var DTforChart3 = new google.visualization.arrayToDataTable(dataforChart3);
+	// Formatting columns
+	for (var i=1;i<=NameArr.length;i++) {
+		perFormatter.format(DTforChart3,i);
+	};
+	// Draw Chart
+	var chart3 = new google.visualization.ChartWrapper({
+	containerId: 'chart3_div',
+	chartType: 'BarChart',
+	dataTable: DTforChart3,
+	options: {
+		title:Profit_SelectedText,
+		hAxis:{format:'percent'},
+		//pointSize:5,
+	}
+	});
+	chart3.draw();
+}
+function reDrawChart4(){
+	// Selected option for Profitability Ratios
+	var Default_SelectedID = document.getElementById("DefaultRatios").selectedIndex;
+	var Default_SelectedText = document.getElementById("DefaultRatios").options[Default_SelectedID].text; 
+	// Define Data Array for Chart
+	var dataforChart4 = [ColHeader];
+		for (var i=0; i<YearArr.length;i++) {
+			var Rowi4 = [];
+			for (var j=0; j<NameArr.length;j++) {
+				var rIndx = filteredDT.getFilteredRows([{column:0,value: NameArr[j]},{column:2,value: YearArr[i]}]);
+				if (rIndx[0]==null) {Rowi4.push(null);} else {
+					Rowi4.push(filteredDT.getValue(rIndx[0],Default_SelectedID+34));
+				};
+			}
+			Rowi4.unshift(YearArr[i].toFixed(0));
+			dataforChart4[i+1] = Rowi4;
+		}
+	// Define DataTable for Chart
+	var DTforChart4 = new google.visualization.arrayToDataTable(dataforChart4);
+	// Formatting columns
+	for (var i=1;i<=NameArr.length;i++) {
+		perFormatter.format(DTforChart4,i);
+	};
+	// Draw Chart
+	var chart4 = new google.visualization.ChartWrapper({
+	containerId: 'chart4_div',
+	chartType: 'LineChart',
+	dataTable: DTforChart4,
+	options: {
+		title:Default_SelectedText,
+		vAxis:{format:'percent'},
+		pointSize:5,
+		//pointShape:'diamond',
+		//lineDashStyle:[4,4],
+	}
+	});
+	chart4.draw();
+}
+function constrYearOptions(){
+	var YearOption = document.forms[3].PortYield;
+	YearOption.length=0;
+	for (var y=0;y<YearArr.length;y++) {
+		YearOption[y]= new Option(YearArr[y],YearArr[y],false,false);
+	}
+	YearOption[YearArr.length-1] = new Option(YearArr[YearArr.length-1],YearArr[YearArr.length-1],false,true);
+}
+function reDrawChart5(){
+	// Selected option for Breakdown of Portfolio Yield
+	var PYield_SelectedID = document.getElementById("PortYield").selectedIndex;
+	var PYield_SelectedVal = YearArr[PYield_SelectedID]; 
+	var PYield_Selectedtext = document.getElementById("PortYield").options[PYield_SelectedID].text;
+	//
+	var view5 = new google.visualization.DataView(filteredDT);
+	view5.setRows(view5.getFilteredRows([{column: 2, value: PYield_SelectedVal}]));
+	view5.setColumns([0,68,69,70,71]);
+	if (NameArr.length==1) {
+		dtPie = new google.visualization.DataTable();
+		dtPie.addColumn('string','Ratio');
+		dtPie.addColumn('number',view5.getValue(0,0));
+		dtPie.addRows([
+			['Operating Expense', view5.getValue(0,1)],
+			['Funding Expense', view5.getValue(0,2)],
+			['Provision Expense', view5.getValue(0,3)],
+			['Yield Margin', view5.getValue(0,4)]
+		]);
+		perFormatter.format(dtPie,1);
+		var chart5 = new google.visualization.ChartWrapper({
+			containerId: 'chart5_div',
+			chartType: 'PieChart',
+			dataTable: dtPie,
+			options:{
+				title: 'Portfolio Yield ' + PYield_Selectedtext,
+				pieSliceText:'value',
+			}
+		});
+	} else {
+		var chart5 = new google.visualization.ChartWrapper({
+			containerId: 'chart5_div',
+			chartType: 'ColumnChart',
+			dataTable: view5,
+			options:{
+				title: 'Portfolio Yield ' + PYield_Selectedtext,
+				isStacked: true,
+			}
+		});
+	}
+	chart5.draw();
+	var table2 = new google.visualization.ChartWrapper({
+		containerId: 'table2_div',
+		chartType: 'Table',
+		dataTable: view5,
+		options: {
+			width:800,
+		}
+	});
+	table2.draw();
+}
+    </script>
+<style>
+html {
+	display: table;
+	margin: auto;
+}
+
+body {
+	display: table-cell;
+	font-family: 'Josefin Sans';
+	width:900px;
+	padding:10px;
+}
+#filterLicense_div{
+	width:100%;
+	padding:3px;
+}
+#filterName_div{
+	width:100%;
+	padding:3px;
+}
+#filterYear_div{
+	width:100%;
+	padding:3px;
+}
+
+#dashboard{
+	background-color:rgb(234,242,248);
+	padding-left:20px;
+	border-radius: 15px;
+}
+
+footer {background-color:rgb(27,79,114);
+		color:white;
+		font-size:14px;
+		margin-top:10px;
+		padding:1px;
+		text-align:center;
+}
+header {text-align: left;
+		//background-color:#F5EEF8;
+		border-radius: 5px;
+		color:#273746;
+		margin-bottom:10px;
+		padding-left:2px;
+		padding-bottom:10px;
+		padding-top:10px;
+		font-size:25px;
+		font-weight:bold;
+}
+p{
+	//background-color:#F4F6F6;
+	border-radius: 2px;
+	//color:#2E86C1;
+	color:#8E44AD;
+	padding:4px;
+	font-weight:bold;
+
+}
+#Setting{
+	//background-color:rgb(212,230,241);
+	//color:#4A235A;
+	border-radius: 2px;
+	padding:3px;
+	//font-weight:bold;
+}
+option{
+	padding:5px 0;
+}
+[id*="chart"] {
+	height: 380px;
+	width: 100%;
+}
+select{
+	font-family:'Josefin Sans';
+	font-size:100%;
+}
+</style>
+  </head>
+  <body>
+  <header>
+	Cambodian Banks & MFIs Database Viewer Ver. 1.0
+</header>
+<h4><i> Last update: September 27, 2017 </i></h4>
+
+<p id="Setting">Choose License and/or Institutions</p>
+ <div id="dashboard">
+    <div id="filterLicense_div"></div>
+	<div id="filterName_div"></div>
+	<div id="filterYear_div"></div>
+	<div id="table_div"></div>
+</div>
+</br>
+<div id="KeyItemsInBSIS"> 
+	<!-- Key Items in Balance Sheet and Income Statement -->
+	<p id="KeyBSIS">1. Key Items in Balance Sheet & Income Statement</p>
+	<form name="BSIS",id="BSIS">
+		Select an item: 
+		<select id="BSISitem" onchange="reDrawChart12()">
+			<option value="Asset">Asset</option>
+			<option value="Equity">Equity</option>
+			<option value="GLP" selected>GLP</option>
+			<option value="Net Loans">Net Loans</option>
+			<option value="Customer Deposits">Customer Deposits</option>
+			<option value="Interest Income">Interest Income</option>
+			<option value="Net Interest Income">Net Int. Income</option>
+			<option value="Risk-adj Net Interest Income">Risk-adj Net Int. Income</option>
+			<option value="Operating Expense">Operating Expense</option>
+			<option value="Profit Before Tax">PBT</option>
+			<option value="NOPAT">NOPAT</option>
+			<option value="Net Income">Net Income</option>
+			<option value="Invested Capital">Invested Capital</option>
+		</select>
+	</form>
+	<!-- <div id="table2_div"></div> -->
+	<div id="chart1_div"></div>
+	<div id="chart2_div"></div>
+</div>
+<!-- Profitability -->
+<div id="Profitability"> 
+	<p id="Profitability">2. Profitability Ratios</p>
+	<form name="Profit",id="Profit">
+		Select an item: 
+		<select id="ProfitabilityRatios" onchange="reDrawChart3()">
+			<option value="Portfolio Yield">Portfolio Yield</option>
+			<option value="NIM">NIM</option>
+			<option value="ROA">ROA</option>
+			<option value="ROE" selected>ROE</option>
+			<option value="ROIC">ROIC</option>
+		</select>
+	</form>
+	<div id="chart3_div"></div>
+</div>
+<!-- Default Risk -->
+<div id="DefaultRisk"> 
+	<p id="DefaultRiskRatios">3. Default Risk Ratios</p>
+	<form name="Default",id="Default">
+		Select an item: 
+		<select id="DefaultRatios" onchange="reDrawChart4()">
+			<option value="NPL Ratio" selected>NPL Ratio</option>
+			<option value="Provision Ratio">Provision Ratio</option>
+			<option value="Write-off Ratio">Write-off Ratio</option>
+			<option value="Risk Coverage">Risk Coverage</option>
+			<option value="Doubtful Loan Ratio">Doubtful Loan Ratio</option>
+			<option value="Loss Loan Ratio">Loss Loan Ratio</option>
+			</select>
+	</form>
+	<div id="chart4_div"></div>
+</div>
+<!-- Breakdown Portfolio Yield -->
+<div id="BreakdownPortYield"> 
+	<p id="PortfolioYield">4. Breakdown of Portfolio Yield</p>
+	<form>
+		Select an item:
+		<select id="PortYield" onchange="reDrawChart5()">
+			<option>2017</option>
+			</select>
+	</form>
+	</br>
+	<div id="chart5_div"></div>
+	<div id="table2_div"></div>
+	</br>
+</div>
+<footer>Copyright &copy; 2017, Yuanta Securities (Cambodia) Plc.<img src='http://www.yuantacambodia.com/img/yuanta-logo.png' height="25" alt="YSC's logo" style="vertical-align: middle; align:right;"> </footer>
+  </body>
+</html>
