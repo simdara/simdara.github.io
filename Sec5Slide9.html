@@ -21,7 +21,7 @@
 		seriesType:'line',
 		series: {1: {type:'bars',targetAxisIndex:1}},
 		hAxis:{
-			format:'MMM/yyyy',
+			format:'MMM-yy',
 			textStyle:{color:'gray'},
 			gridlines:{count:10,color:'none'}
 		},
@@ -66,21 +66,27 @@
 		switch ($(this).attr('id')) {
 			case '10d':
 				dataView.setRows(tenDay);
+				options.hAxis.format="dd-MMM-yy";
 				stockPrice.draw(dataView,options);
+				
 				break;
 			case '1m':
 				dataView.setRows(oneMonth);
+				options.hAxis.format="dd-MMM-yy";
 				stockPrice.draw(dataView,options);
 				break;
 			case '3m':
 				dataView.setRows(threeMonth);
+				options.hAxis.format="dd-MMM-yy";
 				stockPrice.draw(dataView,options);
 				break;
 			case '6m':
 				dataView.setRows(sixMonth);
+				options.hAxis.format="MMM-yy";
 				stockPrice.draw(dataView,options);
 				break;
 			default:
+				options.hAxis.format="MMM-yy";
 				stockPrice.draw(data,options);
 				break;
 		}	
