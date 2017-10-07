@@ -3,9 +3,10 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Josefin+Sans">
+	 <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
 	<!-- <meta name="viewport" content="width=device-width, initial-scale=1" /> -->
     <title>
-      Cambodian Banking Database Viewer Ver. 1.0
+      Cambodian Banking Database Viewer Ver. 1.1
     </title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
@@ -117,37 +118,45 @@ function reDrawCharts(){
 	// Selected option for Default Risk Ratios
 	var Default_SelectedID = document.getElementById("DefaultRatios").selectedIndex;
 	var Default_SelectedText = document.getElementById("DefaultRatios").options[Default_SelectedID].text; 
+	// Selected option for Funding Cost Ratios
+	var FC_SelectedID = document.getElementById("FundingCostRatios").selectedIndex;
+	var FC_SelectedText = document.getElementById("FundingCostRatios").options[FC_SelectedID].text; 
 	// Define Data Array for Chart
 	var dataforChart1 = [ColHeader];
 	var dataforChart2 = [ColHeader];
 	var dataforChart3 = [ColHeader];
 	var dataforChart4 = [ColHeader];
+	var dataforChart6 = [ColHeader];
 		for (var i=0; i<YearArr.length;i++) {
 			var Rowi1 = [];
 			var Rowi2 = [];
 			var Rowi3 = [];
 			var Rowi4 = [];
+			var Rowi6 = [];
 			for (var j=0; j<NameArr.length;j++) {
 				var rIndx = filteredDT.getFilteredRows([{column:0,value: NameArr[j]},{column:2,value: YearArr[i]}]);
 				if (rIndx[0]==null) {
-					Rowi1.push(null); Rowi2.push(null);Rowi3.push(null); Rowi4.push(null);
+					Rowi1.push(null); Rowi2.push(null);Rowi3.push(null); Rowi4.push(null); Rowi6.push(null);
 					} else {
 					Rowi1.push(filteredDT.getValue(rIndx[0],BSISitem_SelectedID+3));
 					Rowi2.push(filteredDT.getValue(rIndx[0],BSISitem_SelectedID+16));
 					Rowi3.push(filteredDT.getValue(rIndx[0],Profit_SelectedID+29));
 					Rowi4.push(filteredDT.getValue(rIndx[0],Default_SelectedID+34));
+					Rowi6.push(filteredDT.getValue(rIndx[0],FC_SelectedID+65));
 				};
 			}
 			
 			Rowi1.unshift(YearArr[i].toFixed(0));
 			Rowi2.unshift(YearArr[i].toFixed(0));
 			Rowi3.unshift(YearArr[i].toFixed(0));
-			Rowi4.unshift(YearArr[i].toFixed(0));			
+			Rowi4.unshift(YearArr[i].toFixed(0));
+			Rowi6.unshift(YearArr[i].toFixed(0));
 			//
 			dataforChart1[i+1] = Rowi1;
 			dataforChart2[i+1] = Rowi2;
 			dataforChart3[i+1] = Rowi3;
 			dataforChart4[i+1] = Rowi4;
+			dataforChart6[i+1] = Rowi6;
 	
 		}
 	// Define DataTable for Chart
@@ -155,11 +164,13 @@ function reDrawCharts(){
 	var DTforChart2 = new google.visualization.arrayToDataTable(dataforChart2);
 	var DTforChart3 = new google.visualization.arrayToDataTable(dataforChart3);
 	var DTforChart4 = new google.visualization.arrayToDataTable(dataforChart4);
+	var DTforChart6 = new google.visualization.arrayToDataTable(dataforChart6);
 	// Formatting columns
 	for (var i=1;i<=NameArr.length;i++) {
 		perFormatter.format(DTforChart2,i);
 		perFormatter.format(DTforChart3,i);
 		perFormatter.format(DTforChart4,i);
+		perFormatter.format(DTforChart6,i);
 	};
 	// Draw Charts
 	var chart1 = new google.visualization.ChartWrapper({
@@ -197,7 +208,7 @@ function reDrawCharts(){
 	options: {
 		title:Default_SelectedText,
 		vAxis:{format:'percent'},
-		pointSize:5,
+		pointSize:7,
 		pointShape:'diamond',
 		lineDashStyle:[4,4],
 	}
@@ -209,7 +220,20 @@ function reDrawCharts(){
 	// 4. Breakdown Portfolio Yield
 	constrYearOptions();
 	reDrawChart5();
-	//
+	// 5. Funding cost 
+	var chart6 = new google.visualization.ChartWrapper({
+	containerId: 'chart6_div',
+	chartType: 'LineChart',
+	dataTable: DTforChart6,
+	options: {
+		title:FC_SelectedText,
+		vAxis:{format:'percent'},
+		pointSize:6,
+		pointShape:'square',
+		lineDashStyle:[4,4],
+	}
+	});
+	chart6.draw();
 }
 function reDrawChart12(){
 	//
@@ -330,7 +354,7 @@ function reDrawChart4(){
 	options: {
 		title:Default_SelectedText,
 		vAxis:{format:'percent'},
-		pointSize:5,
+		pointSize:7,
 		pointShape:'diamond',
 		lineDashStyle:[4,4],
 	}
@@ -396,7 +420,82 @@ function reDrawChart5(){
 	});
 	table2.draw();
 }
-    </script>
+function reDrawChart6(){
+	// Selected option for Funding Cost Ratios
+	var FC_SelectedID = document.getElementById("FundingCostRatios").selectedIndex;
+	var FC_SelectedText = document.getElementById("FundingCostRatios").options[FC_SelectedID].text; 
+	// Define Data Array for Chart
+	var dataforChart6 = [ColHeader];
+		for (var i=0; i<YearArr.length;i++) {
+			var Rowi6 = [];
+			for (var j=0; j<NameArr.length;j++) {
+				var rIndx = filteredDT.getFilteredRows([{column:0,value: NameArr[j]},{column:2,value: YearArr[i]}]);
+				if (rIndx[0]==null) {Rowi6.push(null);} else {
+					Rowi6.push(filteredDT.getValue(rIndx[0],FC_SelectedID+65));
+				};
+			}
+			Rowi6.unshift(YearArr[i].toFixed(0));
+			dataforChart6[i+1] = Rowi6;
+		}
+	// Define DataTable for Chart
+	var DTforChart6 = new google.visualization.arrayToDataTable(dataforChart6);
+	// Formatting columns
+	for (var i=1;i<=NameArr.length;i++) {
+		perFormatter.format(DTforChart6,i);
+	};
+	// Draw Chart
+	var chart6 = new google.visualization.ChartWrapper({
+	containerId: 'chart6_div',
+	chartType: 'LineChart',
+	dataTable: DTforChart6,
+	options: {
+		title:FC_SelectedText,
+		vAxis:{format:'percent'},
+		pointSize:6,
+		pointShape:'square',
+		lineDashStyle:[4,4],
+	}
+	});
+	chart6.draw();
+}
+// 
+$(window).load(function(){
+/**
+************************************************************
+*************** THIS IS THE NAVIGATION CODE ****************
+************************************************************
+**/
+
+$(function() {
+    // Stick the #nav to the top of the window
+    var nav = $('#nav');
+    var navHomeY = nav.offset().top;
+    var isFixed = false;
+    var $w = $(window);
+    $w.scroll(function() {
+        var scrollTop = $w.scrollTop();
+        var shouldBeFixed = scrollTop > navHomeY;
+        if (shouldBeFixed && !isFixed) {
+            nav.css({
+                position: 'fixed',
+                top: 0,
+                left: nav.offset().left,
+                width: nav.width()
+            });
+            isFixed = true;
+        }
+        else if (!shouldBeFixed && isFixed)
+        {
+            nav.css({
+                position: 'static',
+            });
+            isFixed = false;
+        }
+    });
+});
+
+});   
+	</script>
 <style>
 html {
 	display: table;
@@ -473,11 +572,46 @@ select{
 	font-family:'Josefin Sans';
 	font-size:100%;
 }
+<!-- *** NAVIGATION BAR STYLE *** -->
+#navWrap {
+    height: 40px;
+	
+}
+#nav {
+	padding: 0px;
+	background: white;
+	z-index:2;    
+}
+#nav ul {
+   margin: 0;
+   padding: 0;    
+}
+#nav li {
+    float: left;
+    list-style-type: none;
+}
+#nav li a {
+    padding: 5px 5px;
+    background-color: #4d94ff;
+    margin: 0 3px 0 0;
+	display:block;
+	color: white;  
+	text-decoration: none;    
+}
+#nav li a:hover {
+	text-decoration: underline;
+	background-color: #1a1aff;
+	color:yellow;
+}
+br.clearLeft {
+   clear: left;        
+}​
+<!-- **************************** -->
 </style>
   </head>
   <body>
   <header>
-	Cambodian Banks & MFIs Database Viewer Ver. 1.0
+	Cambodian Banks & MFIs Database Viewer Ver. 1.1
 </header>
 <h4><i> Last update: October 03, 2017 </i></h4>
 
@@ -489,6 +623,21 @@ select{
 	<div id="table_div"></div>
 </div>
 </br>
+<!-- *** NAVIGATION BAR *** -->
+<div id="navWrap">
+	<div id="nav">
+		<ul>
+			<li><a href="#KeyItemsInBSIS" class="smoothScroll">Key Items IS/BS</a></li>
+			<li><a href="#Profitability" class="smoothScroll">Profitability</a></li>
+			<li><a href="#DefaultRisk" class="smoothScroll">Portfolio Quality</a></li>
+			<li><a href="#BreakdownPortYield" class="smoothScroll">PortYield Breakdown</a></li>
+			<li><a href="#FundingCost" class="smoothScroll">Funding Cost</a></li>
+			<li><a href="#Setting" class="smoothScroll">Setting</a></li>
+		</ul>    
+		<br class="clearLeft" />
+	</div>
+</div>
+<!-- ******************** -->
 <div id="KeyItemsInBSIS"> 
 	<!-- Key Items in Balance Sheet and Income Statement -->
 	<p id="KeyBSIS">1. Key Items in Balance Sheet & Income Statement</p>
@@ -531,7 +680,7 @@ select{
 </div>
 <!-- Default Risk -->
 <div id="DefaultRisk"> 
-	<p id="DefaultRiskRatios">3. Default Risk Ratios</p>
+	<p id="DefaultRiskRatios">3. Portfolio Quality</p>
 	<form name="Default",id="Default">
 		Select an item: 
 		<select id="DefaultRatios" onchange="reDrawChart4()">
@@ -558,6 +707,19 @@ select{
 	<div id="chart5_div"></div>
 	<div id="table2_div"></div>
 	</br>
+</div>
+<!-- Funding Cost -->
+<div id="FundingCost"> 
+	<p id="FC">5. Funding Cost</p>
+	<form name="CoF",id="CoF">
+		Select an item: 
+		<select id="FundingCostRatios" onchange="reDrawChart6()">
+			<option value="Cost of Debt" selected>Cost of Debt</option>
+			<option value="Int. Expense/Ave.GLP">Funding Expense Ratio</option>
+			<option value="Cost of Deposits">Cost of Deposits</option>
+			</select>
+	</form>
+	<div id="chart6_div"></div>
 </div>
 <footer>Copyright &copy; 2017, Yuanta Securities (Cambodia) Plc.<img src='http://www.yuantacambodia.com/img/yuanta-logo.png' height="25" alt="YSC's logo" style="vertical-align: middle; align:right;"> </footer>
   </body>
