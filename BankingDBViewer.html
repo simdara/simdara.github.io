@@ -504,7 +504,7 @@ html {
 
 body {
 	display: table-cell;
-	font-family: 'Josefin Sans';
+	font-family: Georgia,'Josefin Sans';
 	width:900px;
 	padding:10px;
 }
@@ -569,7 +569,7 @@ option{
 	width: 100%;
 }
 select{
-	font-family:'Josefin Sans';
+	//font-family:'Josefin Sans';
 	font-size:100%;
 }
 <!-- *** NAVIGATION BAR STYLE *** -->
@@ -579,7 +579,7 @@ select{
 }
 #nav {
 	padding: 0px;
-	background: white;
+	background: white;//#566573;
 	z-index:2;    
 }
 #nav ul {
@@ -592,16 +592,17 @@ select{
 }
 #nav li a {
     padding: 5px 5px;
-    background-color: #4d94ff;
+    background-color: #566573;//#4d94ff;
     margin: 0 3px 0 0;
 	display:block;
 	color: white;  
-	text-decoration: none;    
+	text-decoration: none;
+	//border-right:1px solid white;
 }
 #nav li a:hover {
-	text-decoration: underline;
-	background-color: #1a1aff;
-	color:yellow;
+	text-decoration: bold;
+	background-color: #273746;//#1a1aff;
+	color:white;
 }
 br.clearLeft {
    clear: left;        
@@ -627,7 +628,7 @@ br.clearLeft {
 <div id="navWrap">
 	<div id="nav">
 		<ul>
-			<li><a href="#KeyItemsInBSIS" class="smoothScroll">Key Items IS/BS</a></li>
+			<li><a href="#KeyItemsInBSIS" class="smoothScroll">Key IS/BS Items</a></li>
 			<li><a href="#Profitability" class="smoothScroll">Profitability</a></li>
 			<li><a href="#DefaultRisk" class="smoothScroll">Portfolio Quality</a></li>
 			<li><a href="#BreakdownPortYield" class="smoothScroll">PortYield Breakdown</a></li>
