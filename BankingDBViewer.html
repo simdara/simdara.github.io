@@ -22,7 +22,7 @@
 	var perFormatter;
 	//
 function drawCharts() {
-    var query = new google.visualization.Query('http://spreadsheets.google.com/tq?key=1UgM52SB6iu7ucnDVQn3O3M7IH716QBxQ50eoY_IIEq8&gid=0&range=B2:BU82');
+    var query = new google.visualization.Query('http://spreadsheets.google.com/tq?key=1UgM52SB6iu7ucnDVQn3O3M7IH716QBxQ50eoY_IIEq8&gid=0&range=B2:BU112');
 	//
     query.send(handleQueryResponse);
 }
@@ -73,7 +73,8 @@ function handleQueryResponse(response) {
 				'lable':'Year',
 				'format': {'pattern':'####'}
             },
-        }
+        },
+		state: {'lowValue':2011}
 	});
 
 	// Creat a table
