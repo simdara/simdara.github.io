@@ -6,7 +6,7 @@
 	 <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>
-      Cambodian Banking Database Viewer Ver. 1.1
+      Cambodian Banking Database Viewer Ver. 1.2
     </title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
@@ -14,12 +14,21 @@
     </script>
     <script type="text/javascript">
 	// Define global variables
+	var data;
 	var table;
 	var filteredDT;
 	var YearArr;
 	var NameArr;
 	var ColHeader;
 	var perFormatter;
+	// Global variables for Chart8
+	var data_ch
+	var colToShow
+	var isLess
+	var xID = [44,29,48]; //Loan Size, PortYield, OperatingExp/GLP
+	var yID = [29,48,32,33]; // PortYield, OperatingExp/GLP, ROE, ROIC
+	var format_hAxis = ['decimal','percent','percent'];
+	var format_vAxis = ['percent','percent','percent','percent'];
 	//
 function drawCharts() {
     var query = new google.visualization.Query('http://spreadsheets.google.com/tq?key=1UgM52SB6iu7ucnDVQn3O3M7IH716QBxQ50eoY_IIEq8&gid=0&range=B2:BU112');
@@ -33,7 +42,7 @@ function handleQueryResponse(response) {
         return;
     }
 
-    var data = response.getDataTable();
+    data = response.getDataTable();
 	// Filter for License
     var filterLicense = new google.visualization.ControlWrapper({ 
         containerId: 'filterLicense_div',
@@ -96,7 +105,7 @@ function handleQueryResponse(response) {
 
 }
 
-google.charts.load('current', {packages:['controls'], callback: drawCharts});
+google.charts.load('current', {packages:['controls','corechart'], callback: drawCharts});
 
 function reDrawCharts(){
 	// Get filtered datatable from ChartWraper
@@ -122,28 +131,34 @@ function reDrawCharts(){
 	// Selected option for Funding Cost Ratios
 	var FC_SelectedID = document.getElementById("FundingCostRatios").selectedIndex;
 	var FC_SelectedText = document.getElementById("FundingCostRatios").options[FC_SelectedID].text; 
+	// Selected option for Leverage Ratios
+	var Lev_SelectedID = document.getElementById("LevRatios").selectedIndex;
+	var Lev_SelectedText = document.getElementById("LevRatios").options[Lev_SelectedID].text; 
 	// Define Data Array for Chart
 	var dataforChart1 = [ColHeader];
 	var dataforChart2 = [ColHeader];
 	var dataforChart3 = [ColHeader];
 	var dataforChart4 = [ColHeader];
 	var dataforChart6 = [ColHeader];
+	var dataforChart7 = [ColHeader];
 		for (var i=0; i<YearArr.length;i++) {
 			var Rowi1 = [];
 			var Rowi2 = [];
 			var Rowi3 = [];
 			var Rowi4 = [];
 			var Rowi6 = [];
+			var Rowi7 = [];
 			for (var j=0; j<NameArr.length;j++) {
 				var rIndx = filteredDT.getFilteredRows([{column:0,value: NameArr[j]},{column:2,value: YearArr[i]}]);
 				if (rIndx[0]==null) {
-					Rowi1.push(null); Rowi2.push(null);Rowi3.push(null); Rowi4.push(null); Rowi6.push(null);
+					Rowi1.push(null); Rowi2.push(null);Rowi3.push(null); Rowi4.push(null); Rowi6.push(null); Rowi7.push(null);
 					} else {
 					Rowi1.push(filteredDT.getValue(rIndx[0],BSISitem_SelectedID+3));
 					Rowi2.push(filteredDT.getValue(rIndx[0],BSISitem_SelectedID+16));
 					Rowi3.push(filteredDT.getValue(rIndx[0],Profit_SelectedID+29));
 					Rowi4.push(filteredDT.getValue(rIndx[0],Default_SelectedID+34));
 					Rowi6.push(filteredDT.getValue(rIndx[0],FC_SelectedID+65));
+					Rowi7.push(filteredDT.getValue(rIndx[0],Lev_SelectedID+56));
 				};
 			}
 			
@@ -152,12 +167,14 @@ function reDrawCharts(){
 			Rowi3.unshift(YearArr[i].toFixed(0));
 			Rowi4.unshift(YearArr[i].toFixed(0));
 			Rowi6.unshift(YearArr[i].toFixed(0));
+			Rowi7.unshift(YearArr[i].toFixed(0));
 			//
 			dataforChart1[i+1] = Rowi1;
 			dataforChart2[i+1] = Rowi2;
 			dataforChart3[i+1] = Rowi3;
 			dataforChart4[i+1] = Rowi4;
 			dataforChart6[i+1] = Rowi6;
+			dataforChart7[i+1] = Rowi7;
 	
 		}
 	// Define DataTable for Chart
@@ -166,12 +183,14 @@ function reDrawCharts(){
 	var DTforChart3 = new google.visualization.arrayToDataTable(dataforChart3);
 	var DTforChart4 = new google.visualization.arrayToDataTable(dataforChart4);
 	var DTforChart6 = new google.visualization.arrayToDataTable(dataforChart6);
+	var DTforChart7 = new google.visualization.arrayToDataTable(dataforChart7);
 	// Formatting columns
 	for (var i=1;i<=NameArr.length;i++) {
 		perFormatter.format(DTforChart2,i);
 		perFormatter.format(DTforChart3,i);
 		perFormatter.format(DTforChart4,i);
 		perFormatter.format(DTforChart6,i);
+		perFormatter.format(DTforChart7,i);
 	};
 	// Draw Charts
 	var chart1 = new google.visualization.ChartWrapper({
@@ -235,6 +254,22 @@ function reDrawCharts(){
 	}
 	});
 	chart6.draw();
+	// 6. Leverage
+	var chart7 = new google.visualization.ChartWrapper({
+	containerId: 'chart7_div',
+	chartType: 'LineChart',
+	dataTable: DTforChart7,
+	options: {
+		title:Lev_SelectedText,
+		vAxis:{format:'percent'},
+		pointSize:6,
+		pointShape:'diamond',
+		//lineDashStyle:[4,4],
+	}
+	});
+	chart7.draw();
+	// 7. Scatter Chart
+	drawChart8();
 }
 function reDrawChart12(){
 	//
@@ -459,6 +494,139 @@ function reDrawChart6(){
 	});
 	chart6.draw();
 }
+function reDrawChart7(){
+	// Selected option for Leverage Ratios
+	var Lev_SelectedID = document.getElementById("LevRatios").selectedIndex;
+	var Lev_SelectedText = document.getElementById("LevRatios").options[Lev_SelectedID].text; 
+	// Define Data Array for Chart
+	var dataforChart7 = [ColHeader];
+		for (var i=0; i<YearArr.length;i++) {
+			var Rowi7 = [];
+			for (var j=0; j<NameArr.length;j++) {
+				var rIndx = filteredDT.getFilteredRows([{column:0,value: NameArr[j]},{column:2,value: YearArr[i]}]);
+				if (rIndx[0]==null) {Rowi7.push(null);} else {
+					Rowi7.push(filteredDT.getValue(rIndx[0],Lev_SelectedID+56));
+				};
+			}
+			Rowi7.unshift(YearArr[i].toFixed(0));
+			dataforChart7[i+1] = Rowi7;
+		}
+	// Define DataTable for Chart
+	var DTforChart7 = new google.visualization.arrayToDataTable(dataforChart7);
+	// Formatting columns
+	for (var i=1;i<=NameArr.length;i++) {
+		perFormatter.format(DTforChart7,i);
+	};
+	// Draw Chart
+	var chart7 = new google.visualization.ChartWrapper({
+	containerId: 'chart7_div',
+	chartType: 'LineChart',
+	dataTable: DTforChart7,
+	options: {
+		title:Lev_SelectedText,
+		vAxis:{format:'percent'},
+		pointSize:6,
+		pointShape:'diamond',
+		//lineDashStyle:[4,4],
+	}
+	});
+	chart7.draw();
+}
+function drawChart8() {
+	//
+	// Selected option for X-Axis
+	var X_SelectedID = document.getElementById("X_Axis").selectedIndex;
+	var X_SelectedText = document.getElementById("X_Axis").options[X_SelectedID].text;
+	// Selected option for Y-Axis
+	var Y_SelectedID = document.getElementById("Y_Axis").selectedIndex;
+	var Y_SelectedText = document.getElementById("Y_Axis").options[Y_SelectedID].text;
+	//
+	var nCol = data.getNumberOfColumns();
+	var nRow = data.getNumberOfRows();
+	// Deep Copy of data
+	data_ch = data.clone(); // DataTable that can be changed
+	// Add a tooltip column for all names
+	data_ch.addColumn('string','fortooltipoOfAlls');
+	for (var r =0; r<nRow; r++) {
+		// setcell for tooltip column
+		data_ch.setCell(r, nCol, data.getValue(r,0)+' '+data.getValue(r,2)+
+					' ('+numToStr(data.getValue(r,xID[X_SelectedID]),format_hAxis[X_SelectedID]) +
+					' ; '+ numToStr(data.getValue(r,yID[Y_SelectedID]),format_vAxis[Y_SelectedID])+')');
+	}
+	//
+	colToShow = [{sourceColumn: xID[X_SelectedID], type: 'number'}, //X-Axis
+					 {sourceColumn: yID[Y_SelectedID],label:'Others',type: 'number'},
+					 {sourceColumn: nCol, type: 'string',role:'tooltip'}]; // Y-Axis
+	//
+	nCol = nCol +1 ; // update number of columns
+	// Setcell value and tooltip for each name
+	for (var n=0;n<NameArr.length;n++) {
+		data_ch.addColumn('number','temporary'); // nCol
+		data_ch.addColumn('string','Fortooltip');//nCol+1	
+		var EmRowsID = data.getFilteredRows([{column: 0, value:NameArr[n]},
+											 {column: 2, minValue: YearArr[0], maxValue:YearArr[-1]}]);
+		for (var i=0;i<EmRowsID.length;i++) {
+			// setcell for value column
+			data_ch.setCell(EmRowsID[i],nCol+2*n, data.getValue(EmRowsID[i],yID[Y_SelectedID]));
+			// setcell for tooltip column
+			data_ch.setCell(EmRowsID[i],nCol+2*n+1, data.getValue(EmRowsID[i],0)+' '+data.getValue(EmRowsID[i],2)+
+						' ('+numToStr(data.getValue(EmRowsID[i],xID[X_SelectedID]),format_hAxis[X_SelectedID]) +
+						' ; '+ numToStr(data.getValue(EmRowsID[i],yID[Y_SelectedID]),format_vAxis[Y_SelectedID])+')');
+		}
+		colToShow.push({sourceColumn: nCol+2*n, label:NameArr[n],type: 'number'});
+		colToShow.push({sourceColumn: nCol+2*n+1, type: 'string',role:'tooltip'});
+	}
+	//
+	isLess = false;
+	redrawChart8();
+	//
+}
+function redrawChart8(){
+	// Selected option for X-Axis
+	var X_SelectedID = document.getElementById("X_Axis").selectedIndex;
+	var X_SelectedText = document.getElementById("X_Axis").options[X_SelectedID].text;
+	// Selected option for Y-Axis
+	var Y_SelectedID = document.getElementById("Y_Axis").selectedIndex;
+	var Y_SelectedText = document.getElementById("Y_Axis").options[Y_SelectedID].text;
+	//
+	if (isLess) {
+		colToShow.splice(0,1);
+		colToShow.unshift({sourceColumn: xID[X_SelectedID],type: 'number'},{sourceColumn: yID[Y_SelectedID],label:'Others',type: 'number'},
+							{sourceColumn: data.getNumberOfColumns(),type: 'string',role:'tooltip'});
+		colToShow.unshift();
+		isLess = false;
+		document.getElementById("btn").innerHTML ="Show Less";
+	} else	{
+		colToShow.splice(0,3);
+		colToShow.unshift(xID[X_SelectedID]);
+		isLess = true;
+		document.getElementById("btn").innerHTML ="Show More";
+	}
+	var Xlabel = data.getColumnLabel(xID[X_SelectedID]);
+	var Ylabel = data.getColumnLabel(yID[Y_SelectedID]);
+	var chart8 = new google.visualization.ScatterChart(document.getElementById('chart8_div'));
+	//
+    var option8 = {
+        title: Xlabel + ' Vs ' + Ylabel,
+        hAxis: {title: Xlabel,format:format_hAxis[X_SelectedID],gridlines:{count:12}},
+        vAxis: {title: Ylabel,format:format_vAxis[Y_SelectedID],gridlines:{count:15}},
+		//width:1000,
+		//height:480 ,
+        //legend: 'none',
+		//annotations:{ textStyle:{auraColor: 'none', fontSize: 10}},
+    };
+	dataView = new google.visualization.DataView(data_ch);
+	dataView.setColumns(colToShow);
+	chart8.draw(dataView,option8);
+}
+function numToStr(num,fo){
+	if (num==null){return null;}
+	if (fo=='decimal') {
+		return '$'+num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");;
+	} else {
+		return (num*100).toFixed(1)+'%';
+	}
+} 
 // 
 $(window).load(function(){
 /**
@@ -506,7 +674,7 @@ html {
 body {
 	display: table-cell;
 	font-family: Georgia;
-	width:900px;
+	width:1000px;
 	padding:10px;
 }
 #filterLicense_div{
@@ -546,7 +714,7 @@ header {text-align: left;
 		font-size:25px;
 		font-weight:bold;
 }
-p{
+h3{
 	//background-color:#F4F6F6;
 	border-radius: 2px;
 	//color:#2E86C1;
@@ -567,6 +735,10 @@ option{
 }
 [id*="chart"] {
 	height: 380px;
+	width: 100%;
+}
+#chart8_div{
+	height: 480px;
 	width: 100%;
 }
 select{
@@ -613,11 +785,11 @@ br.clearLeft {
   </head>
   <body>
   <header>
-	Cambodian Banks & MFIs Database Viewer Ver. 1.1
+	Cambodian Banks & MFIs Database Viewer Ver. 1.2
 </header>
-<h4><i> Last update: October 09, 2017 </i></h4>
+<h4><i> Last update: October 11, 2017 </i></h4>
 
-<p id="Setting">Choose License and/or Institutions</p>
+<h3 id="Setting">Choose License and/or Institutions</h3>
  <div id="dashboard">
     <div id="filterLicense_div"></div>
 	<div id="filterName_div"></div>
@@ -634,6 +806,8 @@ br.clearLeft {
 			<li><a href="#DefaultRisk" class="smoothScroll">Portfolio Quality</a></li>
 			<li><a href="#BreakdownPortYield" class="smoothScroll">PortYield Breakdown</a></li>
 			<li><a href="#FundingCost" class="smoothScroll">Funding Cost</a></li>
+			<li><a href="#Leverage" class="smoothScroll">Leverage</a></li>
+			<li><a href="#ScatterChart" class="smoothScroll">Scatter Plot</a></li>
 			<li><a href="#Setting" class="smoothScroll">Setting</a></li>
 		</ul>    
 		<br class="clearLeft" />
@@ -642,7 +816,7 @@ br.clearLeft {
 <!-- ******************** -->
 <div id="KeyItemsInBSIS"> 
 	<!-- Key Items in Balance Sheet and Income Statement -->
-	<p id="KeyBSIS">1. Key Items in Balance Sheet & Income Statement</p>
+	<h3 id="KeyBSIS">1. Key Items in Balance Sheet & Income Statement</h3>
 	<form name="BSIS",id="BSIS">
 		Select an item: 
 		<select id="BSISitem" onchange="reDrawChart12()">
@@ -667,7 +841,7 @@ br.clearLeft {
 </div>
 <!-- Profitability -->
 <div id="Profitability"> 
-	<p id="Profitability">2. Profitability Ratios</p>
+	<h3 id="Profitability">2. Profitability Ratios</h3>
 	<form name="Profit",id="Profit">
 		Select an item: 
 		<select id="ProfitabilityRatios" onchange="reDrawChart3()">
@@ -682,7 +856,7 @@ br.clearLeft {
 </div>
 <!-- Default Risk -->
 <div id="DefaultRisk"> 
-	<p id="DefaultRiskRatios">3. Portfolio Quality</p>
+	<h3 id="DefaultRiskRatios">3. Portfolio Quality</h3>
 	<form name="Default",id="Default">
 		Select an item: 
 		<select id="DefaultRatios" onchange="reDrawChart4()">
@@ -698,7 +872,7 @@ br.clearLeft {
 </div>
 <!-- Breakdown Portfolio Yield -->
 <div id="BreakdownPortYield"> 
-	<p id="PortfolioYield">4. Breakdown of Portfolio Yield</p>
+	<h3 id="PortfolioYield">4. Breakdown of Portfolio Yield</h3>
 	<form>
 		Select an item:
 		<select id="PortYield" onchange="reDrawChart5()">
@@ -711,7 +885,7 @@ br.clearLeft {
 </div>
 <!-- Funding Cost -->
 <div id="FundingCost"> 
-	<p id="FC">5. Funding Cost</p>
+	<h3 id="FC">5. Funding Cost</h3>
 	<form name="CoF",id="CoF">
 		Select an item: 
 		<select id="FundingCostRatios" onchange="reDrawChart6()">
@@ -721,6 +895,46 @@ br.clearLeft {
 			</select>
 	</form>
 	<div id="chart6_div"></div>
+</div>
+<!-- Leverage -->
+<div id="Leverage"> 
+	<h3 id="LeverageRatios">6. Leverage</h3>
+	<form name="Lev",id="Lev">
+		Select an item: 
+		<select id="LevRatios" onchange="reDrawChart7()">
+			<option value="Debt/Invested Capital">Debt-to-Invested-Capital</option>
+			<option value="D/E" selected>D/E</option>
+			</select>
+	</form>
+	<div id="chart7_div"></div>
+</div>
+<!-- Loan Size -->
+<div id="ScatterChart"> 
+	<h3>7. Scatter Chart</h3>
+	<!-- -->
+	<form>
+		X-Axis:
+		<select id="X_Axis" onchange="drawChart8()">
+			<option value="Loan Size">Loan Size</option>
+			<option value="Portfolio Yield">Portfolio Yield</option>
+			<option value="Operating Exp./Av.GLP" selected>Operating Exp./Av.GLP</option>
+		</select>
+		 Y-Axis:
+		<select id="Y_Axis" onchange="drawChart8()">
+			<option value="Portfolio Yield" selected>Portfolio Yield</option>
+			<option value="Operating Exp./Av.GLP">Operating Exp./Av.GLP</option>
+			<option value="ROE">ROE</option>
+			<option value="ROIC">ROIC</option>
+		</select>
+	</form>
+	<div id="chart8_div"></div>
+	</br>
+	<div align="right"><button type="button" onclick="redrawChart8()" id="btn"></button></div>
+</div>
+<!-- About Database -->
+<div id="DBinfo"> 
+	<h3>Database Info</h3>
+	<p>Database info will be provided later!</p>
 </div>
 <footer>Copyright &copy; 2017, Yuanta Securities (Cambodia) Plc.</footer>
   </body>
