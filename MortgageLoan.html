@@ -50,7 +50,7 @@ function drawCharts() {
 		var chart1 = new google.visualization.ColumnChart(document.getElementById('chart1_div'));
 		var option1 = {
 			height: 320 + (20-mYear)*15,
-			width:'100%',
+			width: 900,
 			title: 'Monthly payment for different payback year',
 			vAxis: {title: 'Monthly Payment(USD)',gridlines:{count:12}},
 			hAxis: {title: 'Year'},
@@ -69,13 +69,14 @@ function drawCharts() {
 		numFormatter.format(DT,4);
 		// Data View
 		DTview = new google.visualization.DataView(DT);
-		// Chart1
-		DTview.setColumns([7,1,{sourceColumn:5,role:'annotation'}]);
-		chart1.draw(DTview,option1);
+
 		// Table 1
 		DTview.setColumns([0,4,1,2,3]);
 		table1.draw(DTview,tabOption);
 		//
+		// Chart1
+		DTview.setColumns([7,1,{sourceColumn:5,role:'annotation'}]);
+		chart1.draw(DTview,option1);
 	}
 }
 function alertMessage()
@@ -207,15 +208,16 @@ text-align: center !important;
 <button type="button" onclick="drawCharts()" id="btn">Calculate</button>
 </div>
 <!-- Result Part---->
-<div id="chart1">
-	<p> Monthly Payments </p>
-	<div id="chart1_div"> </div>
-</div>
-</br>
 </br>
 <div id="table1">
 	<div id="table1_div"> </div>
 </div>
+</br>
+<div id="chart1">
+	<div id="chart1_div"> </div>
+</div>
+</br>
+
 
 
 <footer>Copyright &copy; 2017, Yuanta Securities (Cambodia) Plc.</footer>
