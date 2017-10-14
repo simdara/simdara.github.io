@@ -18,16 +18,21 @@ function drawCharts() {
 	// Input 1
 	var loanAmount = document.getElementById("loanPrincipal").value/1; // loan principal
 	// Input 2
-	var mIntRate = document.getElementById("monthlyRate").value/100; // monthly interest rate
-	if (mIntRate<0 || mIntRate>.9999) {
-		alert('Monthly interest rate must be positive and less than 100! However, '+numToStr(mIntRate,'percent')+ ' is input!');
+	var IntRate = document.getElementById("IntRate").value/100; // interest rate
+	if (IntRate<0 || IntRate>.9999) {
+		alert('Interest rate must be positive and less than 100! However, '+numToStr(IntRate,'percent')+ ' is input!');
 	} else if (loanAmount>=10000000 || loanAmount<0) {
 		alert('Principal must be positive and below 100,000,000! However, '+numToStr(loanAmount,'decimal')+ ' is input!');
 	} else {
-		// Option Chosen
+		// Option1 Chosen
+		var FreqOption = [1, 12];// monthly, annually
+		var Freqid = document.getElementById("MonOrAnn").selectedIndex;
+		var mIntRate = IntRate/FreqOption[Freqid]; // monthly interest rate
+		// Option2 Chosen
 		var yearOption =[10,15,20];
 		var mYid = document.getElementById("maxYear").selectedIndex;
 		var mYear = yearOption[mYid];
+		//
 		// Create a datatable
 		var DT = new google.visualization.DataTable();
 		DT.addColumn('number', 'Payback Year'); // Year 
@@ -174,7 +179,7 @@ text-align: center !important;
   </head>
   <body>
   <header>
-	Mortgage Loan Calculator
+	Mortgage Loan Calculator Ver 1.0
 </header>
 <h4><i> Last update: October 14, 2017 </i></h4>
 
@@ -185,12 +190,16 @@ text-align: center !important;
 	<form>
 	<fieldset>
 	<legend>Mortgage Loan Info:</legend>
-		Principal Amount (USD):
+		Principal Amount: USD
 		<input type="number" id="loanPrincipal" min="0" max="10000000" step="1000" value="50000" align="right">
 		</br>
 		</br>
-		Monthly Interest Rate:
-		<input type="number" id="monthlyRate" min="0" max="100" step="0.01" value="1"> %
+		Interest Rate:
+		<input type="number" id="IntRate" min="0" max="100" step="0.01" value="8"> % &nbsp;
+		<select id="MonOrAnn">
+		<option value="Monthly">Monthly</option>
+		<option value="Annually" selected>Annually</option>
+		</select>
 		</br>
 		</br>
 		Max Payback Year: 
