@@ -796,6 +796,41 @@ br.clearLeft {
    clear: left;        
 }​
 <!-- **************************** -->
+<!-- *** Site map STYLE *** -->
+#SiteMap {
+	//background-color:rgb(234,242,248);
+	//border-radius: 15px;
+	height:30px;
+}
+
+#SiteLinks {
+	padding: 0px;
+	background-color:rgb(234,242,248);
+	border-radius: 5px;
+	height:30px;
+}
+#SiteLinks ul {
+   margin: 0;
+   padding: 0;    
+}
+#SiteLinks li {
+    float: left;
+    list-style-type: none;
+}
+#SiteLinks li a {
+    padding: 5px 5px;
+    margin: 0 3px 0 0;
+	display:block;
+	text-decoration: none;
+	color:blue;
+	//border-right:1px solid white;
+}
+#SiteLinks li a:hover {
+	text-decoration: bold;
+	background-color:#0000FF;
+	color:white;
+	text-decoration: underline;
+}
 </style>
   </head>
   <body>
@@ -950,6 +985,21 @@ br.clearLeft {
 <div id="DBinfo"> 
 	<h3>Database Info</h3>
 	<p>Database info will be provided later!</p>
+</div>
+
+<!-- *** Site Map *** -->
+<div id="SiteMap">
+	<div id="SiteLinks">
+		<ul>
+			<li><a href="https://simdara.github.io/index">Home</a></li>
+			<li><a href="https://simdara.github.io/BankingDBViewer" >Banking-Database</a></li>
+			<li><a href="https://simdara.github.io/MortgageLoan">Mortgage-Cal</a></li>
+			<li><a href="https://simdara.github.io/PPAP">PPAP</a></li>
+			<li><a href="http://www.yuantacambodia.com/">YSC</a></li>
+
+		</ul>    
+		<br class="clearLeft" />
+	</div>
 </div>
 <footer>Copyright &copy; 2017, Yuanta Securities (Cambodia) Plc.</footer>
   </body>
