@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	
+	 <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      Mortgage Loan Cal
+    </title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {packages: ['corechart','table']});
+	  google.charts.setOnLoadCallback(drawCharts);
+	//
+function drawCharts() {
+	//
+	// Input 1
+	var loanAmount = document.getElementById("loanPrincipal").value/1; // loan principal
+	// Input 2
+	var mIntRate = document.getElementById("monthlyRate").value/100; // monthly interest rate
+	if (mIntRate<0 || mIntRate>.9999) {
+		alert('Monthly interest rate must be positive and less than 100! However, '+numToStr(mIntRate,'percent')+ ' is input!');
+	} else if (loanAmount>=100000000 || loanAmount<0) {
+		alert('Principal must be positive and below 100,000,000! However, '+numToStr(loanAmount,'decimal')+ ' is input!');
+	} else {
+		// Option Chosen
+		var yearOption =[10,15,20];
+		var mYid = document.getElementById("maxYear").selectedIndex;
+		var mYear = yearOption[mYid];
+		// Create a datatable
+		var DT = new google.visualization.DataTable();
+		DT.addColumn('number', 'Payback Year'); // Year 
+		DT.addColumn('number','Monthly Payment'); // monthly payment	
+		DT.addColumn('number','Total Payment (Principal+Interest)');// total payment
+		DT.addColumn('number','Total Interest');// Interest Only
+		DT.addColumn('number','Principal');// Principal
+		//
+		DT.addColumn('string','MPaymentAnnnotations');//
+		DT.addColumn('string','TPaymentAnnnotations');//
+		DT.addColumn('string','YearString');// YearString
+		for (var y = 1; y<mYear+1; y++) {
+			var mPay_y = loanAmount*mIntRate/(1-Math.pow(1+mIntRate,-12*y)); // monthly payment
+			var tPay_y = mPay_y*12*y; // total payment
+			var IntOnly = tPay_y - loanAmount; // Interest only
+			DT.addRow([y, mPay_y, tPay_y, IntOnly, loanAmount,
+						numToStr(mPay_y,'decimal'), numToStr(tPay_y,'decimal'), y.toString()]);
+		}
+		// Draw Charts
+		var chart1 = new google.visualization.ColumnChart(document.getElementById('chart1_div'));
+		var option1 = {
+			height: 320 + (20-mYear)*15,
+			width:'100%',
+			title: 'Monthly payment for different payback year',
+			vAxis: {title: 'Monthly Payment(USD)',gridlines:{count:12}},
+			hAxis: {title: 'Year'},
+			legend: {position:'none'},
+			annotations:{ textStyle:{auraColor: 'white'}},
+		};
+		var table1 = new google.visualization.Table(document.getElementById('table1_div'));
+		var tabOption = {
+			width:'100%',
+		};
+		//
+		numFormatter = new google.visualization.NumberFormat({prefix:'$',fractionDigits:0});
+		numFormatter.format(DT,1);
+		numFormatter.format(DT,2);
+		numFormatter.format(DT,3);
+		numFormatter.format(DT,4);
+		// Data View
+		DTview = new google.visualization.DataView(DT);
+		// Chart1
+		DTview.setColumns([7,1,{sourceColumn:5,role:'annotation'}]);
+		chart1.draw(DTview,option1);
+		// Table 1
+		DTview.setColumns([0,4,1,2,3]);
+		table1.draw(DTview,tabOption);
+		//
+	}
+}
+function alertMessage()
+{
+    alert(document.getElementById('loanPrincipal').value);
+}
+
+function numToStr(num,fo){
+	if (num==null){return null;}
+	if (fo=='decimal') {
+		return '$'+num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");;
+	} else {
+		return (num*100).toFixed(2)+'%';
+	}
+} 
+	</script>
+<style>
+html {
+	display: table;
+	margin: auto;
+}
+
+body {
+	display: table-cell;
+	font-family: Georgia;
+	width:900px;
+	padding:10px;
+}
+#filterLicense_div{
+	width:100%;
+	padding:3px;
+}
+#filterName_div{
+	width:100%;
+	padding:3px;
+}
+#filterYear_div{
+	width:100%;
+	padding:3px;
+}
+
+#dashboard{
+	background-color:rgb(234,242,248);
+	padding-left:20px;
+	border-radius: 15px;
+}
+
+footer {background-color:rgba(23,32,42,0.5);
+		color:white;
+		font-size:14px;
+		margin-top:10px;
+		padding:1px;
+		text-align:center;
+}
+header {text-align: left;
+		//background-color:#F5EEF8;
+		border-radius: 5px;
+		color:#273746;
+		margin-bottom:10px;
+		padding-left:2px;
+		padding-bottom:10px;
+		padding-top:10px;
+		font-size:25px;
+		font-weight:bold;
+}
+h3{
+	//background-color:#F4F6F6;
+	border-radius: 2px;
+	//color:#2E86C1;
+	color:#8E44AD;
+}
+#Setting{
+	//background-color:rgb(212,230,241);
+	//color:#4A235A;
+	border-radius: 2px;
+	padding:3px;
+	//font-weight:bold;
+}
+option{
+	padding:5px 0;
+}
+#chart1_div{
+	display:block;
+	margin:0 auto !important;
+}
+
+select{
+	font-family: Georgia;
+	font-size:100%;
+}
+.google-visualization-table-td {
+text-align: center !important;
+}
+</style>
+  </head>
+  <body>
+  <header>
+	Mortgage Loan Calculator
+</header>
+<h4><i> Last update: October 14, 2017 </i></h4>
+
+<h3>What is the fixed <em> monthly payment</em> for a given loan, monthly interest rate and number of year of payback? </h3>
+<!-- Input part -->
+<div id="Inputs"> 
+	<!-- -->
+	<form>
+	<fieldset>
+	<legend>Mortgage Loan Info:</legend>
+		Principal Amount (USD):
+		<input type="number" id="loanPrincipal" min="0" maxlength="8" step="1000" value="50000" align="right">
+		</br>
+		</br>
+		Monthly Interest Rate:
+		<input type="number" id="monthlyRate" min="0" max="100" step="0.01" value="1"> %
+		</br>
+		</br>
+		Max Payback Year: 
+		<select id="maxYear" onchange="drawCharts()">
+			<option value="10" selected>10</option>
+			<option value="15">15</option>
+			<option value="20">20</option>
+		</select> &nbsp; years
+		</br>
+	</fieldset>
+	</form>
+</div>
+</br>
+<div id="Cal">
+<button type="button" onclick="drawCharts()" id="btn">Calculate</button>
+</div>
+<!-- Result Part---->
+<div id="chart1">
+	<p> Monthly Payments </p>
+	<div id="chart1_div"> </div>
+</div>
+</br>
+</br>
+<div id="table1">
+	<div id="table1_div"> </div>
+</div>
+
+
+<footer>Copyright &copy; 2017, Yuanta Securities (Cambodia) Plc.</footer>
+</body>
+</html>
