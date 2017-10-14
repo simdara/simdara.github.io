@@ -21,7 +21,7 @@ function drawCharts() {
 	var mIntRate = document.getElementById("monthlyRate").value/100; // monthly interest rate
 	if (mIntRate<0 || mIntRate>.9999) {
 		alert('Monthly interest rate must be positive and less than 100! However, '+numToStr(mIntRate,'percent')+ ' is input!');
-	} else if (loanAmount>=100000000 || loanAmount<0) {
+	} else if (loanAmount>=10000000 || loanAmount<0) {
 		alert('Principal must be positive and below 100,000,000! However, '+numToStr(loanAmount,'decimal')+ ' is input!');
 	} else {
 		// Option Chosen
@@ -185,7 +185,7 @@ text-align: center !important;
 	<fieldset>
 	<legend>Mortgage Loan Info:</legend>
 		Principal Amount (USD):
-		<input type="number" id="loanPrincipal" min="0" maxlength="8" step="1000" value="50000" align="right">
+		<input type="number" id="loanPrincipal" min="0" max="10000000" step="1000" value="50000" align="right">
 		</br>
 		</br>
 		Monthly Interest Rate:
