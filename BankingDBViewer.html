@@ -7,7 +7,7 @@
 	 <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>
-      Cambodian Banking Database Viewer Ver. 1.2
+      Cambodian Banking Database Viewer Ver. 1.3
     </title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
@@ -44,6 +44,8 @@ function handleQueryResponse(response) {
     }
 
     data = response.getDataTable();
+    // Get database information
+    document.getElementById("dbInfo").innerHTML = getDatabaseInfo(data);
 	// Filter for License
     var filterLicense = new google.visualization.ControlWrapper({ 
         containerId: 'filterLicense_div',
@@ -634,6 +636,27 @@ function redrawChart8(){
 	dataView.setColumns(colToShow);
 	chart8.draw(dataView,option8);
 }
+// Get Database info
+function getDatabaseInfo(datatable){
+	var nMDIArr =[]; // number of MDIs for each year
+	var nMFIArr=[]; // number of MFIs for each year
+	var nCommArr=[]; // number of commercial banks for each year
+	var nSpecialArr=[]; // number of specialized banks for year
+	nMDIArr.length=0;
+	nMFIArr.length=0;
+	nCommArr.length=0;
+	nSpecialArr.length=0;
+	var allYearArr = datatable.getDistinctValues(2); // All year array
+	for (y=0; y<allYearArr.length;y++){
+		nMDIArr.push(datatable.getFilteredRows([{column: 2, value: allYearArr[y]},{column: 1, value: "MDI"}]).length);
+		nMFIArr.push(datatable.getFilteredRows([{column: 2, value: allYearArr[y]},{column: 1, value: "MFI"}]).length);
+		nCommArr.push(datatable.getFilteredRows([{column: 2, value: allYearArr[y]},{column: 1, value: "Commercial"}]).length);
+		nSpecialArr.push(datatable.getFilteredRows([{column: 2, value: allYearArr[y]},{column: 1, value: "Specialized"}]).length);
+	}
+	return "# MDIs: "+Math.max.apply(Math,nMDIArr)+ "; # MFIs: " + Math.max.apply(Math,nMFIArr) +
+			 " ; # Specialized Banks: " + Math.max.apply(Math,nSpecialArr)+ "; # Commercial Banks: "+ Math.max.apply(Math,nCommArr);
+}
+	//
 function numToStr(num,fo){
 	if (num==null){return null;}
 	if (fo=='decimal') {
@@ -835,9 +858,14 @@ br.clearLeft {
   </head>
   <body>
   <header>
-	Cambodian Banks & MFIs Database Viewer Ver. 1.2
+	Cambodian Banks & MFIs Database Viewer Ver. 1.3
 </header>
 <h4><i> Last update: October 11, 2017 </i></h4>
+<!-- About Database -->
+<div> 
+	<h3>Database Info</h3>
+	<p id="dbInfo"></p>
+</div>
 
 <h3 id="Setting">Choose License and/or Institutions</h3>
  <div id="dashboard">
@@ -981,11 +1009,7 @@ br.clearLeft {
 	</br>
 	<div align="right"><button type="button" onclick="redrawChart8()" id="btn"></button></div>
 </div>
-<!-- About Database -->
-<div id="DBinfo"> 
-	<h3>Database Info</h3>
-	<p>Database info will be provided later!</p>
-</div>
+
 
 <!-- *** Site Map *** -->
 <div id="SiteMap">
