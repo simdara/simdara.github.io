@@ -653,7 +653,7 @@ function getDatabaseInfo(datatable){
 		nCommArr.push(datatable.getFilteredRows([{column: 2, value: allYearArr[y]},{column: 1, value: "Commercial"}]).length);
 		nSpecialArr.push(datatable.getFilteredRows([{column: 2, value: allYearArr[y]},{column: 1, value: "Specialized"}]).length);
 	}
-	return "# MDIs: "+Math.max.apply(Math,nMDIArr)-1+ "; # MFIs: " + Math.max.apply(Math,nMFIArr)-1 +
+	return "# MDIs: "+Math.max.apply(Math,nMDIArr)+ "; # MFIs: " + Math.max.apply(Math,nMFIArr) +
 			 " ; # Specialized Banks: " + Math.max.apply(Math,nSpecialArr)+ "; # Commercial Banks: "+ Math.max.apply(Math,nCommArr);
 }
 	//
