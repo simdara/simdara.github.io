@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -7,7 +6,7 @@
 	 <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>
-      Cambodian Banking Database Viewer Ver. 1.3
+      Cambodian Banking Database Viewer Ver. 1.4
     </title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
@@ -23,9 +22,9 @@
 	var ColHeader;
 	var perFormatter;
 	// Global variables for Chart8
-	var data_ch
-	var colToShow
-	var isLess
+	var data_ch;
+	var colToShow;
+	var isLess;
 	var xID = [44,29,48]; //Loan Size, PortYield, OperatingExp/GLP
 	var yID = [29,48,32,33]; // PortYield, OperatingExp/GLP, ROE, ROIC
 	var format_hAxis = ['decimal','percent','percent'];
@@ -36,13 +35,11 @@ function drawCharts() {
 	//
     query.send(handleQueryResponse);
 }
-
 function handleQueryResponse(response) {
     if (response.isError()) {
         alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
         return;
     }
-
     data = response.getDataTable();
     // Get database information
     document.getElementById("dbInfo").innerHTML = getDatabaseInfo(data);
@@ -88,7 +85,6 @@ function handleQueryResponse(response) {
         },
 		//state: {'lowValue':2011}
 	});
-
 	// Creat a table
 	table = new google.visualization.ChartWrapper({
 		containerId:'table_div',
@@ -105,11 +101,8 @@ function handleQueryResponse(response) {
 	dashboard.bind([filterName],[filterYear]);
 	dashboard.bind([filterLicense,filterName,filterYear], [table]);
     dashboard.draw(data);
-
 }
-
 google.charts.load('current', {packages:['controls','corechart'], callback: drawCharts});
-
 function reDrawCharts(){
 	// Get filtered datatable from ChartWraper
 	filteredDT = table.getDataTable();
@@ -125,6 +118,7 @@ function reDrawCharts(){
 	// Selected option for BSIS Items
 	var BSISitem_SelectedID = document.getElementById("BSISitem").selectedIndex;
 	var BSISitem_SelectedText = document.getElementById("BSISitem").options[BSISitem_SelectedID].text;
+
 	// Selected option for Profitability Ratios
 	var Profit_SelectedID = document.getElementById("ProfitabilityRatios").selectedIndex;
 	var Profit_SelectedText = document.getElementById("ProfitabilityRatios").options[Profit_SelectedID].text; 
@@ -195,6 +189,31 @@ function reDrawCharts(){
 		perFormatter.format(DTforChart6,i);
 		perFormatter.format(DTforChart7,i);
 	};
+	// Data for Chart2_2
+	constrCAGRYearOptions();
+	// Selected option for CAGR
+	// --- Start ---
+	var CAGR_SelStartID = document.getElementById("CAGR_StartY").selectedIndex;
+	var CAGR_SelStartVal = YearArr[CAGR_SelStartID];
+	// --- End ---
+	var CAGR_SelEndID = document.getElementById("CAGR_EndY").selectedIndex;
+	var CAGR_SelEndVal = YearArr[CAGR_SelEndID];
+	var dataforChart2_2 = [];
+	dataforChart2_2.unshift(['Name', 'CAGR']); 
+	var CAGR;
+	for (var j=0; j<NameArr.length;j++) {
+		//
+		var rIndx_S = filteredDT.getFilteredRows([{column:0,value: NameArr[j]},{column:2,value: CAGR_SelStartVal}]);
+		var rIndx_E = filteredDT.getFilteredRows([{column:0,value: NameArr[j]},{column:2,value: CAGR_SelEndVal}]);
+		if (rIndx_S==null || rIndx_E==null) {CAGR = null} else {
+			var BSItemVal_S = filteredDT.getValue(rIndx_S[0],BSISitem_SelectedID+3);
+			var BSItemVal_E = filteredDT.getValue(rIndx_E[0],BSISitem_SelectedID+3);
+			if (BSItemVal_S<=0) {CAGR = null} else {CAGR = Math.pow(BSItemVal_E/BSItemVal_S,1.0/(CAGR_SelEndVal-CAGR_SelStartVal))-1.0}
+		}
+		dataforChart2_2[j+1] = [NameArr[j], CAGR];
+	}
+	var DTforChart2_2 = new google.visualization.arrayToDataTable(dataforChart2_2);
+	perFormatter.format(DTforChart2_2,1);
 	// Draw Charts
 	var chart1 = new google.visualization.ChartWrapper({
 	containerId: 'chart1_div',
@@ -213,6 +232,18 @@ function reDrawCharts(){
 	options: {
 		title:BSISitem_SelectedText+' (% Change YoY)',
 		vAxis:{format:'percent'},
+		//legend: {position: 'bottom'},
+	}
+	});
+	var chart2_2 = new google.visualization.ChartWrapper({
+	containerId: 'chart2_2_div',
+	chartType: 'BarChart',
+	dataTable: DTforChart2_2,
+	options: {
+		title:BSISitem_SelectedText+' ( CAGR ' + CAGR_SelStartVal.toString() + '-' + CAGR_SelEndVal.toString() + " )",
+		hAxis:{format:'percent',
+				viewWindow:{min:0}
+			},
 		//legend: {position: 'bottom'},
 	}
 	});
@@ -242,6 +273,7 @@ function reDrawCharts(){
 	});
 	chart1.draw();
 	chart2.draw();
+	chart2_2.draw();
 	chart3.draw();
 	chart4.draw();
 	// 4. Breakdown Portfolio Yield
@@ -333,6 +365,48 @@ function reDrawChart12(){
 	});
 	chart1.draw();
 	chart2.draw();
+	reDrawChart2_2();
+}
+function reDrawChart2_2() {
+	//
+	var BSISitem_SelectedID = document.getElementById("BSISitem").selectedIndex;
+	var BSISitem_SelectedText = document.getElementById("BSISitem").options[BSISitem_SelectedID].text;
+	// Selected option for CAGR
+	// --- Start ---
+	var CAGR_SelStartID = document.getElementById("CAGR_StartY").selectedIndex;
+	var CAGR_SelStartVal = YearArr[CAGR_SelStartID];
+	// --- End ---
+	var CAGR_SelEndID = document.getElementById("CAGR_EndY").selectedIndex;
+	var CAGR_SelEndVal = YearArr[CAGR_SelEndID];
+	var dataforChart2_2 = [];
+	dataforChart2_2.unshift(['Name', 'CAGR']); 
+	var CAGR;
+	for (var j=0; j<NameArr.length;j++) {
+		//
+		var rIndx_S = filteredDT.getFilteredRows([{column:0,value: NameArr[j]},{column:2,value: CAGR_SelStartVal}]);
+		var rIndx_E = filteredDT.getFilteredRows([{column:0,value: NameArr[j]},{column:2,value: CAGR_SelEndVal}]);
+		if (rIndx_S==null || rIndx_E==null) {CAGR = null} else {
+			var BSItemVal_S = filteredDT.getValue(rIndx_S[0],BSISitem_SelectedID+3);
+			var BSItemVal_E = filteredDT.getValue(rIndx_E[0],BSISitem_SelectedID+3);
+			if (BSItemVal_S<=0) {CAGR = null} else {CAGR = Math.pow(BSItemVal_E/BSItemVal_S,1.0/(CAGR_SelEndVal-CAGR_SelStartVal))-1.0}
+		}
+		dataforChart2_2[j+1] = [NameArr[j], CAGR];
+	}
+	var DTforChart2_2 = new google.visualization.arrayToDataTable(dataforChart2_2);
+	perFormatter.format(DTforChart2_2,1);
+	var chart2_2 = new google.visualization.ChartWrapper({
+	containerId: 'chart2_2_div',
+	chartType: 'BarChart',
+	dataTable: DTforChart2_2,
+	options: {
+		title:BSISitem_SelectedText+' ( CAGR ' + CAGR_SelStartVal.toString() + '-' + CAGR_SelEndVal.toString() + " )",
+		hAxis:{format:'percent',
+				viewWindow:{min:0}
+			},
+		//legend: {position: 'bottom'},
+	}
+	});
+	chart2_2.draw();
 }
 function reDrawChart3(){
 	// Selected option for Profitability Ratios
@@ -410,8 +484,21 @@ function reDrawChart4(){
 	});
 	chart4.draw();
 }
+function constrCAGRYearOptions(){
+	var YearOptionS = document.forms[1].CAGR_StartY;
+	var YearOptionE	= document.forms[1].CAGR_EndY;
+	YearOptionS.length=0;
+	YearOptionE.length=0;
+	for (var y=0;y<YearArr.length;y++) {
+		YearOptionS[y]= new Option(YearArr[y],YearArr[y],false,false);
+		YearOptionE[y]= new Option(YearArr[y],YearArr[y],false,false);
+	}
+	YearOptionS[YearArr.length-1] = new Option(YearArr[YearArr.length-1],YearArr[YearArr.length-1],false,false);
+	YearOptionS[0] = new Option(YearArr[0],YearArr[0],false,true);
+	YearOptionE[YearArr.length-1] = new Option(YearArr[YearArr.length-1],YearArr[YearArr.length-1],false,true);
+}
 function constrYearOptions(){
-	var YearOption = document.forms[3].PortYield;
+	var YearOption = document.forms[4].PortYield;
 	YearOption.length=0;
 	for (var y=0;y<YearArr.length;y++) {
 		YearOption[y]= new Option(YearArr[y],YearArr[y],false,false);
@@ -672,7 +759,6 @@ $(window).load(function(){
 *************** THIS IS THE NAVIGATION CODE ****************
 ************************************************************
 **/
-
 $(function() {
     // Stick the #nav to the top of the window
     var nav = $('#nav');
@@ -700,7 +786,6 @@ $(function() {
         }
     });
 });
-
 });   
 	</script>
 <style>
@@ -708,7 +793,6 @@ html {
 	display: table;
 	margin: auto;
 }
-
 body {
 	display: table-cell;
 	font-family: Georgia;
@@ -727,13 +811,11 @@ body {
 	width:100%;
 	padding:3px;
 }
-
 #dashboard{
 	background-color:rgb(234,242,248);
 	padding-left:20px;
 	border-radius: 15px;
 }
-
 footer {background-color:rgba(23,32,42,0.5);
 		color:white;
 		font-size:14px;
@@ -759,7 +841,6 @@ h3{
 	color:#8E44AD;
 	padding:4px;
 	font-weight:bold;
-
 }
 #Setting{
 	//background-color:rgb(212,230,241);
@@ -825,7 +906,6 @@ br.clearLeft {
 	//border-radius: 15px;
 	height:30px;
 }
-
 #SiteLinks {
 	padding: 0px;
 	background-color:rgb(234,242,248);
@@ -858,7 +938,7 @@ br.clearLeft {
   </head>
   <body>
   <header>
-	Cambodian Banks & MFIs Database Viewer Ver. 1.3
+	Cambodian Banks & MFIs Database Viewer Ver. 1.4
 </header>
 <h4><i> Last update: January 10, 2018 </i></h4>
 <!-- About Database -->
@@ -916,6 +996,18 @@ br.clearLeft {
 	<!-- <div id="table2_div"></div> -->
 	<div id="chart1_div"></div>
 	<div id="chart2_div"></div>
+	<h4>Compounded Annual Growth Rate (CAGR)</h4>
+		<form>
+		Start:
+		<select id="CAGR_StartY" onchange="reDrawChart2_2()">
+			<option>2012</option>
+			</select>
+		End:
+		<select id="CAGR_EndY" onchange="reDrawChart2_2()">
+			<option>2016</option>
+			</select>
+	</form>
+	<div id="chart2_2_div"></div>
 </div>
 <!-- Profitability -->
 <div id="Profitability"> 
