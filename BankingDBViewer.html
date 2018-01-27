@@ -83,7 +83,7 @@ function handleQueryResponse(response) {
 				'format': {'pattern':'####'}
             },
         },
-		//state: {'lowValue':2011}
+		state: {'lowValue':2011}
 	});
 	// Creat a table
 	table = new google.visualization.ChartWrapper({
@@ -205,7 +205,7 @@ function reDrawCharts(){
 		//
 		var rIndx_S = filteredDT.getFilteredRows([{column:0,value: NameArr[j]},{column:2,value: CAGR_SelStartVal}]);
 		var rIndx_E = filteredDT.getFilteredRows([{column:0,value: NameArr[j]},{column:2,value: CAGR_SelEndVal}]);
-		if (rIndx_S==null || rIndx_E==null) {CAGR = null} else {
+		if (rIndx_S[0]==null || rIndx_E[0]==null) {CAGR = null} else {
 			var BSItemVal_S = filteredDT.getValue(rIndx_S[0],BSISitem_SelectedID+3);
 			var BSItemVal_E = filteredDT.getValue(rIndx_E[0],BSISitem_SelectedID+3);
 			if (BSItemVal_S<=0) {CAGR = null} else {CAGR = Math.pow(BSItemVal_E/BSItemVal_S,1.0/(CAGR_SelEndVal-CAGR_SelStartVal))-1.0}
@@ -276,6 +276,8 @@ function reDrawCharts(){
 	chart2_2.draw();
 	chart3.draw();
 	chart4.draw();
+	//
+	//
 	// 4. Breakdown Portfolio Yield
 	constrYearOptions();
 	reDrawChart5();
@@ -385,7 +387,7 @@ function reDrawChart2_2() {
 		//
 		var rIndx_S = filteredDT.getFilteredRows([{column:0,value: NameArr[j]},{column:2,value: CAGR_SelStartVal}]);
 		var rIndx_E = filteredDT.getFilteredRows([{column:0,value: NameArr[j]},{column:2,value: CAGR_SelEndVal}]);
-		if (rIndx_S==null || rIndx_E==null) {CAGR = null} else {
+		if (rIndx_S[0]==null || rIndx_E[0]==null) {CAGR = null} else {
 			var BSItemVal_S = filteredDT.getValue(rIndx_S[0],BSISitem_SelectedID+3);
 			var BSItemVal_E = filteredDT.getValue(rIndx_E[0],BSISitem_SelectedID+3);
 			if (BSItemVal_S<=0) {CAGR = null} else {CAGR = Math.pow(BSItemVal_E/BSItemVal_S,1.0/(CAGR_SelEndVal-CAGR_SelStartVal))-1.0}
@@ -407,6 +409,16 @@ function reDrawChart2_2() {
 	}
 	});
 	chart2_2.draw();
+	//
+	var table2_2 = new google.visualization.ChartWrapper({
+		containerId: 'table2_2_div',
+		chartType: 'Table',
+		dataTable: DTforChart2_2,
+		options: {
+			width:'100%',
+		}
+	});
+	table2_2.draw();
 }
 function reDrawChart3(){
 	// Selected option for Profitability Ratios
@@ -444,6 +456,16 @@ function reDrawChart3(){
 	}
 	});
 	chart3.draw();
+	//
+	var table3 = new google.visualization.ChartWrapper({
+		containerId: 'table3_div',
+		chartType: 'Table',
+		dataTable: DTforChart3,
+		options: {
+			width:'100%',
+		}
+	});
+	table3.draw();
 }
 function reDrawChart4(){
 	// Selected option for Profitability Ratios
@@ -595,6 +617,16 @@ function reDrawChart6(){
 	}
 	});
 	chart6.draw();
+	//
+	var table6 = new google.visualization.ChartWrapper({
+		containerId: 'table6_div',
+		chartType: 'Table',
+		dataTable: DTforChart6,
+		options: {
+			width:'100%',
+		}
+	});
+	table6.draw();
 }
 function reDrawChart7(){
 	// Selected option for Leverage Ratios
@@ -722,6 +754,8 @@ function redrawChart8(){
 	dataView = new google.visualization.DataView(data_ch);
 	dataView.setColumns(colToShow);
 	chart8.draw(dataView,option8);
+	//
+
 }
 // Get Database info
 function getDatabaseInfo(datatable){
@@ -940,7 +974,8 @@ br.clearLeft {
   <header>
 	Cambodian Banks & MFIs Database Viewer Ver. 1.4
 </header>
-<h4><i> Last update: January 10, 2018 </i></h4>
+<h4><i> Last update: January 27, 2018 </i></h4>
+<p id="demo"></p>
 <!-- About Database -->
 <div> 
 	<h3>Database Info</h3>
@@ -1008,6 +1043,7 @@ br.clearLeft {
 			</select>
 	</form>
 	<div id="chart2_2_div"></div>
+	<div id="table2_2_div"></div>
 </div>
 <!-- Profitability -->
 <div id="Profitability"> 
@@ -1023,6 +1059,7 @@ br.clearLeft {
 		</select>
 	</form>
 	<div id="chart3_div"></div>
+	<div id="table3_div"></div>
 </div>
 <!-- Default Risk -->
 <div id="DefaultRisk"> 
@@ -1065,6 +1102,7 @@ br.clearLeft {
 			</select>
 	</form>
 	<div id="chart6_div"></div>
+	<div id="table6_div"></div>
 </div>
 <!-- Leverage -->
 <div id="Leverage"> 
@@ -1100,6 +1138,7 @@ br.clearLeft {
 	<div id="chart8_div"></div>
 	</br>
 	<div align="right"><button type="button" onclick="redrawChart8()" id="btn"></button></div>
+	
 </div>
 
 
