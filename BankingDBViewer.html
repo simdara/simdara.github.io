@@ -199,7 +199,7 @@ function reDrawCharts(){
 	var CAGR_SelEndID = document.getElementById("CAGR_EndY").selectedIndex;
 	var CAGR_SelEndVal = YearArr[CAGR_SelEndID];
 	var dataforChart2_2 = [];
-	dataforChart2_2.unshift(['Name', 'CAGR']); 
+	dataforChart2_2.unshift(['Name', BSISitem_SelectedText+' ( CAGR ' + CAGR_SelStartVal.toString() + '-' + CAGR_SelEndVal.toString() + " )"]); 
 	var CAGR;
 	for (var j=0; j<NameArr.length;j++) {
 		//
@@ -244,7 +244,7 @@ function reDrawCharts(){
 		hAxis:{format:'percent',
 				viewWindow:{min:0}
 			},
-		//legend: {position: 'bottom'},
+		legend: {position: 'none'},
 	}
 	});
 	var chart3 = new google.visualization.ChartWrapper({
@@ -278,6 +278,56 @@ function reDrawCharts(){
 	chart4.draw();
 	//
 	//
+	var table1 = new google.visualization.ChartWrapper({
+		containerId: 'table1_div',
+		chartType: 'Table',
+		dataTable: DTforChart1,
+		options: {
+			width:'100%',
+		}
+	});
+	table1.draw();
+	//
+	var table2 = new google.visualization.ChartWrapper({
+		containerId: 'table2_div',
+		chartType: 'Table',
+		dataTable: DTforChart2,
+		options: {
+			width:'100%',
+		}
+	});
+	table2.draw();
+	//
+	var table2_2 = new google.visualization.ChartWrapper({
+		containerId: 'table2_2_div',
+		chartType: 'Table',
+		dataTable: DTforChart2_2,
+		options: {
+			width:'100%',
+		}
+	});
+	table2_2.draw();
+	//
+	//
+	var table3 = new google.visualization.ChartWrapper({
+		containerId: 'table3_div',
+		chartType: 'Table',
+		dataTable: DTforChart3,
+		options: {
+			width:'100%',
+		}
+	});
+	table3.draw();
+	//
+	var table4 = new google.visualization.ChartWrapper({
+		containerId: 'table4_div',
+		chartType: 'Table',
+		dataTable: DTforChart4,
+		options: {
+			width:'100%',
+		}
+	});
+	table4.draw();
 	// 4. Breakdown Portfolio Yield
 	constrYearOptions();
 	reDrawChart5();
@@ -296,6 +346,16 @@ function reDrawCharts(){
 	}
 	});
 	chart6.draw();
+	//
+	var table6 = new google.visualization.ChartWrapper({
+		containerId: 'table6_div',
+		chartType: 'Table',
+		dataTable: DTforChart6,
+		options: {
+			width:'100%',
+		}
+	});
+	table6.draw();
 	// 6. Leverage
 	var chart7 = new google.visualization.ChartWrapper({
 	containerId: 'chart7_div',
@@ -311,6 +371,16 @@ function reDrawCharts(){
 	}
 	});
 	chart7.draw();
+	//
+	var table7 = new google.visualization.ChartWrapper({
+		containerId: 'table7_div',
+		chartType: 'Table',
+		dataTable: DTforChart7,
+		options: {
+			width:'100%',
+		}
+	});
+	table7.draw();
 	// 7. Scatter Chart
 	drawChart8();
 }
@@ -368,6 +438,26 @@ function reDrawChart12(){
 	chart1.draw();
 	chart2.draw();
 	reDrawChart2_2();
+		//
+	var table1 = new google.visualization.ChartWrapper({
+		containerId: 'table1_div',
+		chartType: 'Table',
+		dataTable: DTforChart1,
+		options: {
+			width:'100%',
+		}
+	});
+	table1.draw();
+	//
+	var table2 = new google.visualization.ChartWrapper({
+		containerId: 'table2_div',
+		chartType: 'Table',
+		dataTable: DTforChart2,
+		options: {
+			width:'100%',
+		}
+	});
+	table2.draw();
 }
 function reDrawChart2_2() {
 	//
@@ -381,7 +471,7 @@ function reDrawChart2_2() {
 	var CAGR_SelEndID = document.getElementById("CAGR_EndY").selectedIndex;
 	var CAGR_SelEndVal = YearArr[CAGR_SelEndID];
 	var dataforChart2_2 = [];
-	dataforChart2_2.unshift(['Name', 'CAGR']); 
+	dataforChart2_2.unshift(['Name', BSISitem_SelectedText+' ( CAGR ' + CAGR_SelStartVal.toString() + '-' + CAGR_SelEndVal.toString() + " )"]); 
 	var CAGR;
 	for (var j=0; j<NameArr.length;j++) {
 		//
@@ -405,7 +495,7 @@ function reDrawChart2_2() {
 		hAxis:{format:'percent',
 				viewWindow:{min:0}
 			},
-		//legend: {position: 'bottom'},
+		legend: {position: 'none'},
 	}
 	});
 	chart2_2.draw();
@@ -468,7 +558,7 @@ function reDrawChart3(){
 	table3.draw();
 }
 function reDrawChart4(){
-	// Selected option for Profitability Ratios
+	// Selected option for Portfolio Quality
 	var Default_SelectedID = document.getElementById("DefaultRatios").selectedIndex;
 	var Default_SelectedText = document.getElementById("DefaultRatios").options[Default_SelectedID].text; 
 	// Define Data Array for Chart
@@ -505,6 +595,16 @@ function reDrawChart4(){
 	}
 	});
 	chart4.draw();
+	//
+	var table4 = new google.visualization.ChartWrapper({
+		containerId: 'table4_div',
+		chartType: 'Table',
+		dataTable: DTforChart4,
+		options: {
+			width:'100%',
+		}
+	});
+	table4.draw();
 }
 function constrCAGRYearOptions(){
 	var YearOptionS = document.forms[1].CAGR_StartY;
@@ -527,6 +627,17 @@ function constrYearOptions(){
 	}
 	YearOption[YearArr.length-1] = new Option(YearArr[YearArr.length-1],YearArr[YearArr.length-1],false,true);
 }
+//
+function showTable(btnId,tableId){
+	if (document.getElementById(btnId).value=="Show Data") {
+		document.getElementById(tableId).style.display="inline";
+		document.getElementById(btnId).value="Hide Data";
+		} else {
+		document.getElementById(tableId).style.display="none";
+		document.getElementById(btnId).value="Show Data";
+	}
+}
+//
 function reDrawChart5(){
 	// Selected option for Breakdown of Portfolio Yield
 	var PYield_SelectedID = document.getElementById("PortYield").selectedIndex;
@@ -569,15 +680,15 @@ function reDrawChart5(){
 		});
 	}
 	chart5.draw();
-	var table2 = new google.visualization.ChartWrapper({
-		containerId: 'table2_div',
+	var table5 = new google.visualization.ChartWrapper({
+		containerId: 'table5_div',
 		chartType: 'Table',
 		dataTable: view5,
 		options: {
 			width:'100%',
 		}
 	});
-	table2.draw();
+	table5.draw();
 }
 function reDrawChart6(){
 	// Selected option for Funding Cost Ratios
@@ -666,6 +777,16 @@ function reDrawChart7(){
 	}
 	});
 	chart7.draw();
+		//
+	var table7 = new google.visualization.ChartWrapper({
+		containerId: 'table7_div',
+		chartType: 'Table',
+		dataTable: DTforChart7,
+		options: {
+			width:'100%',
+		}
+	});
+	table7.draw();
 }
 function drawChart8() {
 	//
@@ -1029,8 +1150,14 @@ br.clearLeft {
 		</select>
 	</form>
 	<!-- <div id="table2_div"></div> -->
+	<!-- Chart1 Table1-->
 	<div id="chart1_div"></div>
+	<input id="btn1" type="button" value="Show Data" onclick="showTable('btn1','table1_div')"/>
+	<div id="table1_div" style="display:none;"></div>
+	<!-- Chart2 Table2-->
 	<div id="chart2_div"></div>
+	<input id="btn2" type="button" value="Show Data" onclick="showTable('btn2','table2_div')"/>
+	<div id="table2_div" style="display:none;"></div>
 	<h4>Compounded Annual Growth Rate (CAGR)</h4>
 		<form>
 		Start:
@@ -1043,7 +1170,8 @@ br.clearLeft {
 			</select>
 	</form>
 	<div id="chart2_2_div"></div>
-	<div id="table2_2_div"></div>
+	<input id="btn2_2" type="button" value="Show Data" onclick="showTable('btn2_2','table2_2_div')"/>
+	<div id="table2_2_div" style="display:none;"></div>
 </div>
 <!-- Profitability -->
 <div id="Profitability"> 
@@ -1059,7 +1187,8 @@ br.clearLeft {
 		</select>
 	</form>
 	<div id="chart3_div"></div>
-	<div id="table3_div"></div>
+	<input id="btn3" type="button" value="Show Data" onclick="showTable('btn3','table3_div')"/>
+	<div id="table3_div" style="display:none;"></div>
 </div>
 <!-- Default Risk -->
 <div id="DefaultRisk"> 
@@ -1076,6 +1205,8 @@ br.clearLeft {
 			</select>
 	</form>
 	<div id="chart4_div"></div>
+	<input id="btn4" type="button" value="Show Data" onclick="showTable('btn4','table4_div')"/>
+	<div id="table4_div" style="display:none;"></div>
 </div>
 <!-- Breakdown Portfolio Yield -->
 <div id="BreakdownPortYield"> 
@@ -1087,7 +1218,8 @@ br.clearLeft {
 			</select>
 	</form>
 	<div id="chart5_div"></div>
-	<div id="table2_div"></div>
+	<input id="btn5" type="button" value="Show Data" onclick="showTable('btn5','table5_div')"/>
+	<div id="table5_div" style="display:none;"></div>
 	</br>
 </div>
 <!-- Funding Cost -->
@@ -1102,7 +1234,8 @@ br.clearLeft {
 			</select>
 	</form>
 	<div id="chart6_div"></div>
-	<div id="table6_div"></div>
+	<input id="btn6" type="button" value="Show Data" onclick="showTable('btn6','table6_div')"/>
+	<div id="table6_div" style="display:none;"></div>
 </div>
 <!-- Leverage -->
 <div id="Leverage"> 
@@ -1115,6 +1248,8 @@ br.clearLeft {
 			</select>
 	</form>
 	<div id="chart7_div"></div>
+	<input id="btn7" type="button" value="Show Data" onclick="showTable('btn7','table7_div')"/>
+	<div id="table7_div" style="display:none;"></div>
 </div>
 <!-- Loan Size -->
 <div id="ScatterChart"> 
