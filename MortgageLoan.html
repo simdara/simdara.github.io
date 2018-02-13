@@ -13,10 +13,11 @@
       google.charts.load('current', {packages: ['corechart','table']});
 	  google.charts.setOnLoadCallback(drawCharts);
 	//
+
 function drawCharts() {
 	//
 	// Input 1
-	var loanAmount = document.getElementById("loanPrincipal").value/1; // loan principal
+	var loanAmount = document.getElementById("loanPrincipal").value/1.0; // loan principal
 	// Input 2
 	var IntRate = document.getElementById("IntRate").value/100; // interest rate
 	if (IntRate<0 || IntRate>.9999) {
@@ -82,13 +83,135 @@ function drawCharts() {
 		// Chart1
 		DTview.setColumns([7,1,{sourceColumn:5,role:'annotation'}]);
 		chart1.draw(DTview,option1);
+		// Part 2
+		constrPaybackYearOptions();
+		constrPaidYearOptions();
 	}
+}
+function drawTable2(){
+	// Draw table2 for prepayment case
+	// Input 1
+	var loanAmount = document.getElementById("loanPrincipal").value/1.0; // loan principal
+	// Input 2
+	var IntRate = document.getElementById("IntRate").value/100; // interest rate
+	var FreqOption = [1, 12];// monthly, annually
+	var Freqid = document.getElementById("MonOrAnn").selectedIndex;
+	var mIntRate = IntRate/FreqOption[Freqid]; // monthly interest rate
+	// Inputs
+	var selectedPaybackYear = document.getElementById("FixedPaybackYear").value;
+	var selectedPaidYear	= document.getElementById("PaidYear").value;
+	var Penalty	= document.getElementById("PrepaymentPenalty").value;
+		//
+	if (Penalty >loanAmount) {
+		alert('Prepayment Penalty is bigger than loan amount!');
+	} 
+	// MOnthly payment for the selectedPaybackYear
+	var mPay = loanAmount*mIntRate/(1-Math.pow(1+mIntRate,-12*selectedPaybackYear)); // monthly payment
+	document.getElementById("pre_mp").innerHTML = "Monthly Payment is "+ numToStr(mPay,"decimal") + ".";
+	//
+	// Create a datatable
+	var DT2 = new google.visualization.DataTable();
+	DT2.addColumn('number', 'Prepayment happense after '+selectedPaidYear.toString()+' Years'+"...months"); // Months 
+	DT2.addColumn('number','Remaining Balance'); // Remaining Balance	
+	DT2.addColumn('number','Effective Interest Rate (%)');// Effective rate
+	for (var m = 0; m<12; m++) {
+		var mm = 12*selectedPaidYear+m; // Prepayment happens after mm months
+		var RemBal_m = loanAmount*Math.pow(1+mIntRate,mm) + mPay*(1-Math.pow(1+mIntRate,mm))/mIntRate;  
+		// Cashflow array
+		var cfA = [loanAmount];
+		for (var i=1; i<mm;i++) {
+			cfA.push(mPay*(-1));
+		}
+		cfA.push(-mPay-RemBal_m-Penalty);
+		//
+
+		DT2.addRow([m, RemBal_m, IRR(cfA,mIntRate)*12*100]);
+	}
+	//
+	numFormatter = new google.visualization.NumberFormat({prefix:'$',fractionDigits:0});
+	numFormatter.format(DT2,1);
+	// Table2
+	var table2 = new google.visualization.Table(document.getElementById('table2_div'));
+	var tabOption = {
+		width:'100%',
+	};
+	table2.draw(DT2,tabOption);
+}
+function NPV(cfArray,r) {
+	// find NPV for a cash flow array and interest rate r
+	var ncf = cfArray.length;
+	var NPVal = 0.0;
+	for (n=0;n<ncf; n++) {
+		NPVal+=cfArray[n]/Math.pow(1+r,n);
+	}
+	return NPVal;
+}
+function IRR(cfArray,guest){
+	// Inputs: 
+	//	1. cfArray is a cashflow array
+	// 2. guest for IRR
+	// If cfArray[0] > 0 , NPV is increasing function of interest rate; else, NPV is decreasing function of interest rate
+	// we consider NPL is increasing function of r only
+	// Set tolerance for NPV
+	npvTol = 0.000001;
+	//
+	if (guest<=0) {alert('The interest rate should be positive!');}
+	//
+	if (NPV(cfArray,guest*1.1)-NPV(cfArray,guest)<0) {cfArray = cfArray*(-1.0);}// if decreasing, make it increasing
+	//
+	var ra = guest*1.0;
+	var rb = guest*1.0;
+	// find rate at positive NPV
+	do {
+		rb *=1.1;
+		NPV_rb = NPV(cfArray,rb);
+	}
+	while (NPV_rb<0);
+	// find rate at negative NPV
+	do {
+		ra *=0.9;
+		NPV_ra = NPV(cfArray,ra);
+	}
+	while (NPV_ra>0);
+	//
+	do {
+		// IRR Candidate
+		IRRC = ra - NPV_ra*(rb-ra)/(NPV_rb-NPV_ra); // interpolation
+		NPV_IRRC = NPV(cfArray,IRRC);
+		if (Math.abs(NPV_IRRC)<npvTol) {return IRRC;}
+		else {
+			if (NPV_IRRC<0) {ra = IRRC; NPV_ra = NPV(cfArray,ra);} 
+			else { rb = IRRC; NPV_rb = NPV(cfArray,rb);}
+		}
+	}
+	while (Math.abs(NPV_IRRC)>npvTol);
 }
 function alertMessage()
 {
     alert(document.getElementById('loanPrincipal').value);
 }
-
+function constrPaybackYearOptions(){
+	//
+	var yearOption =[10,15,20];
+	var mYid = document.getElementById("maxYear").selectedIndex;
+	var mYear = yearOption[mYid];
+	var YearOption = document.forms[1].FixedPaybackYear;
+	YearOption.length=0;
+	for (var y=1;y<=mYear;y++) {
+		YearOption[y-1]= new Option(y,y,false,false);
+	}
+	YearOption[mYear-1] = new Option(mYear,mYear,false,true);
+}
+function constrPaidYearOptions(){
+	//
+	var FPayYear = document.getElementById("FixedPaybackYear").options[document.getElementById("FixedPaybackYear").selectedIndex].value;
+	var YearOption = document.forms[1].PaidYear;
+	YearOption.length=0;
+	for (var y=1;y<=FPayYear-1;y++) {
+		YearOption[y-1]= new Option(y,y,false,false);
+	}
+	YearOption[FPayYear-2] = new Option(FPayYear-1,FPayYear-1,false,true);
+}
 function numToStr(num,fo){
 	if (num==null){return null;}
 	if (fo=='decimal') {
@@ -221,8 +344,8 @@ br.clearLeft {
 	Mortgage Loan Calculator Ver 1.0
 </header>
 <h4><i> Last update: October 14, 2017 </i></h4>
-
-<h3>What is the fixed <em> monthly payment</em> for a given loan principal, interest rate, and payback year? </h3>
+<!-- First Part --->
+<h3>What is the fixed <em> monthly payment</em> for a given loan principal, monthly interest rate, and payback year? </h3>
 <!-- Input part -->
 <div id="Inputs"> 
 	<!-- -->
@@ -230,11 +353,11 @@ br.clearLeft {
 	<fieldset>
 	<legend>Mortgage Loan Info:</legend>
 		Principal Amount: USD
-		<input type="number" id="loanPrincipal" min="0" max="10000000" step="1000" value="50000" align="right">
+		<input type="number" id="loanPrincipal" min="0" max="10000000" step="1000" value="100000" align="right">
 		</br>
 		</br>
 		Interest Rate:
-		<input type="number" id="IntRate" min="0" max="100" step="0.01" value="8"> % &nbsp;
+		<input type="number" id="IntRate" min="0" max="100" step="0.1" value="10"> % &nbsp;
 		<select id="MonOrAnn">
 		<option value="Monthly">Monthly</option>
 		<option value="Annually" selected>Annually</option>
@@ -266,6 +389,44 @@ br.clearLeft {
 </div>
 </br>
 
+<!-- Second Part --->
+<h3>What is the effective interest rate in the case of Prepayment or Refinancing?</h3>
+<h4> 1. Prepayment </h4>
+<!-- Input part for Prepayment-->
+<div id="Inputs"> 
+	<!-- -->
+	<form>
+	<fieldset>
+	<legend>Prepayment Info:</legend>
+		Loan terms are the same as about with selected payback year: 
+		<select id="FixedPaybackYear" onchange="constrPaidYearOptions()">
+			<option>10</option>
+		</select> &nbsp; years
+		</br>
+		</br>
+		Prepayment happens after: 
+		<select id="PaidYear">
+			<option>9</option>
+		</select> &nbsp; years
+		</br>
+		</br>
+		Prepayment Penalty Amount: USD
+		<input type="number" id="PrepaymentPenalty" min="0" max="10000000" step="1000" value="3000" align="right">
+		</br>
+		</br>
+
+	</fieldset>
+	</form>
+</div>
+</br>
+<div id="Cal">
+<button type="button" onclick="drawTable2()" id="btn2">Calculate</button>
+</div>
+<!-- Result Part---->
+<p id="pre_mp"></p>
+<div id="table2">
+	<div id="table2_div"> </div>
+</div>
 <!-- *** Site Map *** -->
 <div id="SiteMap">
 	<div id="SiteLinks">
