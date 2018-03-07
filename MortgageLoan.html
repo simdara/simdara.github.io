@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -168,11 +167,7 @@ function drawTable3(){
 	if (Penalty + closingCost >loanAmount) {
 		alert('Sum of penalty and closing cost is bigger than loan amount!');
 	} 
-	// MOnthly payment for the selectedPaybackYear
 	
-	document.getElementById("Refin").innerHTML = "Monthly Payment for the " + selectedPaybackYear 
-												+ "-year amortizing loan is "+ numToStr(mPay,"decimal") + ".";
-	//
 	// Create a datatable
 	var DT3 = new google.visualization.DataTable();
 	DT3.addColumn('number', 'Possible refinancing happens after '+selectedPaidYear.toString()+' Years'+"...months"); // Months 
@@ -194,12 +189,13 @@ function drawTable3(){
 	}
 	//
 	// MOnthly payment for the selectedPaybackYear
-	var EfRate = DT3.getValue(1,4)/100;
+	var EfRateCase1 = DT3.getValue(1,4)/100;
 	var str1 = "Monthly payment for the " + selectedPaybackYear + "-year amortizing loan is "+ numToStr(mPay,"decimal") + ". ";
-	var str2 = "The effective interest rate for refinancing is " + numToStr(EfRate,"percent") + ", ";
-	if (EfRate < mIntRate*12) {str3 = "smaller than the current interest rate of "+numToStr(mIntRate*12,"percent")+ ". Therefore, the borrower should go on with the refinancing plan!"} 
+	var str2 = "The effective interest rate for refinancing is " + numToStr(EfRateCase1,"percent") + ", ";
+	if (EfRateCase1 < mIntRate*12) {str3 = "smaller than the current interest rate of "+numToStr(mIntRate*12,"percent")+ ". Therefore, the borrower should go on with the refinancing plan!"} 
 		else {str3= "larger than the current interest rate of "+numToStr(mIntRate*12,"percent")+". Therefore, the borrower should not go on with the refinancing plan!"}
-	document.getElementById("Refin").innerHTML = str1 + str2 + str3;
+	document.getElementById("RefCase1").innerHTML = "Case1: New loan includes refinancing costs:"
+	document.getElementById("RefinCase1").innerHTML = str1 + str2 + str3;
 	//
 	numFormatter = new google.visualization.NumberFormat({prefix:'$',fractionDigits:0});
 	numFormatter.format(DT3,1);
@@ -211,6 +207,45 @@ function drawTable3(){
 		width:'100%',
 	};
 	table3.draw(DT3,tabOption);
+	// Create a datatable4
+	var DT4 = new google.visualization.DataTable();
+	DT4.addColumn('number', 'Possible refinancing happens after '+selectedPaidYear.toString()+' Years'+"...months"); // Months 
+	DT4.addColumn('number','Remaining Balance=New Loan'); // Remaining balance	
+	DT4.addColumn('number','Charged on New Loan');// New loan amount
+	DT4.addColumn('number','Monthly Payment (New)');// Monthly payment for new loan
+	DT4.addColumn('number','Effective Interest Rate (%)');// Effective rate
+	for (var m = 0; m<12; m++) {
+		var mm = 12*selectedPaidYear+m; // Possible refinancing happens after mm months
+		var RemBal_m = loanAmount*Math.pow(1+mIntRate,mm) + mPay*(1-Math.pow(1+mIntRate,mm))/mIntRate; // remaining balance
+		var ChargedonNewLoan_m = RemBal_m*ChargedOnNewLoan;// New loan amount
+		var mPay_New = RemBal_m*mIntRate_New/(1-Math.pow(1+mIntRate_New,-12*PaybackYear_New)); // monthly payment for new loan
+		// Cashflow array
+		var cfA = [RemBal_m-Penalty-ChargedonNewLoan_m];
+		for (var i=1; i<=PaybackYear_New*12;i++) {
+			cfA.push(mPay_New*(-1));
+		}
+		DT4.addRow([m, RemBal_m, ChargedonNewLoan_m, mPay_New, IRR(cfA,mIntRate_New)*12*100]);
+	}
+	//
+	// MOnthly payment for the selectedPaybackYear
+	var EfRateCase2 = DT4.getValue(1,4)/100;
+	var str1 = "Monthly payment for the " + selectedPaybackYear + "-year amortizing loan is "+ numToStr(mPay,"decimal") + ". ";
+	var str2 = "The effective interest rate for refinancing is " + numToStr(EfRateCase2,"percent") + ", ";
+	if (EfRateCase2 < mIntRate*12) {str3 = "smaller than the current interest rate of "+numToStr(mIntRate*12,"percent")+ ". Therefore, the borrower should go on with the refinancing plan!"} 
+		else {str3= "larger than the current interest rate of "+numToStr(mIntRate*12,"percent")+". Therefore, the borrower should not go on with the refinancing plan!"}
+	document.getElementById("RefCase2").innerHTML = "Case2: New loan is equivalent to remaining balance:"
+	document.getElementById("RefinCase2").innerHTML = str1 + str2 + str3;
+	//
+	numFormatter = new google.visualization.NumberFormat({prefix:'$',fractionDigits:0});
+	numFormatter.format(DT4,1);
+	numFormatter.format(DT4,2);
+	numFormatter.format(DT4,3);
+	// Table4
+	var table4 = new google.visualization.Table(document.getElementById('table4_div'));
+	var tabOption = {
+		width:'100%',
+	};
+	table4.draw(DT4,tabOption);
 }
 function NPV(cfArray,r) {
 	// find NPV for a cash flow array and interest rate r
@@ -582,9 +617,16 @@ br.clearLeft {
 		<button type="button" onclick="drawTable3()" id="btn3">Calculate</button>
 	</div>
 	<!-- Result Part---->
-	<p id="Refin"></p>
+	<p id="RefCase1"></p>
+	<p id="RefinCase1"></p>
 	<div id="table3">
 		<div id="table3_div"> </div>
+	</div>
+	<!-- Result Part---->
+	<p id="RefCase2"></p>
+	<p id="RefinCase2"></p>
+	<div id="table4">
+		<div id="table4_div"> </div>
 	</div>
 </div>
 
