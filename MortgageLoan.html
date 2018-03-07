@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -114,7 +115,7 @@ function drawTable2(){
 	//
 	// Create a datatable
 	var DT2 = new google.visualization.DataTable();
-	DT2.addColumn('number', 'Prepayment happense after '+selectedPaidYear.toString()+' Years'+"...months"); // Months 
+	DT2.addColumn('number', 'Prepayment happens after '+selectedPaidYear.toString()+' Years'+"...months"); // Months 
 	DT2.addColumn('number','Remaining Balance'); // Remaining Balance	
 	DT2.addColumn('number','Effective Interest Rate (%)');// Effective rate
 	for (var m = 0; m<12; m++) {
@@ -151,12 +152,21 @@ function drawTable3(){
 	var selectedPaybackYear = document.getElementById("FixedPaybackYear_Refin").value;
 	//
 	var mPay = loanAmount*mIntRate/(1-Math.pow(1+mIntRate,-12*selectedPaybackYear)); // monthly payment
-	// New Loan
+	//
 	var selectedPaidYear	= document.getElementById("PaidYear_Refin").value;
-	var Penalty	= document.getElementById("PrepaymentPenalty").value;
-		// 
-	if (Penalty >loanAmount) {
-		alert('Prepayment Penalty is bigger than loan amount!');
+	var Penalty	= document.getElementById("PrepaymentPenalty_Refin").value*1.0;
+	var closingCost = document.getElementById("ClosingCost").value*1.0;
+	//
+	// New Loan
+	var IntRate_New = document.getElementById("IntRate_New").value/100.0; // interest rate new
+	var Freqid_New = document.getElementById("MonOrAnn_Refin").selectedIndex;
+	var mIntRate_New = IntRate_New/FreqOption[Freqid]; // monthly interest rate
+	var PaybackYear_New = document.getElementById("PaybackYear_New").value;
+	var ChargedOnNewLoan = document.getElementById("ChargedOnNewLoan").value/100.0;
+	//
+	
+	if (Penalty + closingCost >loanAmount) {
+		alert('Sum of penalty and closing cost is bigger than loan amount!');
 	} 
 	// MOnthly payment for the selectedPaybackYear
 	
@@ -164,32 +174,43 @@ function drawTable3(){
 												+ "-year amortizing loan is "+ numToStr(mPay,"decimal") + ".";
 	//
 	// Create a datatable
-	var DT2 = new google.visualization.DataTable();
-	DT2.addColumn('number', 'Prepayment happense after '+selectedPaidYear.toString()+' Years'+"...months"); // Months 
-	DT2.addColumn('number','Remaining Balance'); // Remaining Balance	
-	DT2.addColumn('number','Effective Interest Rate (%)');// Effective rate
+	var DT3 = new google.visualization.DataTable();
+	DT3.addColumn('number', 'Possible refinancing happens after '+selectedPaidYear.toString()+' Years'+"...months"); // Months 
+	DT3.addColumn('number','Remaining Balance'); // Remaining balance	
+	DT3.addColumn('number','New Loan');// New loan amount
+	DT3.addColumn('number','Monthly Payment (New)');// Monthly payment for new loan
+	DT3.addColumn('number','Effective Interest Rate (%)');// Effective rate
 	for (var m = 0; m<12; m++) {
-		var mm = 12*selectedPaidYear+m; // Prepayment happens after mm months
-		var RemBal_m = loanAmount*Math.pow(1+mIntRate,mm) + mPay*(1-Math.pow(1+mIntRate,mm))/mIntRate;  
+		var mm = 12*selectedPaidYear+m; // Possible refinancing happens after mm months
+		var RemBal_m = loanAmount*Math.pow(1+mIntRate,mm) + mPay*(1-Math.pow(1+mIntRate,mm))/mIntRate; // remaining balance
+		var NewLoan_m = (RemBal_m + Penalty + closingCost)*(1+ChargedOnNewLoan);// New loan amount
+		var mPay_New = NewLoan_m*mIntRate_New/(1-Math.pow(1+mIntRate_New,-12*PaybackYear_New)); // monthly payment for new loan
 		// Cashflow array
-		var cfA = [loanAmount];
-		for (var i=1; i<mm;i++) {
-			cfA.push(mPay*(-1));
+		var cfA = [RemBal_m];
+		for (var i=1; i<=PaybackYear_New*12;i++) {
+			cfA.push(mPay_New*(-1));
 		}
-		cfA.push(-mPay-RemBal_m-Penalty);
-		//
-
-		DT2.addRow([m, RemBal_m, IRR(cfA,mIntRate)*12*100]);
+		DT3.addRow([m, RemBal_m, NewLoan_m, mPay_New, IRR(cfA,mIntRate_New)*12*100]);
 	}
 	//
+	// MOnthly payment for the selectedPaybackYear
+	var EfRate = DT3.getValue(1,4)/100;
+	var str1 = "Monthly payment for the " + selectedPaybackYear + "-year amortizing loan is "+ numToStr(mPay,"decimal") + ". ";
+	var str2 = "The effective interest rate for refinancing is " + numToStr(EfRate,"percent") + ", ";
+	if (EfRate < mIntRate*12) {str3 = "smaller than the current interest rate of "+numToStr(mIntRate*12,"percent")+ ". Therefore, the borrower should go on with the refinancing plan!"} 
+		else {str3= "larger than the current interest rate of "+numToStr(mIntRate*12,"percent")+". Therefore, the borrower should not go on with the refinancing plan!"}
+	document.getElementById("Refin").innerHTML = str1 + str2 + str3;
+	//
 	numFormatter = new google.visualization.NumberFormat({prefix:'$',fractionDigits:0});
-	numFormatter.format(DT2,1);
-	// Table2
-	var table2 = new google.visualization.Table(document.getElementById('table2_div'));
+	numFormatter.format(DT3,1);
+	numFormatter.format(DT3,2);
+	numFormatter.format(DT3,3);
+	// Table3
+	var table3 = new google.visualization.Table(document.getElementById('table3_div'));
 	var tabOption = {
 		width:'100%',
 	};
-	table2.draw(DT2,tabOption);
+	table3.draw(DT3,tabOption);
 }
 function NPV(cfArray,r) {
 	// find NPV for a cash flow array and interest rate r
@@ -288,6 +309,14 @@ function numToStr(num,fo){
 		return (num*100).toFixed(2)+'%';
 	}
 } 
+function ShowOrHide(){
+	var PrepOrRefin =["Prepayment", "Refinancing"];
+	var selectedOption = PrepOrRefin[document.getElementById("PrepayOrRefin").selectedIndex];
+	p = document.getElementById("Prepayment");
+	r = document.getElementById("Refinancing");
+	if (selectedOption =="Prepayment"){p.style.display="block"; r.style.display="none";
+	} else {p.style.display="none"; r.style.display="block";}
+}
 	</script>
 <style>
 html {
@@ -409,13 +438,13 @@ br.clearLeft {
   </head>
   <body>
   <header>
-	Mortgage Loan Calculator Ver 1.0
+	Mortgage Loan Calculator Ver 1.1
 </header>
-<h4><i> Last update: October 14, 2017 </i></h4>
+<h4><i> Last update: March 07, 2018 </i></h4>
 <!-- First Part --->
 <h3>What is the fixed <em> monthly payment</em> for a given loan principal, monthly interest rate, and payback year? </h3>
 <!-- Input part -->
-<div id="Inputs"> 
+<div id="CMP"> <!-- Constant Monthly Payment -->
 	<!-- -->
 	<form>
 	<fieldset>
@@ -427,42 +456,48 @@ br.clearLeft {
 		Interest Rate:
 		<input type="number" id="IntRate" min="0" max="100" step="0.1" value="10"> % &nbsp;
 		<select id="MonOrAnn">
-		<option value="Monthly">Monthly</option>
-		<option value="Annually" selected>Annually</option>
+			<option value="Monthly">Monthly</option>
+			<option value="Annually" selected>Annually</option>
 		</select>
 		</br>
 		</br>
 		Max Payback Year: 
 		<select id="maxYear" onchange="drawCharts()">
-			<option value="10" selected>10</option>
+			<option value="10">10</option>
 			<option value="15">15</option>
-			<option value="30">30</option>
+			<option value="30" selected>30</option>
 		</select> &nbsp; years
 		</br>
 	</fieldset>
 	</form>
+	</br>
+	<div id="Cal">
+		<button type="button" onclick="drawCharts()" id="btn">Calculate</button>
+	</div>
+	<!-- Result Part---->
+	</br>
+	<div id="table1">
+		<div id="table1_div"> </div>
+	</div>
+	</br>
+	<div id="chart1">
+		<div id="chart1_div"> </div>
+	</div>
+	</br>
 </div>
-</br>
-<div id="Cal">
-<button type="button" onclick="drawCharts()" id="btn">Calculate</button>
-</div>
-<!-- Result Part---->
-</br>
-<div id="table1">
-	<div id="table1_div"> </div>
-</div>
-</br>
-<div id="chart1">
-	<div id="chart1_div"> </div>
-</div>
-</br>
 
 <!-- Second Part --->
 <h3>What is the effective interest rate in the case of Prepayment or Refinancing?</h3>
-<h4> 1. Prepayment </h4>
-<!-- Input part for Prepayment-->
-<div id="Inputs"> 
+<p> Choose one of the following option:
+		<select id="PrepayOrRefin" onchange="ShowOrHide()">
+			<option value="Prepayment">Prepayment</option>
+			<option value="Refinancing" selected>Refinancing</option>
+		</select>
+</p>
+<div id="Prepayment" style="display:none"> 
 	<!-- -->
+	<h4> Prepayment </h4>
+	<!-- Input part for Prepayment-->
 	<form>
 	<fieldset>
 	<legend>Prepayment Info:</legend>
@@ -485,21 +520,21 @@ br.clearLeft {
 
 	</fieldset>
 	</form>
-</div>
-</br>
-<div id="Cal">
-<button type="button" onclick="drawTable2()" id="btn2">Calculate</button>
-</div>
+	</br>
+	<div id="Cal">
+		<button type="button" onclick="drawTable2()" id="btn2">Calculate</button>
+	</div>
 <!-- Result Part---->
-<p id="pre_mp"></p>
-<div id="table2">
-	<div id="table2_div"> </div>
+	<p id="pre_mp"></p>
+	<div id="table2">
+		<div id="table2_div"> </div>
+	</div>
 </div>
-<!-- Refinancing -->
-<h4> 2. Refinancing </h4>
-<!-- Input part for Refinancing-->
-<div id="Inputs"> 
+
+<div id="Refinancing"> 
 	<!-- -->
+	<h4> Refinancing </h4>
+<!-- Input part for Refinancing-->
 	<form>
 	<fieldset>
 	<legend>Refinancing Info:</legend>
@@ -509,7 +544,7 @@ br.clearLeft {
 		</select> &nbsp; years
 		</br>
 		</br>
-		Refinancing happens after: 
+		Possible refinancing happens after: 
 		<select id="PaidYear_Refin">
 			<option>9</option>
 		</select> &nbsp; years
@@ -524,34 +559,39 @@ br.clearLeft {
 		</br>
 		</br>
 		New Loan's Payback Year: 
-		<input type="number" id="PaybackYear_new" min="0" max="100" step="1" value="10" align="right"> &nbsp; years
+		<input type="number" id="PaybackYear_New" min="0" max="100" step="1" value="10" align="right"> &nbsp; years
 		</br>
 		</br>
 		Prepayment Penalty Amount: USD
-		<input type="number" id="PrepaymentPenalty_Refin" min="0" max="10000000" step="1000" value="3000" align="right">
+		<input type="number" id="PrepaymentPenalty_Refin" min="0" max="10000000" step="1000" value="0" align="right">
 		</br>
 		</br>
 		Closing Costs: USD
-		<input type="number" id="ClosingCosts" min="0" max="10000000" step="1000" value="2000" align="right">
+		<input type="number" id="ClosingCost" min="0" max="10000000" step="1000" value="2000" align="right">
 		</br>
 		</br>
 		Charged on New Loan:
-		<input type="number" id="ChargedOnNewLoans" min="0" max="100" step="0.1" value="3" align="right"> % &nbsp;
+		<input type="number" id="ChargedOnNewLoan" min="0" max="100" step="0.1" value="3" align="right"> % &nbsp;
 		</br>
 		</br>
 
 	</fieldset>
 	</form>
+	</br>
+	<div id="Cal_Refin">
+		<button type="button" onclick="drawTable3()" id="btn3">Calculate</button>
+	</div>
+	<!-- Result Part---->
+	<p id="Refin"></p>
+	<div id="table3">
+		<div id="table3_div"> </div>
+	</div>
 </div>
+
 </br>
-<div id="Cal_Refin">
-<button type="button" onclick="drawTable3()" id="btn3">Calculate</button>
-</div>
-<!-- Result Part---->
-<p id="Refin"></p>
-<div id="table3">
-	<div id="table3_div"> </div>
-</div>
+</br>
+</br>
+</br>
 <!-- *** Site Map *** -->
 <div id="SiteMap">
 	<div id="SiteLinks">
