@@ -186,7 +186,7 @@ function drawTable3(){
 		for (var i=1; i<=PaybackYear_New*12;i++) {
 			cfA.push(mPay_New*(-1));
 		}
-		cfA[PaybackYear_New*12]=cfA[PaybackYear_New*12]+closingCost;
+		cfA[PaybackYear_New*12]=cfA[PaybackYear_New*12]-closingCost;
 		DT3.addRow([m, RemBal_m, NewLoan_m, mPay_New, IRR(cfA,mIntRate_New)*12*100]);
 	}
 	//
@@ -226,7 +226,7 @@ function drawTable3(){
 		for (var i=1; i<=PaybackYear_New*12;i++) {
 			cfA.push(mPay_New*(-1));
 		}
-		cfA[PaybackYear_New*12] +=closingCost;
+		cfA[PaybackYear_New*12] -=closingCost;
 		DT4.addRow([m, RemBal_m, ChargedonNewLoan_m, mPay_New, IRR(cfA,mIntRate_New)*12*100]);
 	}
 	//
