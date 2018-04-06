@@ -222,7 +222,7 @@ function reDrawCharts(){
 	options: {
 		title: BSISitem_SelectedText+' (USD)',
 		vAxis:{format:'short'},
-		//legend: {position: 'bottom'},
+		legend: {position: 'bottom'},
 	}
 	});
 	var chart2 = new google.visualization.ChartWrapper({
@@ -232,7 +232,7 @@ function reDrawCharts(){
 	options: {
 		title:BSISitem_SelectedText+' (% Change YoY)',
 		vAxis:{format:'percent'},
-		//legend: {position: 'bottom'},
+		legend: {position: 'bottom'},
 	}
 	});
 	var chart2_2 = new google.visualization.ChartWrapper({
@@ -255,7 +255,7 @@ function reDrawCharts(){
 		title:Profit_SelectedText,
 		vAxis:{format:'percent'},
 		pointSize:5,
-		//legend: {position: 'bottom'},
+		legend: {position: 'bottom'},
 	}
 	});
 	var chart4 = new google.visualization.ChartWrapper({
@@ -268,7 +268,7 @@ function reDrawCharts(){
 		pointSize:7,
 		pointShape:'diamond',
 		lineDashStyle:[4,4],
-		//legend: {position: 'bottom'},
+		legend: {position: 'bottom'},
 	}
 	});
 	chart1.draw();
@@ -342,7 +342,7 @@ function reDrawCharts(){
 		pointSize:6,
 		pointShape:'square',
 		lineDashStyle:[4,4],
-		//legend: {position: 'bottom'},
+		legend: {position: 'bottom'},
 	}
 	});
 	chart6.draw();
@@ -367,7 +367,7 @@ function reDrawCharts(){
 		pointSize:6,
 		pointShape:'diamond',
 		//lineDashStyle:[4,4],
-		//legend: {position: 'bottom'},
+		legend: {position: 'bottom'},
 	}
 	});
 	chart7.draw();
@@ -422,7 +422,7 @@ function reDrawChart12(){
 	options: {
 		title: BSISitem_SelectedText+' (USD)',
 		vAxis:{format:'short'},
-		//legend: {position: 'bottom'},
+		legend: {position: 'bottom'},
 	}
 	});
 	var chart2 = new google.visualization.ChartWrapper({
@@ -432,7 +432,7 @@ function reDrawChart12(){
 	options: {
 		title:BSISitem_SelectedText+' (% Change YoY)',
 		vAxis:{format:'percent'},
-		//legend: {position: 'bottom'},
+		legend: {position: 'bottom'},
 	}
 	});
 	chart1.draw();
@@ -542,7 +542,7 @@ function reDrawChart3(){
 		title:Profit_SelectedText,
 		vAxis:{format:'percent'},
 		pointSize:5,
-		//legend: {position: 'bottom'},
+		legend: {position: 'bottom'},
 	}
 	});
 	chart3.draw();
@@ -591,7 +591,7 @@ function reDrawChart4(){
 		pointSize:7,
 		pointShape:'diamond',
 		lineDashStyle:[4,4],
-		//legend: {position: 'bottom'},
+		legend: {position: 'bottom'},
 	}
 	});
 	chart4.draw();
@@ -675,7 +675,7 @@ function reDrawChart5(){
 			options:{
 				title: 'Portfolio Yield ' + PYield_Selectedtext,
 				isStacked: true,
-				//legend: {position: 'bottom'},
+				legend: {position: 'bottom'},
 			}
 		});
 	}
@@ -724,7 +724,7 @@ function reDrawChart6(){
 		pointSize:6,
 		pointShape:'square',
 		lineDashStyle:[4,4],
-		//legend: {position: 'bottom'},
+		legend: {position: 'bottom'},
 	}
 	});
 	chart6.draw();
@@ -773,7 +773,7 @@ function reDrawChart7(){
 		pointSize:6,
 		pointShape:'diamond',
 		//lineDashStyle:[4,4],
-		//legend: {position: 'bottom'},
+		legend: {position: 'bottom'},
 	}
 	});
 	chart7.draw();
@@ -870,7 +870,7 @@ function redrawChart8(){
 		//height:480 ,
         //legend: 'none',
 		//annotations:{ textStyle:{auraColor: 'none', fontSize: 10}},
-		//legend: {position: 'bottom'},
+		legend: {position: 'bottom'},
     };
 	dataView = new google.visualization.DataView(data_ch);
 	dataView.setColumns(colToShow);
