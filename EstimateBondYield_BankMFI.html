@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Estimation of Corporate Bond Yield in Cambodian Market</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+google.charts.load('current', {packages:['controls','corechart']});
+</script>
+<script type="text/javascript">
+$(document).ready(function() {
+	EstimateBondYield();
+});
+// Logit model
+// Input ratios:
+	// ROE
+	// Total Liabilities/Total Assets
+	// Non-current Loans/GLP
+	// ROA
+	// Net Loans/Equity
+	// Earnings Assets/Total Assets
+var coefficient = [-10.38, -0.79, 1.18, 0.72, -1.51, 0.45, -0.21];// constant, ROE, TL/TA, NCL/GLP, ROA, NL/Equity, EA/TA 
+// Variables for implied credit rating
+var Ratings=["AAA","AA+","AA","AA-","A+","A","A-","BBB+","BBB","BBB-","BB+","BB","BB-","B+","B","B-","CCC+","CCC","CCC-","CC","C","D"];
+var RatingsNum = [22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1];
+function getImpliedRating(PD) {
+	var PD1Y_min = [0.00, 0.03,0.05,0.06,0.08,0.10,0.16,0.23,0.37,0.61,0.84,1.10,1.30,1.60,2.10,2.80,3.40,4.00,6.30,14,31,67];// in percent
+	var PD1Y_max = [0.03,0.05,0.06,0.08,0.10,0.16,0.23,0.37,0.61,0.84,1.10,1.30,1.60,2.10,2.80,3.40,4.00,6.30,14,31,67,100]; // in percent
+	var i =0;
+	while (i<Ratings.length) {
+		if (PD>PD1Y_min[i] && PD<=PD1Y_max[i]) {
+			return {impliedRating: Ratings[i], impliedRatingNum: RatingsNum[i]};
+		} else { i++; }
+	}
+}
+function EstimateBondYield() {
+	// Obtain input issuer information
+	var CompanyName = document.getElementById("Company").value;
+	var license = ["Commercial","Specialized","MDI","MFI"];
+	var SelectedLicenseID = document.getElementById("License").selectedIndex;
+	var competitiveness =["High", "Neutral", "Low"];
+	var SelectedCompetitivenessID = document.getElementById("Competitiveness").selectedIndex;
+	// Obtain input financial information
+	var ROE = document.getElementById("ROE").value/100.0;
+	var TLTA = document.getElementById("TLTA").value/100.0;
+	var NCLGLP = document.getElementById("NCLGLP").value/100.0;
+	var ROA = document.getElementById("ROA").value/100.0;
+	var NLE = document.getElementById("NLE").value/100.0;
+	var EATA = document.getElementById("EATA").value/100.0;
+	var X =[1.0, ROE, TLTA, NCLGLP, ROA, NLE, EATA];
+	// Obtain input recovery rates
+	var Rec = document.getElementById("Non-SecuredRC").value/100.0; // recovery rate of plain bond
+	var Rec_sec =document.getElementById("SecuredRC").value/100.0; // recovery rate of secured bond
+	// 1-Year PD
+	var PD = 100.0/(1.0+Math.exp(-sumprod(coefficient,X))); // in percent
+	var impliedRating = getImpliedRating(PD);
+	// Adjustment
+	var adjRatingNum = impliedRating.impliedRatingNum; // as num
+	// Adjusted for license
+	var adjlicense = [0,-6,-6,-9];
+	adjRatingNum += adjlicense[SelectedLicenseID];
+	// Adjusted for competitiveness
+	if (SelectedLicenseID==0) {
+		var adjCompetitiveness = [3,1,-1];
+	} else {
+		var adjCompetitiveness = [2,0,-2];
+	}
+	adjRatingNum += adjCompetitiveness[SelectedCompetitivenessID];
+	adjRatingNum = Math.max(Math.min(adjRatingNum,22),0);
+	var adjRating = Ratings[RatingsNum.indexOf(adjRatingNum)];
+	// Print Result
+	var str2 = "Its implied rating is " + impliedRating.impliedRating+ ".";
+	var str1 = "The 1-year probability of default of "+ CompanyName+" is "+numToStr(PD/100.0)+".";
+	var str3 = "Its adjusted rating is " + adjRating+ ".";
+	document.getElementById("impliedRating").innerHTML = str1 + "<br>" +str2 + "<br>" +str3;
+	//
+	var BYield = bondYield(adjRatingNum,Rec,Rec_sec);
+	var DT_BYieldPlain = makeDTforChart("Maturity", BYield.Maturity, "USD-denominated", BYield.USD, "KHR-denominated",BYield.KHR);
+	var DTview_BYieldPlain = new google.visualization.DataView(DT_BYieldPlain);
+	var DT_BYieldSecured = makeDTforChart("Maturity", BYield.Maturity, "USD-denominated", BYield.USDsecured, "KHR-denominated",BYield.KHRsecured);
+	var DTview_BYieldSecured = new google.visualization.DataView(DT_BYieldSecured);
+	// Draw Charts
+	// Plain Bond
+	var PlainBondChart = new google.visualization.LineChart(document.getElementById('ChartPlain_div'));
+	var option = {
+		title: CompanyName +"'s Unsecured Bond",
+		vAxis: {title: 'Yield (%)'},
+		hAxis: {title: 'Maturity (year)',gridlines:{count:10}},
+		legend: {position:'bottom'},
+		annotations:{
+			alwaysOutside:true
+		},
+	};
+	DTview_BYieldPlain.setColumns([0,1,{calc:"stringify", sourceColumn:1,type:"string",role:"annotation"},2,{calc:"stringify", sourceColumn:2,type:"string",role:"annotation"}]);
+	PlainBondChart.draw(DTview_BYieldPlain,option);
+	// Secured Bond
+	var SecuredBondChart = new google.visualization.LineChart(document.getElementById('ChartSecured_div'));
+	option.title = CompanyName +"'s Secured Bond";
+	DTview_BYieldSecured.setColumns([0,1,{calc:"stringify", sourceColumn:1,type:"string",role:"annotation"},2,{calc:"stringify", sourceColumn:2,type:"string",role:"annotation"}]);
+	SecuredBondChart.draw(DTview_BYieldSecured,option);
+	//
+	 document.getElementById("noteondate").innerHTML = "<em> Note: US Treasury Yield and Corporate OAS data are as of "+ldate +"</em>";
+}
+// estimate bond yield for an adjusted rating
+function bondYield(adjRatingNum, Rec, Rec_sec) {
+	var OASTY_atAdate = prepareSpreadTYield(ldate); // at a date
+	var OAS_atRating = OASTY_atAdate.OAS[RatingsNum.indexOf(adjRatingNum)];
+	var OAS_B = OASTY_atAdate.OAS[Ratings.indexOf("B")];
+	var Tyield = OASTY_atAdate.Yield;
+	var mat = [1,2,3,5,7,10]; // maturity in year
+	var BYield_USD = []; // bond yield for USD-denominated plain bond
+	var BYield_USDsecured = []; // Bond yield for USD-denominated secured bond
+	var BYield_KHR =[]; // KHR-denominated plain bond
+	var BYield_KHRsecured =[]; // KHR-denominated secured bond
+	for (var i=0; i<mat.length; i++) {
+		var sp_u = OAS_B+OAS_atRating; // spread of plain bond
+		var y_u = Tyield[i+3]+sp_u; // yield of unsecured bond
+		var adj = (Rec_sec-Rec)*sp_u/(1-Rec);
+		var y_s = y_u-adj; // yield for secured bond
+		BYield_USD.push(y_u);
+		BYield_USDsecured.push(y_s);
+		BYield_KHR.push(y_u + KHR_USDdiff[i+3]);
+		BYield_KHRsecured.push(y_s+KHR_USDdiff[i+3]);
+	}
+	return {Maturity:mat, USD:BYield_USD, USDsecured:BYield_USDsecured, KHR:BYield_KHR, KHRsecured:BYield_KHRsecured};
+}
+// ------- Get Option-Adjusted Spread (OAS) Data ---------------
+var date_OAS, ldate;
+var OAS_AAA, OAS_AA, OAS_A, OAS_BBB, OAS_BB, OAS_B, OAS_CCC; 
+var url_AAA = 'https://fred.stlouisfed.org/data/BAMLC0A1CAAA.txt';
+var url_AA = 'https://fred.stlouisfed.org/data/BAMLC0A2CAA.txt';
+var url_A = 'https://fred.stlouisfed.org/data/BAMLC0A3CA.txt';
+var url_BBB = 'https://fred.stlouisfed.org/data/BAMLC0A4CBBB.txt';
+var url_BB = 'https://fred.stlouisfed.org/data/BAMLH0A1HYBB.txt';
+var url_B = 'https://fred.stlouisfed.org/data/BAMLH0A2HYB.txt';
+var url_CCCorBelow = 'https://fred.stlouisfed.org/data/BAMLH0A3HYC.txt'; // for CCC or below
+makeCorsRequest(url_AAA, getdateOAS_AAA); // get date and OAS for AAA
+makeCorsRequest(url_AA, getOAS_AA); // get date and OAS for AA
+makeCorsRequest(url_A, getOAS_A); // get date and OAS for A
+makeCorsRequest(url_BBB, getOAS_BBB); // get date and OAS for BBB
+makeCorsRequest(url_BB, getOAS_BB); // get date and OAS for BB
+makeCorsRequest(url_B, getOAS_B); // get date and OAS for B
+makeCorsRequest(url_CCCorBelow, getOAS_CCC); // get date and OAS for B
+
+//-------- Get Treasury Yield Data ---------
+var date_TY;
+var Maturity_TY = [1.0/12.0, 0.25, 0.50, 1,2,3,5,7,10,20,30];//
+var Maturity_TYstr =["1M", "3M", "6M", "1Y", "2Y", "3Y", "5Y", "7Y", "10Y", "20Y", "30Y"];
+var TYield=[];
+var url_TY = 'https://www.treasury.gov/resource-center/data-chart-center/interest-rates/Datasets/yield.xml';
+makeCorsRequest(url_TY,getTYieldFromXMLfile)
+// --- KHR and USD difference ----
+var KHR_USDdiff = [];
+for (var i=0; i<Maturity_TY.length; i++) {
+	KHR_USDdiff.push(0.1661 + Math.log(Maturity_TY[i]*12)*0.3177);
+}
+// --------------------------------
+// Draw tables
+google.charts.load('current', {packages:['controls','corechart'], callback: drawTableKHRUSD});
+try	{
+	google.charts.load('current', {packages:['controls','corechart'], callback: drawTables});
+}
+catch(err) {
+	alert(err.message);
+}
+function drawTables() {
+	document.getElementById("datadate").innerHTML = ldate;
+	var OASTY_atAdate = prepareSpreadTYield(ldate); // at a date
+	var DT_oas = makeDTforChart("Rating", Ratings, "OAS (%)", OASTY_atAdate.OAS);
+	var DT_ty = makeDTforChart("Maturity", Maturity_TYstr,"T-Bond Yield (%)", OASTY_atAdate.Yield);
+	
+	//
+	var table_oas = new google.visualization.ChartWrapper({ // table for US corporate OAS
+		containerId: 'table_oas_div',
+		chartType: 'Table',
+		dataTable: DT_oas,
+		options: {
+			width:'100%',
+		}
+	});
+	var table_ty = new google.visualization.ChartWrapper({ // table for T-Bond Yield
+		containerId: 'table_ty_div',
+		chartType: 'Table',
+		dataTable: DT_ty,
+		options: {
+			width:'100%',
+		}
+	});
+
+	table_oas.draw();
+	table_ty.draw();
+	//drawTableKHRUSD();
+}
+// Draw table of KHR-USD difference
+function drawTableKHRUSD(){
+	var DT_khrusd; 
+	DT_khrusd = makeDTforChart("Maturity", Maturity_TYstr, "KHR-USD Difference (%)", KHR_USDdiff);
+	var table_ku = new google.visualization.ChartWrapper({ // table for KHR-USD difference
+		containerId: 'table_ku_div',
+		chartType: 'Table',
+		dataTable: DT_khrusd,
+		options: {
+			width:'100%',
+		}
+	});
+	table_ku.draw();
+}
+// ------------Next ------
+function next() {
+	var nd = date_TY.length-2;
+	var cid = date_TY.indexOf(ldate);
+	if (cid<nd){
+		ldate = date_TY[cid+1];
+		drawTables();
+	}
+}
+// ------------Previous ------
+function previous() {
+	var nd = date_TY.length-2;
+	var cid = date_TY.indexOf(ldate);
+	if (cid>0){
+		ldate = date_TY[cid-1];
+		drawTables();
+	}
+}
+//----------SPread & Yield for a specific date-----------------
+function prepareSpreadTYield(dateOfSY) {
+	// 
+	var ids = date_OAS.indexOf(dateOfSY);
+	var idy = date_TY.indexOf(dateOfSY);
+	// OAS at a date
+	var OAS_atAdate = [];
+	for (var i=1;i<22; i++) {OAS_atAdate.push(NaN);}
+	OAS_atAdate[0] = OAS_AAA[ids];
+	OAS_atAdate[2] = OAS_AA[ids];
+	OAS_atAdate[5] = OAS_A[ids];
+	OAS_atAdate[8] = OAS_BBB[ids];
+	OAS_atAdate[11] = OAS_BB[ids];
+	OAS_atAdate[14] = OAS_B[ids];
+	for (var i=18;i<22;i++) {
+		OAS_atAdate[i] = OAS_CCC[ids];
+	}
+	OAS_atAdate = interpolcurve(OAS_atAdate,RatingsNum);
+	// TYield at a date
+	var TYield_atAdate = TYield[idy];
+	return {OAS:OAS_atAdate,Yield:TYield_atAdate};
+}
+function interpolation(x1,y1,x2,y2,xm) {
+	// Interpolation between (x1,y1) and (x2,y2)
+	ym = y1 + (xm-x1)*(y2-y1)/(x2-x1);
+	return ym;
+}
+// Function for interpolation of a curve
+function interpolcurve(y,x){
+	// provide missing points specified as NaN in the array "y" with interpolated number
+	if (isNaN(y[0])) {
+		alert("First element must not be NaN"); 
+		return y;
+	}
+	var nanid = []; // id for NaN
+	for (var i=0;i<y.length; i++) {
+		if (isNaN(y[i])) {
+			nanid.push(i);
+		}
+	}
+	for (var j=0;j<nanid.length;j++) {
+		var k = nanid[j]+1;
+		while (isNaN(y[k])) { k++;}
+		y[nanid[j]] = interpolation(x[nanid[j]-1],y[nanid[j]-1], x[k],y[k],x[nanid[j]]);
+	}
+	return y;
+}
+//
+function test() {
+	var st1 = date_OAS[date_OAS.length-1];
+	document.getElementById("demo").innerHTML = st1+"<br>"+ prepareSpreadTYield(st1).Yield;
+}
+// Function to get date and OAS for AAA
+function getdateOAS_AAA(xhr) {
+	tserie = getOASdataFromTXTfile(xhr);
+	date_OAS = tserie.date;
+	OAS_AAA = tserie.data;
+	ldate = date_OAS[date_OAS.length-1]; //latest date
+}
+// Function to get OAS for AA
+function getOAS_AA(xhr) {
+	tserie = getOASdataFromTXTfile(xhr);
+	OAS_AA = tserie.data;
+}
+// Function to get OAS for A
+function getOAS_A(xhr) {
+	tserie = getOASdataFromTXTfile(xhr);
+	OAS_A = tserie.data;
+}
+// Function to get OAS for BBB
+function getOAS_BBB(xhr) {
+	tserie = getOASdataFromTXTfile(xhr);
+	OAS_BBB = tserie.data;
+}
+// Function to get OAS for BB
+function getOAS_BB(xhr) {
+	tserie = getOASdataFromTXTfile(xhr);
+	OAS_BB = tserie.data;
+}
+// Function to get OAS for B
+function getOAS_B(xhr) {
+	tserie = getOASdataFromTXTfile(xhr);
+	OAS_B = tserie.data;
+}
+// Function to get OAS for CCC or below
+function getOAS_CCC(xhr) {
+	tserie = getOASdataFromTXTfile(xhr);
+	OAS_CCC = tserie.data;
+}
+//------Function to get Treasury Yield data from XML file ------
+function getTYieldFromXMLfile(xml) {
+	var xmlDoc = xml.responseXML;
+	var gd = xmlDoc.getElementsByTagName("G_NEW_DATE");
+	var gbc = xmlDoc.getElementsByTagName("G_BC_CAT");
+	var dat =[];
+	var m1m, m3m, m6m, m1y, m2y, m3y, m5y, m7y, m10y, m20y,m30y;
+	for (var i = 0; i< gd.length; i++) {
+		dat.push(gd[i].getElementsByTagName("BID_CURVE_DATE")[0].childNodes[0].nodeValue);
+		m1m = gbc[i].getElementsByTagName("BC_1MONTH")[0].childNodes[0].nodeValue;
+		m3m = gbc[i].getElementsByTagName("BC_3MONTH")[0].childNodes[0].nodeValue;
+		m6m = gbc[i].getElementsByTagName("BC_6MONTH")[0].childNodes[0].nodeValue;
+		m1y = gbc[i].getElementsByTagName("BC_1YEAR")[0].childNodes[0].nodeValue;
+		m2y = gbc[i].getElementsByTagName("BC_2YEAR")[0].childNodes[0].nodeValue;
+		m3y = gbc[i].getElementsByTagName("BC_3YEAR")[0].childNodes[0].nodeValue;
+		m5y = gbc[i].getElementsByTagName("BC_5YEAR")[0].childNodes[0].nodeValue;
+		m7y = gbc[i].getElementsByTagName("BC_7YEAR")[0].childNodes[0].nodeValue;
+		m10y = gbc[i].getElementsByTagName("BC_10YEAR")[0].childNodes[0].nodeValue;
+		m20y = gbc[i].getElementsByTagName("BC_20YEAR")[0].childNodes[0].nodeValue;
+		m30y = gbc[i].getElementsByTagName("BC_30YEAR")[0].childNodes[0].nodeValue;
+		TYield.push([Number(m1m), Number(m3m), Number(m6m), Number(m1y), Number(m2y), Number(m3y), Number(m5y), Number(m7y), Number(m10y), Number(m20y),Number(m30y)]);
+	}
+	date_TY = cdateFormat(dat);
+}
+// General Function to get date and OAS from txt file
+function getOASdataFromTXTfile(xhr) {
+	var txt = xhr.responseText;
+	var lines =txt.split("\n");
+	var first = 32; // index of first observation
+	var last = lines.length-2; //index of last observation
+	var dat =[];
+	var OAS =[];
+	var obs;
+	for (var i=first; i<=last; i++) {
+			obs = lines[i];
+			dat.push(obs.slice(0,10));
+			OAS.push(Number(obs.slice(12)));
+	}
+	return {date:dat, data:OAS};
+	
+}
+// Make the actual CORS request.
+function makeCorsRequest(url,cFunction) {
+  // This is a proxy server that supports CORS.
+  var proxyurl = 'https://cors-anywhere.herokuapp.com/';
+
+  var xhr = createCORSRequest('GET', proxyurl+url);
+  if (!xhr) {
+    alert('CORS not supported');
+    return;
+  }
+  // Response handlers.
+  xhr.onload = function() {
+	cFunction(this);
+  };
+
+  xhr.onerror = function() {
+    alert('Woops, there was an error making the request.');
+  };
+  xhr.send();
+
+}
+// Create the XHR object.
+function createCORSRequest(method, url) {
+  var xhr = new XMLHttpRequest();
+  if ("withCredentials" in xhr) {
+    // XHR for Chrome/Firefox/Opera/Safari.
+    xhr.open(method, url, true);
+  } else if (typeof XDomainRequest != "undefined") {
+    // XDomainRequest for IE.
+    xhr = new XDomainRequest();
+    xhr.open(method, url);
+  } else {
+    // CORS not supported.
+    xhr = null;
+  }
+  return xhr;
+}
+// Change date format
+function cdateFormat(arr) {
+	// Assume arr is an array with date of the format: 02-APR-18
+	// Change to 2018-04-02
+	var dd, mmm, yy, mm;
+	var carr =[];
+	var monthabb = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+	for (var i=0; i<arr.length; i++) {
+		dd = arr[i].slice(0,2);
+		mmm = arr[i].slice(3,6);
+		mm = monthabb.indexOf(mmm)+1;
+		if (mm<10) {
+			mm = "0"+mm;
+		}
+		yy = arr[i].slice(7,9);
+		carr.push("20"+yy+"-"+ mm + "-"+dd);
+	}
+	return carr;
+}
+// Sum Product
+function sumprod(x,y){
+	if (x.length!=y.length) {
+		alert('Arrays must have equal length x.length '+x.length+' y.length '+y.length);
+		return NaN;
+	} else {
+		var sump =0;
+		for (var i=0;i<x.length; i++) {
+			sump += x[i]*y[i];
+		}
+		return sump;
+	}
+	
+}
+// Num to string
+function numToStr(num,fo){
+	if (num==null){return null;}
+	if (fo=='decimal') {
+		return '$'+num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");;
+	} else {
+		return (num*100).toFixed(2)+'%';
+	}
+} 
+// make google data table from javascript arrays
+function makeDTforChart() {
+	// make google data table from javascript arrays
+	// Inputs: makeDTforChart(x1name,x1,x2name,x2,...)
+	//	-	x1name: first variable's name
+	//	-	x1: first variable
+	var colHead = [];
+	if (arguments.length % 2 !=0) {
+		alert("Inputs to makeDTforChart not correct")
+	} else {
+		for (var i=0; i<arguments.length; i+=2) {
+			var namei=arguments[i];
+			colHead.push(namei);
+		}
+		var DTforChart=[colHead];
+	
+		for (var j=0; j<arguments[1].length; j++) {
+			var rowj = [];
+			for (var a=1; a<arguments.length; a+=2) {
+				var xa = arguments[a];
+				rowj.push(xa[j]);
+			}
+			DTforChart[j+1] = rowj;
+		}
+		var DT = new google.visualization.arrayToDataTable(DTforChart);
+		return DT;
+	}
+}
+</script>
+<style> 
+* {
+    box-sizing: border-box;
+}
+html {
+	display: table;
+	margin: auto;
+}
+
+body {
+  margin: 0;
+  width:900px;
+  display:table-cell;
+  /* background-color:#e6f7ff; */
+}
+header {text-align: center;
+		font-size: 30px;
+		background-color:rgb(31,73,125);
+		color:white;
+		margin-bottom:10px;
+		padding:5px; 
+		box-shadow:0 0 15px #999;
+}
+/* Create 2 unequal columns that floats next to each other */
+.column {
+    padding: 15px;
+	float:right;
+}
+
+/* right column */
+.column.side {
+    width: 30%;
+	//padding-left:10px;
+}
+
+/* Middle column */
+.column.middle {
+    width: 70%;
+	//padding-right:10px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: "" ;
+    display: table;
+    clear: both;
+}
+
+/* Responsive layout - makes the three columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 900px) {
+    .column.side, .column.middle {
+        width: 100%;
+    }
+}
+
+<!-- *** Site map STYLE *** -->
+#SiteMap {
+	//background-color:rgb(234,242,248);
+	//border-radius: 15px;
+	height:30px;
+	margin-top:50px;
+}
+
+#SiteLinks {
+	padding: 0px;
+	background-color:rgb(234,242,248);
+	border-radius: 5px;
+	height:30px;
+}
+#SiteLinks ul {
+   margin: 0;
+   padding: 0;    
+}
+#SiteLinks li {
+    float: left;
+    list-style-type: none;
+}
+#SiteLinks li a {
+    padding: 5px 5px;
+    margin: 0 3px 0 0;
+	display:block;
+	text-decoration: none;
+	color:blue;
+	//border-right:1px solid white;
+}
+#SiteLinks li a:hover {
+	text-decoration: bold;
+	background-color:#0000FF;
+	color:white;
+	text-decoration: underline;
+}
+br.clearLeft {
+   clear: left;        
+}
+footer {background: #555;
+		color:white;
+		font-size:14px;
+		padding:5px !important;
+		margin-top:50px;
+}
+<!-- **************************** -->
+table { 
+    display: table;
+    border-collapse: collapse;
+    border-spacing: 0px;
+    border-color: gray;
+}
+th,td {
+	padding:3px;
+}
+h4 {
+	background-color: rgb(31,73,125); 
+	padding: 5px;
+	color:white;
+	border-radius:3px;
+	box-shadow:0 0 5px #999;
+	text-align:center;
+}
+fieldset
+{
+  background-color: #e6f7ff;
+  padding:16px;	
+  border:1px solid #999;
+  border-radius:8px;
+  box-shadow:0 0 10px #999;
+}
+legend {
+	color:blue;
+	background:#fff;
+}
+[id*="Chart"] {
+	height: 280px;
+	width: 100%;
+}
+</style>
+</head>
+<body>
+
+<header>Corporate Bond Yield Estimation Toolkit</header>
+<h2 style="text-align:center"> For Financial Institutions in Cambodia</h2>
+<div class="row">
+  <div class="column middle">
+    <h4>Logit Model for Banks and Microfinance Insitutions</h4>
+	<p><b> Please provide the following information!</b></p>
+    <form>
+	<fieldset>
+	<legend>Corporate Bond Info:</legend>
+		<em style="color:blue">--- Issuer Information ---</em>
+		<br><br>
+		- Company Name: 
+		<input type="text" id="Company" name="Company" value="Acleda">
+		<br><br>
+		- NBC License:
+		<select id="License">
+			<option value="Commercial" selected>Commercial Bank</option>
+			<option value="Specialized">Specialized Bank</option>
+			<option value="MDI">MDI</option>
+			<option value="MFI">MFI</option>
+		</select>
+		<br><br>
+		- Competitiveness:
+		<select id="Competitiveness">
+			<option value="High" selected>High</option>
+			<option value="Neutral">Neutral</option>
+			<option value="Low">Low</option>
+		</select>
+		<br><br>
+		<em style="color:blue"> --- Financial Information ---</em>
+		</br></br>
+		- Return On Equity (ROE)        :
+		<input type="number" id="ROE" min="0" max="10000" step="0.1" value="21.1"> % &nbsp;
+		</br> </br>
+		- Total Liabilities/Total Assets:
+		<input type="number" id="TLTA" min="0" max="10000" step="0.1" value="85.8"> % &nbsp;
+		</br> </br>
+		- Non-current Loans/Gross Loans :
+		<input type="number" id="NCLGLP" min="0" max="10000" step="0.1" value="63.8"> % &nbsp;
+		</br> </br>
+		- Return On Assets (ROA)        :
+		<input type="number" id="ROA" min="0" max="10000" step="0.1" value="3.0"> % &nbsp;
+		</br> </br>
+		- Net Loans/Equity              :
+		<input type="number" id="NLE" min="0" max="10000" step="0.1" value="430.0"> % &nbsp;
+		</br> </br>
+		- Earnings Assets/Total Assets  :
+		<input type="number" id="EATA" min="0" max="10000" step="0.1" value="80.5"> % &nbsp;
+		</br> </br>
+		<em style="color:blue">--- Bond Yield Parameters (<b>Optional</b>) ---</em>
+		</br></br>
+		- Recovery Rate (non-secured bond)        :
+		<input type="number" id="Non-SecuredRC" min="0" max="100" step="0.1" value="40"> % &nbsp;
+		</br> </br>
+		- Recovery Rate (secured bond)        :
+		<input type="number" id="SecuredRC" min="0" max="100" step="0.1" value="60"> % &nbsp;
+		</br> </br>
+	</fieldset>
+	</form>
+	<p><b>Result: PD, Implied Rating, Adjusted Rating, and Bond Yield Estimates</b></p>
+	<input type="button" onclick="EstimateBondYield()" value="Re-Estimate">
+	<p id="impliedRating"></p> 
+	<div id="ChartPlain_div"></div>
+	<div id="ChartSecured_div"></div>
+	<p id="noteondate"></p>
+  </div>
+   <div class="column side">
+   <h4>US Yield & Spread Data</h4>
+    <p><b>US Treasury Bond Yield</b></p>
+    <div id="table_ty_div"></div>
+	<p><em>Source: https://www.treasury.gov/</em></p>
+	<p><b>US Corporate Option-Adjusted Spread</b></p>
+    <div id="table_oas_div"></div>
+	<p><em>Source: https://fred.stlouisfed.org/</em></p>
+	<p style="color:red">Change date back and forth to refresh data if not loaded.</p>
+	<table>
+	<tr>
+		<th> Date: </th>
+		<th> <input type="button" onclick="previous()" value="<<"> </th>
+		<th> <p id="datadate"></p> </th>
+		<th> <input type="button" onclick="next()" value=">>"> </th>
+	</tr>
+	</table>
+    <h4> KHR-USD Difference</h4>
+    <div id="table_ku_div"></div>
+	<p><em>Note: Based on MDIs' fixed deposit rate as of Feb 2018</em></p>
+
+  </div>
+</div>
+
+<!-- *** Site Map *** -->
+<div id="SiteMap">
+	<div id="SiteLinks">
+		<ul>
+			<li><a href="https://simdara.github.io/index">Home</a></li>
+			<li><a href="https://simdara.github.io/BankingDBViewer" >Banking-DB</a></li>
+			<li><a href="https://simdara.github.io/MortgageLoan">Mortgage</a></li>
+			<li><a href="https://simdara.github.io/PPAP">PPAP</a></li>
+			<li><a href="http://www.yuantacambodia.com/">YSC</a></li>
+		</ul>    
+		<br class="clearLeft" />
+	</div>
+</div>
+<footer>Copyright &copy; 2016, Yuanta Securities (Cambodia) Plc.</footer>
+</body>
+</html>
