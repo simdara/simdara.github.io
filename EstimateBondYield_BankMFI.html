@@ -10,9 +10,70 @@
 google.charts.load('current', {packages:['controls','corechart']});
 </script>
 <script type="text/javascript">
+var LogitDT;
+var FI = []; // financial institution
+var Lic = []; // license
+var Compet = []; // competitiveness
+var ModelData;
+// Get bank data
+function getLogitData() {
+    var query = new google.visualization.Query('http://spreadsheets.google.com/tq?key=1UgM52SB6iu7ucnDVQn3O3M7IH716QBxQ50eoY_IIEq8&gid=201236703');
+	//
+    query.send(handleQueryResponse);
+}
+function handleQueryResponse(response) {
+    if (response.isError()) {
+        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+        return;
+    }
+    LogitDT = response.getDataTable();
+	var nrecod = LogitDT.getNumberOfRows();
+	ModelData = new Array(nrecod);
+	var ncol = LogitDT.getNumberOfColumns();
+	for (var i=0; i<nrecod; i++) {
+		FI.push(LogitDT.getValue(i,0));
+		Lic.push(LogitDT.getValue(i,1));
+		Compet.push(LogitDT.getValue(i,2));
+		ModelData[i] = new Array(ncol-3);
+		for (var j=3;j<ncol; j++) {
+			ModelData[i][j-3]= LogitDT.getValue(i,j);
+		}
+	}	
+		// Construct option for FI
+	var FIOption = document.forms[0].FI;
+	FIOption[0] = new Option(FI[0],FI[0],false,true);
+	for (var i=1;i<nrecod; i++) {
+		FIOption[i] = new Option(FI[i],FI[i],false,false);
+	}
+	fillDefDataIntoForm();
+	
+}
+// Fill data into form
+function fillDefDataIntoForm(){
+	var selectedFI = document.getElementById("FI").options[document.getElementById("FI").selectedIndex].value;
+	var FIid = FI.indexOf(selectedFI);
+	document.getElementById("Company").value = selectedFI;
+	document.getElementById("License").value = Lic[FIid];
+	document.getElementById("Competitiveness").value = Compet[FIid];
+	//
+	document.getElementById("ROE").value = (ModelData[FIid][0]*100.0).toFixed(2);
+	document.getElementById("TLTA").value = (ModelData[FIid][1]*100.0).toFixed(2);
+	document.getElementById("NCLGLP").value = (ModelData[FIid][2]*100.0).toFixed(2);
+	document.getElementById("ROA").value = (ModelData[FIid][3]*100.0).toFixed(2);
+	document.getElementById("NLE").value = (ModelData[FIid][4]*100.0).toFixed(2);
+	document.getElementById("EATA").value = (ModelData[FIid][5]*100.0).toFixed(2);	
+	//
+	var str1 = "<em> The suggested data is as of "+ ModelData[FIid][6]+".</em>";
+	document.getElementById("dateOfDefaultData").innerHTML =str1;
+}
+$(window).load(function() {
+	getLogitData();
+});
 $(document).ready(function() {
+
 	EstimateBondYield();
 });
+
 // Logit model
 // Input ratios:
 	// ROE
@@ -72,15 +133,27 @@ function EstimateBondYield() {
 	var adjRating = Ratings[RatingsNum.indexOf(adjRatingNum)];
 	// Print Result
 	var str2 = "Its implied rating is " + impliedRating.impliedRating+ ".";
-	var str1 = "The 1-year probability of default of "+ CompanyName+" is "+numToStr(PD/100.0)+".";
+	//var str1 = "The 1-year probability of default of "+ CompanyName+" is "+(PD).toFixed(2)+"%.";
 	var str3 = "Its adjusted rating is " + adjRating+ ".";
-	document.getElementById("impliedRating").innerHTML = str1 + "<br>" +str2 + "<br>" +str3;
+	document.getElementById("impliedRating").innerHTML = str2 + "<br>" +str3;
+	//
+	// ------
+	var formatter = new google.visualization.NumberFormat({
+		pattern: '#,###.##'
+	});
 	//
 	var BYield = bondYield(adjRatingNum,Rec,Rec_sec);
+	//
 	var DT_BYieldPlain = makeDTforChart("Maturity", BYield.Maturity, "USD-denominated", BYield.USD, "KHR-denominated",BYield.KHR);
+	formatter.format(DT_BYieldPlain, 1);
+	formatter.format(DT_BYieldPlain, 2);
 	var DTview_BYieldPlain = new google.visualization.DataView(DT_BYieldPlain);
+	//
 	var DT_BYieldSecured = makeDTforChart("Maturity", BYield.Maturity, "USD-denominated", BYield.USDsecured, "KHR-denominated",BYield.KHRsecured);
+	formatter.format(DT_BYieldSecured, 1);
+	formatter.format(DT_BYieldSecured, 2);
 	var DTview_BYieldSecured = new google.visualization.DataView(DT_BYieldSecured);
+	//----------------------
 	// Draw Charts
 	// Plain Bond
 	var PlainBondChart = new google.visualization.LineChart(document.getElementById('ChartPlain_div'));
@@ -101,7 +174,7 @@ function EstimateBondYield() {
 	DTview_BYieldSecured.setColumns([0,1,{calc:"stringify", sourceColumn:1,type:"string",role:"annotation"},2,{calc:"stringify", sourceColumn:2,type:"string",role:"annotation"}]);
 	SecuredBondChart.draw(DTview_BYieldSecured,option);
 	//
-	 document.getElementById("noteondate").innerHTML = "<em> Note: US Treasury Yield and Corporate OAS data are as of "+ldate +"</em>";
+	 document.getElementById("noteondate").innerHTML = "<em style='font-size:14px'> Note: US Treasury Yield and Corporate OAS data are as of "+ldate +"</em>";
 }
 // estimate bond yield for an adjusted rating
 function bondYield(adjRatingNum, Rec, Rec_sec) {
@@ -170,7 +243,11 @@ function drawTables() {
 	var OASTY_atAdate = prepareSpreadTYield(ldate); // at a date
 	var DT_oas = makeDTforChart("Rating", Ratings, "OAS (%)", OASTY_atAdate.OAS);
 	var DT_ty = makeDTforChart("Maturity", Maturity_TYstr,"T-Bond Yield (%)", OASTY_atAdate.Yield);
-	
+	var formatter = new google.visualization.NumberFormat({
+		pattern: '#,###.##'
+	});
+	formatter.format(DT_oas, 1);
+	formatter.format(DT_ty, 1);
 	//
 	var table_oas = new google.visualization.ChartWrapper({ // table for US corporate OAS
 		containerId: 'table_oas_div',
@@ -273,10 +350,6 @@ function interpolcurve(y,x){
 	return y;
 }
 //
-function test() {
-	var st1 = date_OAS[date_OAS.length-1];
-	document.getElementById("demo").innerHTML = st1+"<br>"+ prepareSpreadTYield(st1).Yield;
-}
 // Function to get date and OAS for AAA
 function getdateOAS_AAA(xhr) {
 	tserie = getOASdataFromTXTfile(xhr);
@@ -425,15 +498,7 @@ function sumprod(x,y){
 	}
 	
 }
-// Num to string
-function numToStr(num,fo){
-	if (num==null){return null;}
-	if (fo=='decimal') {
-		return '$'+num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");;
-	} else {
-		return (num*100).toFixed(2)+'%';
-	}
-} 
+
 // make google data table from javascript arrays
 function makeDTforChart() {
 	// make google data table from javascript arrays
@@ -494,13 +559,13 @@ header {text-align: center;
 
 /* right column */
 .column.side {
-    width: 30%;
+    width: 32%;
 	//padding-left:10px;
 }
 
 /* Middle column */
 .column.middle {
-    width: 70%;
+    width: 68%;
 	//padding-right:10px;
 }
 
@@ -571,7 +636,7 @@ table {
     border-color: gray;
 }
 th,td {
-	padding:3px;
+	padding:1px;
 }
 h4 {
 	background-color: rgb(31,73,125); 
@@ -612,8 +677,12 @@ legend {
 	<legend>Corporate Bond Info:</legend>
 		<em style="color:blue">--- Issuer Information ---</em>
 		<br><br>
-		- Company Name: 
-		<input type="text" id="Company" name="Company" value="Acleda">
+		- Select Name: 
+		<select id="FI" onchange="fillDefDataIntoForm()">
+			<option>ABA</option>
+		</select>
+		or Fill
+		<input type="text" id="Company" name="Company" value="ABA">
 		<br><br>
 		- NBC License:
 		<select id="License">
@@ -633,23 +702,24 @@ legend {
 		<em style="color:blue"> --- Financial Information ---</em>
 		</br></br>
 		- Return On Equity (ROE)        :
-		<input type="number" id="ROE" min="0" max="10000" step="0.1" value="21.1"> % &nbsp;
+		<input type="number" id="ROE" min="0" max="10000" step="0.1" value="25.3"> % &nbsp;
 		</br> </br>
 		- Total Liabilities/Total Assets:
-		<input type="number" id="TLTA" min="0" max="10000" step="0.1" value="85.8"> % &nbsp;
+		<input type="number" id="TLTA" min="0" max="10000" step="0.1" value="88.3"> % &nbsp;
 		</br> </br>
 		- Non-current Loans/Gross Loans :
-		<input type="number" id="NCLGLP" min="0" max="10000" step="0.1" value="63.8"> % &nbsp;
+		<input type="number" id="NCLGLP" min="0" max="10000" step="0.1" value="92.2"> % &nbsp;
 		</br> </br>
 		- Return On Assets (ROA)        :
 		<input type="number" id="ROA" min="0" max="10000" step="0.1" value="3.0"> % &nbsp;
 		</br> </br>
 		- Net Loans/Equity              :
-		<input type="number" id="NLE" min="0" max="10000" step="0.1" value="430.0"> % &nbsp;
+		<input type="number" id="NLE" min="0" max="10000" step="0.1" value="608.1"> % &nbsp;
 		</br> </br>
 		- Earnings Assets/Total Assets  :
-		<input type="number" id="EATA" min="0" max="10000" step="0.1" value="80.5"> % &nbsp;
-		</br> </br>
+		<input type="number" id="EATA" min="0" max="10000" step="0.1" value="94.1"> % &nbsp;
+		</br>	
+		<p style='color:green; font-size:12px; text-align:right' id="dateOfDefaultData"><p>	
 		<em style="color:blue">--- Bond Yield Parameters (<b>Optional</b>) ---</em>
 		</br></br>
 		- Recovery Rate (non-secured bond)        :
@@ -657,7 +727,8 @@ legend {
 		</br> </br>
 		- Recovery Rate (secured bond)        :
 		<input type="number" id="SecuredRC" min="0" max="100" step="0.1" value="60"> % &nbsp;
-		</br> </br>
+		</br>
+		</br>
 	</fieldset>
 	</form>
 	<p><b>Result: PD, Implied Rating, Adjusted Rating, and Bond Yield Estimates</b></p>
