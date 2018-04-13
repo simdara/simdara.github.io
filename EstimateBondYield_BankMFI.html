@@ -65,6 +65,9 @@ function fillDefDataIntoForm(){
 	//
 	var str1 = "<em> The suggested data is as of "+ ModelData[FIid][6]+".</em>";
 	document.getElementById("dateOfDefaultData").innerHTML =str1;
+	// Hide previous result
+	var res = document.getElementById("Results");
+	res.style.display ="none";
 }
 $(window).load(function() {
 	getLogitData();
@@ -154,6 +157,9 @@ function EstimateBondYield() {
 	formatter.format(DT_BYieldSecured, 2);
 	var DTview_BYieldSecured = new google.visualization.DataView(DT_BYieldSecured);
 	//----------------------
+	// show result
+	var res = document.getElementById("Results");
+	res.style.display ="block";
 	// Draw Charts
 	// Plain Bond
 	var PlainBondChart = new google.visualization.LineChart(document.getElementById('ChartPlain_div'));
@@ -662,6 +668,7 @@ legend {
 	height: 280px;
 	width: 100%;
 }
+
 </style>
 </head>
 <body>
@@ -733,10 +740,12 @@ legend {
 	</form>
 	<p><b>Result: PD, Implied Rating, Adjusted Rating, and Bond Yield Estimates</b></p>
 	<input type="button" onclick="EstimateBondYield()" value="Re-Estimate">
-	<p id="impliedRating"></p> 
-	<div id="ChartPlain_div"></div>
-	<div id="ChartSecured_div"></div>
-	<p id="noteondate"></p>
+	<div id="Results">
+		<p id="impliedRating"></p> 
+		<div id="ChartPlain_div"></div>
+		<div id="ChartSecured_div"></div>
+		<p id="noteondate"></p>
+	</div>
   </div>
    <div class="column side">
    <h4>US Yield & Spread Data</h4>
