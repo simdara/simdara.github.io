@@ -66,15 +66,11 @@ function fillDefDataIntoForm(){
 	var str1 = "<em> The suggested data is as of "+ ModelData[FIid][6]+".</em>";
 	document.getElementById("dateOfDefaultData").innerHTML =str1;
 	// Hide previous result
-	var res = document.getElementById("Results");
-	res.style.display ="none";
+	hideResult();
 }
 $(window).load(function() {
+	hideResult();
 	getLogitData();
-});
-$(document).ready(function() {
-
-	EstimateBondYield();
 });
 
 // Logit model
@@ -158,8 +154,7 @@ function EstimateBondYield() {
 	var DTview_BYieldSecured = new google.visualization.DataView(DT_BYieldSecured);
 	//----------------------
 	// show result
-	var res = document.getElementById("Results");
-	res.style.display ="block";
+	showResult();
 	// Draw Charts
 	// Plain Bond
 	var PlainBondChart = new google.visualization.LineChart(document.getElementById('ChartPlain_div'));
@@ -535,8 +530,33 @@ function makeDTforChart() {
 }
 // Hide result
 function hideResult() {
-	var res = document.getElementById("Results");
-	res.style.display="none";
+	const res1 = document.getElementById("impliedRating");
+	const res2 = document.getElementById("ChartPlain_div");
+	const res3 = document.getElementById("ChartSecured_div");
+	const res4 = document.getElementById("noteondate");
+	res1.style.opacity=0;
+	res2.style.opacity=0;
+	res3.style.opacity=0;
+	res4.style.opacity=0;
+	res1.style.transition="opacity 0s";
+	res2.style.transition="opacity 0s";
+	res3.style.transition="opacity 0s";
+	res4.style.transition="opacity 0s";
+}
+// Show result
+function showResult() {
+	const res1 = document.getElementById("impliedRating");
+	const res2 = document.getElementById("ChartPlain_div");
+	const res3 = document.getElementById("ChartSecured_div");
+	const res4 = document.getElementById("noteondate");
+	res1.style.opacity=1;
+	res2.style.opacity=1;
+	res3.style.opacity=1;
+	res4.style.opacity=1;
+	res1.style.transition="opacity 0s";
+	res2.style.transition="opacity 1s";
+	res3.style.transition="opacity 2s";
+	res4.style.transition="opacity 3s";
 }
 </script>
 <style> 
@@ -672,8 +692,10 @@ legend {
 [id*="Chart"] {
 	height: 280px;
 	width: 100%;
+	//border:1px solid #999;
+	//border-radius:8px;
+	//box-shadow:0 0 5px #999;
 }
-
 </style>
 </head>
 <body>
@@ -731,7 +753,7 @@ legend {
 		- Earnings Assets/Total Assets  :
 		<input type="number" id="EATA" min="0" max="10000" step="0.1" value="94.1" onchange="hideResult()"> % &nbsp;
 		</br>	
-		<p style='color:green; font-size:12px; text-align:right' id="dateOfDefaultData"><p>	
+		<p style='color:green; font-size:12px; text-align:right' id="dateOfDefaultData">The suggested data is not available.<p>	
 		<em style="color:blue">--- Bond Yield Parameters (<b>Optional</b>) ---</em>
 		</br></br>
 		- Recovery Rate (non-secured bond)        :
@@ -746,10 +768,11 @@ legend {
 	<p><b>Result: PD, Implied Rating, Adjusted Rating, and Bond Yield Estimates</b></p>
 	<input type="button" onclick="EstimateBondYield()" value="Estimate">
 	<div id="Results">
-		<p id="impliedRating"></p> 
-		<div id="ChartPlain_div"></div>
-		<div id="ChartSecured_div"></div>
-		<p id="noteondate"></p>
+			<p id="impliedRating"></p> 
+			<div id="ChartPlain_div"></div>
+			<br>
+			<div id="ChartSecured_div"></div>
+			<p id="noteondate"></p>
 	</div>
   </div>
    <div class="column side">
@@ -772,7 +795,8 @@ legend {
     <h4> KHR-USD Difference</h4>
     <div id="table_ku_div"></div>
 	<p><em>Note: Based on MDIs' fixed deposit rate as of Feb 2018</em></p>
-
+	<br>
+	<p style="color:green"> By YSC Research</p>
   </div>
 </div>
 
