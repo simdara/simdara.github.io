@@ -692,9 +692,9 @@ legend {
 [id*="Chart"] {
 	height: 280px;
 	width: 100%;
-	border:1px solid #999;
-	border-radius:8px;
-	box-shadow:0 0 5px #999;
+	//border:1px solid #999;
+	//border-radius:8px;
+	//box-shadow:0 0 5px #999;
 }
 </style>
 </head>
@@ -736,22 +736,22 @@ legend {
 		<em style="color:blue"> --- Financial Information ---</em>
 		</br></br>
 		- Return On Equity (ROE)        :
-		<input type="number" id="ROE" min="0" max="10000" step="0.1" value="25.3" onchange="hideResult()"> % &nbsp;
+		<input type="number" id="ROE" min="0" max="9999" step="0.1" value="25.3" onchange="hideResult()"> % &nbsp;
 		</br> </br>
 		- Total Liabilities/Total Assets:
-		<input type="number" id="TLTA" min="0" max="10000" step="0.1" value="88.3" onchange="hideResult()"> % &nbsp;
+		<input type="number" id="TLTA" min="0" max="100" step="0.1" value="88.3" onchange="hideResult()"> % &nbsp;
 		</br> </br>
 		- Non-current Loans/Gross Loans :
-		<input type="number" id="NCLGLP" min="0" max="10000" step="0.1" value="92.2" onchange="hideResult()"> % &nbsp;
+		<input type="number" id="NCLGLP" min="0" max="100" step="0.1" value="92.2" onchange="hideResult()"> % &nbsp;
 		</br> </br>
 		- Return On Assets (ROA)        :
-		<input type="number" id="ROA" min="0" max="10000" step="0.1" value="3.0" onchange="hideResult()"> % &nbsp;
+		<input type="number" id="ROA" min="0" max="9999" step="0.1" value="3.0" onchange="hideResult()"> % &nbsp;
 		</br> </br>
 		- Net Loans/Equity              :
-		<input type="number" id="NLE" min="0" max="10000" step="0.1" value="608.1" onchange="hideResult()"> % &nbsp;
+		<input type="number" id="NLE" min="0" max="9999" step="0.1" value="608.1" onchange="hideResult()"> % &nbsp;
 		</br> </br>
 		- Earnings Assets/Total Assets  :
-		<input type="number" id="EATA" min="0" max="10000" step="0.1" value="94.1" onchange="hideResult()"> % &nbsp;
+		<input type="number" id="EATA" min="0" max="100" step="0.1" value="94.1" onchange="hideResult()"> % &nbsp;
 		</br>	
 		<p style='color:green; font-size:12px; text-align:right' id="dateOfDefaultData">The suggested data is not available.<p>	
 		<em style="color:blue">--- Recovery Rate Parameters (<b>Optional</b>) ---</em>
