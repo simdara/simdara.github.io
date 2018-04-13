@@ -533,6 +533,11 @@ function makeDTforChart() {
 		return DT;
 	}
 }
+// Hide result
+function hideResult() {
+	var res = document.getElementById("Results");
+	res.style.display="none";
+}
 </script>
 <style> 
 * {
@@ -688,11 +693,11 @@ legend {
 		<select id="FI" onchange="fillDefDataIntoForm()">
 			<option>ABA</option>
 		</select>
-		or Fill
-		<input type="text" id="Company" name="Company" value="ABA">
+		or Type Name: 
+		<input type="text" id="Company" name="Company" value="ABA" onchange="hideResult()">
 		<br><br>
 		- NBC License:
-		<select id="License">
+		<select id="License" onchange="hideResult()">
 			<option value="Commercial" selected>Commercial Bank</option>
 			<option value="Specialized">Specialized Bank</option>
 			<option value="MDI">MDI</option>
@@ -700,7 +705,7 @@ legend {
 		</select>
 		<br><br>
 		- Competitiveness:
-		<select id="Competitiveness">
+		<select id="Competitiveness" onchange="hideResult()">
 			<option value="High" selected>High</option>
 			<option value="Neutral">Neutral</option>
 			<option value="Low">Low</option>
@@ -709,31 +714,31 @@ legend {
 		<em style="color:blue"> --- Financial Information ---</em>
 		</br></br>
 		- Return On Equity (ROE)        :
-		<input type="number" id="ROE" min="0" max="10000" step="0.1" value="25.3"> % &nbsp;
+		<input type="number" id="ROE" min="0" max="10000" step="0.1" value="25.3" onchange="hideResult()"> % &nbsp;
 		</br> </br>
 		- Total Liabilities/Total Assets:
-		<input type="number" id="TLTA" min="0" max="10000" step="0.1" value="88.3"> % &nbsp;
+		<input type="number" id="TLTA" min="0" max="10000" step="0.1" value="88.3" onchange="hideResult()"> % &nbsp;
 		</br> </br>
 		- Non-current Loans/Gross Loans :
-		<input type="number" id="NCLGLP" min="0" max="10000" step="0.1" value="92.2"> % &nbsp;
+		<input type="number" id="NCLGLP" min="0" max="10000" step="0.1" value="92.2" onchange="hideResult()"> % &nbsp;
 		</br> </br>
 		- Return On Assets (ROA)        :
-		<input type="number" id="ROA" min="0" max="10000" step="0.1" value="3.0"> % &nbsp;
+		<input type="number" id="ROA" min="0" max="10000" step="0.1" value="3.0" onchange="hideResult()"> % &nbsp;
 		</br> </br>
 		- Net Loans/Equity              :
-		<input type="number" id="NLE" min="0" max="10000" step="0.1" value="608.1"> % &nbsp;
+		<input type="number" id="NLE" min="0" max="10000" step="0.1" value="608.1" onchange="hideResult()"> % &nbsp;
 		</br> </br>
 		- Earnings Assets/Total Assets  :
-		<input type="number" id="EATA" min="0" max="10000" step="0.1" value="94.1"> % &nbsp;
+		<input type="number" id="EATA" min="0" max="10000" step="0.1" value="94.1" onchange="hideResult()"> % &nbsp;
 		</br>	
 		<p style='color:green; font-size:12px; text-align:right' id="dateOfDefaultData"><p>	
 		<em style="color:blue">--- Bond Yield Parameters (<b>Optional</b>) ---</em>
 		</br></br>
 		- Recovery Rate (non-secured bond)        :
-		<input type="number" id="Non-SecuredRC" min="0" max="100" step="0.1" value="40"> % &nbsp;
+		<input type="number" id="Non-SecuredRC" min="0" max="100" step="0.1" value="40" onchange="hideResult()"> % &nbsp;
 		</br> </br>
 		- Recovery Rate (secured bond)        :
-		<input type="number" id="SecuredRC" min="0" max="100" step="0.1" value="60"> % &nbsp;
+		<input type="number" id="SecuredRC" min="0" max="100" step="0.1" value="60" onchange="hideResult()"> % &nbsp;
 		</br>
 		</br>
 	</fieldset>
