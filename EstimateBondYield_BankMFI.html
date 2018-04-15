@@ -134,7 +134,7 @@ function EstimateBondYield() {
 	var str2 = "Its implied rating is " + impliedRating.impliedRating+ ".";
 	//var str1 = "The 1-year probability of default of "+ CompanyName+" is "+(PD).toFixed(2)+"%.";
 	var str3 = "Its adjusted rating is " + adjRating+ ".";
-	document.getElementById("impliedRating").innerHTML = str2 + "<br>" +str3;
+	document.getElementById("impliedRating").innerHTML = str2 + " " +str3;
 	//
 	// ------
 	var formatter = new google.visualization.NumberFormat({
@@ -183,10 +183,12 @@ function EstimateBondYield() {
 	setTimeout(function(){
 	    document.getElementById('loader2').style.display="none";
 	    document.getElementById('ChartSecured_div').style.display = "block";
-	    SecuredBondChart.draw(DTview_BYieldSecured,option);}
-	    ,500);
+	    SecuredBondChart.draw(DTview_BYieldSecured,option);
+	    document.getElementById("noteondate").innerHTML = "<em style='font-size:14px'> Note: US Treasury Yield and Corporate OAS data are as of "+ldate +"</em>";
+	    }
+	    ,400);
 	//
-	 document.getElementById("noteondate").innerHTML = "<em style='font-size:14px'> Note: US Treasury Yield and Corporate OAS data are as of "+ldate +"</em>";
+	 
 }
 // estimate bond yield for an adjusted rating
 function bondYield(adjRatingNum, Rec, Rec_sec) {
@@ -244,11 +246,22 @@ for (var i=0; i<Maturity_TY.length; i++) {
 // --------------------------------
 // Draw tables
 google.charts.load('current', {packages:['controls','corechart'], callback: drawTableKHRUSD});
-try	{
-	google.charts.load('current', {packages:['controls','corechart'], callback: drawTables});
+if (date_OAS===undefined) {
+    setTimeout(waitTodrawTables,1000);
 }
-catch(err) {
-	alert(err.message);
+function waitTodrawTables() {
+    if (date_OAS===undefined || OAS_CCC===undefined) {
+        setTimeout(function() {
+            document.getElementById("loader3").style.display="none";
+            document.getElementById("loader4").style.display="none";
+            google.charts.load('current', {packages:['controls','corechart'], callback: drawTables});
+        }
+        ,2000);
+    } else {
+        document.getElementById("loader3").style.display="none";
+        document.getElementById("loader4").style.display="none";
+        google.charts.load('current', {packages:['controls','corechart'], callback: drawTables});
+    }
 }
 function drawTables() {
 	document.getElementById("datadate").innerHTML = ldate;
@@ -658,7 +671,7 @@ legend {
 	background:#fff;
 }
 [id*="Chart"] {
-	height: 280px;
+	height: 250px;
 	width: 100%;
 	border:1px solid #999;
 	border-radius:8px;
@@ -671,11 +684,11 @@ legend {
   top:50%;
   margin-top: 75px;
   margin-bottom:75px;
-  border: 10px solid #f3f3f3;
+  border: 7px solid #f3f3f3;
   border-radius: 50%;
-  border-top: 10px solid #3498db;
-  width: 50px;
-  height: 50px;
+  border-top: 7px solid #3498db;
+  width: 30px;
+  height: 30px;
   -webkit-animation: spin 2s linear infinite; /* Safari */
   animation: spin 2s linear infinite;
 }
@@ -807,7 +820,7 @@ footer {background: #555;
 		</br>
 	</fieldset>
 	</form>
-	<p><b>Result: PD, Implied Rating, Adjusted Rating, and Bond Yield Estimates</b></p>
+	<p><b>Result: Implied Rating, Adjusted Rating, and Bond Yield Estimates</b></p>
 	<button class="Estimate" onclick="EstimateBondYield()">Estimate</button>
 	<div id="Results">
 			<p id="impliedRating"></p> 
@@ -822,9 +835,11 @@ footer {background: #555;
    <div class="column side">
    <h4>US Yield & Spread Data</h4>
     <p><b>US Treasury Bond Yield</b></p>
+    <div class="loader" id="loader3"></div>
     <div id="table_ty_div"></div>
 	<p style="font-size:14px"><em>Source: https://www.treasury.gov/</em></p>
 	<p><b>US Corporate Option-Adjusted Spread</b></p>
+	<div class="loader" id="loader4"></div>
     <div id="table_oas_div"></div>
 	<p style="font-size:14px"><em>Source: https://fred.stlouisfed.org/</em></p>
 	<p style="color:red;font-size:14px">Change date back and forth to refresh data if not loaded.</p>
@@ -840,7 +855,11 @@ footer {background: #555;
     <div id="table_ku_div"></div>
 	<p style="font-size:14px"><em>Note: Based on MDIs' fixed deposit rate as of Feb 2018</em></p>
 	<br>
-	<p style="color:green"> By YSC Research</p>
+	<p style="color:green"> 
+	By YSC Research </br>
+	research@yuantacambodia.com </br>
+	+855-23-860-800
+	</p>
   </div>
 </div>
 
