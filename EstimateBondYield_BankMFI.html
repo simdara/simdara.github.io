@@ -168,12 +168,23 @@ function EstimateBondYield() {
 		},
 	};
 	DTview_BYieldPlain.setColumns([0,1,{calc:"stringify", sourceColumn:1,type:"string",role:"annotation"},2,{calc:"stringify", sourceColumn:2,type:"string",role:"annotation"}]);
-	PlainBondChart.draw(DTview_BYieldPlain,option);
+	
 	// Secured Bond
 	var SecuredBondChart = new google.visualization.LineChart(document.getElementById('ChartSecured_div'));
 	option.title = CompanyName +"'s Secured Bond";
 	DTview_BYieldSecured.setColumns([0,1,{calc:"stringify", sourceColumn:1,type:"string",role:"annotation"},2,{calc:"stringify", sourceColumn:2,type:"string",role:"annotation"}]);
-	SecuredBondChart.draw(DTview_BYieldSecured,option);
+	
+	//
+	setTimeout(function(){
+	    document.getElementById('loader1').style.display="none";
+	    document.getElementById('ChartPlain_div').style.display = "block";
+	    PlainBondChart.draw(DTview_BYieldPlain,option);}
+	    ,200);
+	setTimeout(function(){
+	    document.getElementById('loader2').style.display="none";
+	    document.getElementById('ChartSecured_div').style.display = "block";
+	    SecuredBondChart.draw(DTview_BYieldSecured,option);}
+	    ,500);
 	//
 	 document.getElementById("noteondate").innerHTML = "<em style='font-size:14px'> Note: US Treasury Yield and Corporate OAS data are as of "+ldate +"</em>";
 }
@@ -534,14 +545,16 @@ function hideResult() {
 	const res2 = document.getElementById("ChartPlain_div");
 	const res3 = document.getElementById("ChartSecured_div");
 	const res4 = document.getElementById("noteondate");
+	const loader1 = document.getElementById("loader1");
+	const loader2 = document.getElementById("loader2");
+	loader1.style.display="none";
+	loader2.style.display="none";
 	res1.style.opacity=0;
-	res2.style.opacity=0;
-	res3.style.opacity=0;
 	res4.style.opacity=0;
 	res1.style.transition="opacity 0s";
-	res2.style.transition="opacity 0s";
-	res3.style.transition="opacity 0s";
 	res4.style.transition="opacity 0s";
+	res2.style.display = "none";
+	res3.style.display = "none";
 }
 // Show result
 function showResult() {
@@ -549,13 +562,15 @@ function showResult() {
 	const res2 = document.getElementById("ChartPlain_div");
 	const res3 = document.getElementById("ChartSecured_div");
 	const res4 = document.getElementById("noteondate");
+	const loader1 = document.getElementById("loader1");
+	const loader2 = document.getElementById("loader2");
+	res2.style.display = "none";
+	res3.style.display = "none";
+	loader1.style.display="block";
+	loader2.style.display="block";
 	res1.style.opacity=1;
-	res2.style.opacity=1;
-	res3.style.opacity=1;
 	res4.style.opacity=1;
 	res1.style.transition="opacity 0s";
-	res2.style.transition="opacity 1s";
-	res3.style.transition="opacity 2s";
 	res4.style.transition="opacity 3s";
 }
 </script>
@@ -613,53 +628,6 @@ header {text-align: center;
         width: 100%;
     }
 }
-
-<!-- *** Site map STYLE *** -->
-#SiteMap {
-	//background-color:rgb(234,242,248);
-	//border-radius: 15px;
-	height:30px;
-	margin-top:50px;
-}
-
-#SiteLinks {
-	padding: 0px;
-	background-color:rgb(234,242,248);
-	border-radius: 5px;
-	height:30px;
-}
-#SiteLinks ul {
-   margin: 0;
-   padding: 0;    
-}
-#SiteLinks li {
-    float: left;
-    list-style-type: none;
-}
-#SiteLinks li a {
-    padding: 5px 5px;
-    margin: 0 3px 0 0;
-	display:block;
-	text-decoration: none;
-	color:blue;
-	//border-right:1px solid white;
-}
-#SiteLinks li a:hover {
-	text-decoration: bold;
-	background-color:#0000FF;
-	color:white;
-	text-decoration: underline;
-}
-br.clearLeft {
-   clear: left;        
-}
-footer {background: #555;
-		color:white;
-		font-size:14px;
-		padding:5px !important;
-		margin-top:50px;
-}
-<!-- **************************** -->
 table { 
     display: table;
     border-collapse: collapse;
@@ -696,6 +664,81 @@ legend {
 	border-radius:8px;
 	box-shadow:0 0 5px #999;
 }
+/* ---- Loader ------*/
+.loader {
+  position: relative;
+  left:45%;
+  top:50%;
+  margin-top: 75px;
+  margin-bottom:75px;
+  border: 10px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 10px solid #3498db;
+  width: 50px;
+  height: 50px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+/* ---- ------*/
+<!-- *** Site map STYLE *** -->
+#SiteMap {
+	//background-color:rgb(234,242,248);
+	//border-radius: 15px;
+	height:30px;
+	margin-top:50px;
+}
+
+#SiteLinks {
+	padding: 0px;
+	background-color:rgb(234,242,248);
+	border-radius:2px;
+	box-shadow:0 0 3px #999;
+	height:30px;
+}
+#SiteLinks ul {
+   margin: 0;
+   padding: 0;    
+}
+#SiteLinks li {
+    float: left;
+    list-style-type: none;
+}
+#SiteLinks li a {
+    padding: 5px 5px;
+    margin: 0 3px 0 0;
+	display:block;
+	text-decoration: none;
+	color:blue;
+	//border-right:1px solid white;
+}
+#SiteLinks li a:hover {
+	text-decoration: bold;
+	background-color:#0000FF;
+	color:white;
+	text-decoration: underline;
+}
+br.clearLeft {
+   clear: left;        
+}
+footer {background: #555;
+		color:white;
+		font-size:14px;
+		padding:5px !important;
+		margin-top:50px;
+}
+<!-- **************************** -->
+
 </style>
 </head>
 <body>
@@ -762,15 +805,16 @@ legend {
 		- Secured Bond        :
 		<input type="number" id="SecuredRC" min="0" max="100" step="0.1" value="60" onchange="hideResult()"> % &nbsp;
 		</br>
-		</br>
 	</fieldset>
 	</form>
 	<p><b>Result: PD, Implied Rating, Adjusted Rating, and Bond Yield Estimates</b></p>
-		<button class="Estimate" onclick="EstimateBondYield()">Estimate</button>
+	<button class="Estimate" onclick="EstimateBondYield()">Estimate</button>
 	<div id="Results">
 			<p id="impliedRating"></p> 
+			<div class="loader" id="loader1" display="none"></div>
 			<div id="ChartPlain_div"></div>
 			<br>
+			<div class="loader" id="loader2" display="none"></div> 
 			<div id="ChartSecured_div"></div>
 			<p id="noteondate"></p>
 	</div>
@@ -779,22 +823,22 @@ legend {
    <h4>US Yield & Spread Data</h4>
     <p><b>US Treasury Bond Yield</b></p>
     <div id="table_ty_div"></div>
-	<p><em>Source: https://www.treasury.gov/</em></p>
+	<p style="font-size:14px"><em>Source: https://www.treasury.gov/</em></p>
 	<p><b>US Corporate Option-Adjusted Spread</b></p>
     <div id="table_oas_div"></div>
-	<p><em>Source: https://fred.stlouisfed.org/</em></p>
-	<p style="color:red">Change date back and forth to refresh data if not loaded.</p>
+	<p style="font-size:14px"><em>Source: https://fred.stlouisfed.org/</em></p>
+	<p style="color:red;font-size:14px">Change date back and forth to refresh data if not loaded.</p>
 	<table>
 	<tr>
 		<th> Date: </th>
-		<th> <input type="button" onclick="previous()" value="<<"> </th>
+		<th> <button onclick="previous()"><< </button> </th>
 		<th> <p id="datadate"></p> </th>
-		<th> <input type="button" onclick="next()" value=">>"> </th>
+		<th> <button onclick="next()"> >> </button> </th>
 	</tr>
 	</table>
     <h4> KHR-USD Difference</h4>
     <div id="table_ku_div"></div>
-	<p><em>Note: Based on MDIs' fixed deposit rate as of Feb 2018</em></p>
+	<p style="font-size:14px"><em>Note: Based on MDIs' fixed deposit rate as of Feb 2018</em></p>
 	<br>
 	<p style="color:green"> By YSC Research</p>
   </div>
@@ -823,20 +867,22 @@ legend {
     width:120px;
     text-align: center;
     text-decoration: none;
+    outline:none;
     display: inline-block;
     font-size: 20px;
     margin: 4px 2px;
-    -webkit-transition-duration: 0.2s; /* Safari */
-    transition-duration: 0.2s;
-    box-shadow:0 0 5px #999;
+    -webkit-transition-duration: 0.1s; /* Safari */
+    transition-duration: 0.1s;
+    box-shadow:0 6px 8px #999;
 }
-
 .Estimate:hover {
-    width:125px;
-    font-size:22px;
     cursor: pointer;
-    color: yellow; 
-    box-shadow: 10px 10px 10px rgba(0,0,0,0.19);
+    transform: translateY(2px);
+    box-shadow:0 1px 2px #666;
+}
+.Estimate:active {
+    background-color: #3e8e41;
+    color: yellow;
 }
 </style>
 </body>
