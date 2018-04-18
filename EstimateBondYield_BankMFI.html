@@ -131,7 +131,7 @@ function EstimateBondYield() {
 	adjRatingNum = Math.max(Math.min(adjRatingNum,22),0);
 	var adjRating = Ratings[RatingsNum.indexOf(adjRatingNum)];
 	// Print Result
-	var str2 = "Its implied rating is " + impliedRating.impliedRating+ ".";
+	var str2 = CompanyName+"'s implied rating is " + impliedRating.impliedRating+ ".";
 	//var str1 = "The 1-year probability of default of "+ CompanyName+" is "+(PD).toFixed(2)+"%.";
 	var str3 = "Its adjusted rating is " + adjRating+ ".";
 	document.getElementById("impliedRating").innerHTML = str2 + " " +str3;
@@ -247,7 +247,7 @@ for (var i=0; i<Maturity_TY.length; i++) {
 // Draw tables
 google.charts.load('current', {packages:['controls','corechart'], callback: drawTableKHRUSD});
 if (date_OAS===undefined) {
-    setTimeout(waitTodrawTables,1000);
+    setTimeout(waitTodrawTables,2000);
 }
 function waitTodrawTables() {
     if (date_OAS===undefined || OAS_CCC===undefined) {
