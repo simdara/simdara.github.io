@@ -247,7 +247,7 @@ for (var i=0; i<Maturity_TY.length; i++) {
 // Draw tables
 google.charts.load('current', {packages:['controls','corechart'], callback: drawTableKHRUSD});
 if (date_OAS===undefined) {
-    setTimeout(waitTodrawTables,2000);
+    setTimeout(waitTodrawTables,2500);
 }
 function waitTodrawTables() {
     if (date_OAS===undefined || OAS_CCC===undefined) {
@@ -256,7 +256,7 @@ function waitTodrawTables() {
             document.getElementById("loader4").style.display="none";
             google.charts.load('current', {packages:['controls','corechart'], callback: drawTables});
         }
-        ,2000);
+        ,3500);
     } else {
         document.getElementById("loader3").style.display="none";
         document.getElementById("loader4").style.display="none";
