@@ -171,7 +171,6 @@ function EstimateBondYield() {
 	
 	// Secured Bond
 	var SecuredBondChart = new google.visualization.LineChart(document.getElementById('ChartSecured_div'));
-	option.title = CompanyName +"'s Secured Bond";
 	DTview_BYieldSecured.setColumns([0,1,{calc:"stringify", sourceColumn:1,type:"string",role:"annotation"},2,{calc:"stringify", sourceColumn:2,type:"string",role:"annotation"}]);
 	
 	//
@@ -183,6 +182,7 @@ function EstimateBondYield() {
 	setTimeout(function(){
 	    document.getElementById('loader2').style.display="none";
 	    document.getElementById('ChartSecured_div').style.display = "block";
+	    option.title = CompanyName +"'s Secured Bond";
 	    SecuredBondChart.draw(DTview_BYieldSecured,option);
 	    document.getElementById("noteondate").innerHTML = "<em style='font-size:14px'> Note: US Treasury Yield and Corporate OAS data are as of "+ldate +"</em>";
 	    }
