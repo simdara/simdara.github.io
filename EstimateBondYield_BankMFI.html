@@ -216,13 +216,13 @@ function bondYield(adjRatingNum, Rec, Rec_sec) {
 // ------- Get Option-Adjusted Spread (OAS) Data ---------------
 var date_OAS, ldate;
 var OAS_AAA, OAS_AA, OAS_A, OAS_BBB, OAS_BB, OAS_B, OAS_CCC; 
-var url_AAA = 'https://fred.stlouisfed.org/data/BAMLC0A1CAAA.txt';
-var url_AA = 'https://fred.stlouisfed.org/data/BAMLC0A2CAA.txt';
-var url_A = 'https://fred.stlouisfed.org/data/BAMLC0A3CA.txt';
-var url_BBB = 'https://fred.stlouisfed.org/data/BAMLC0A4CBBB.txt';
-var url_BB = 'https://fred.stlouisfed.org/data/BAMLH0A1HYBB.txt';
-var url_B = 'https://fred.stlouisfed.org/data/BAMLH0A2HYB.txt';
-var url_CCCorBelow = 'https://fred.stlouisfed.org/data/BAMLH0A3HYC.txt'; // for CCC or below
+var url_AAA = 'https://simdara.github.io/BAMLC0A1CAAA.txt';
+var url_AA = 'https://simdara.github.io/BAMLC0A2CAA.txt';
+var url_A = 'https://simdara.github.io/BAMLC0A3CA.txt';
+var url_BBB = 'https://simdara.github.io/BAMLC0A4CBBB.txt';
+var url_BB = 'https://simdara.github.io/BAMLH0A1HYBB.txt';
+var url_B = 'https://simdara.github.io/BAMLH0A2HYB.txt';
+var url_CCCorBelow = 'https://simdara.github.io/BAMLH0A3HYC.txt'; // for CCC or below
 makeCorsRequest(url_AAA, getdateOAS_AAA); // get date and OAS for AAA
 makeCorsRequest(url_AA, getOAS_AA); // get date and OAS for AA
 makeCorsRequest(url_A, getOAS_A); // get date and OAS for A
