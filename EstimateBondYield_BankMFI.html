@@ -421,17 +421,31 @@ function getTYieldFromXMLfile(xml) {
 	var m1m, m3m, m6m, m1y, m2y, m3y, m5y, m7y, m10y, m20y,m30y;
 	for (var i = 0; i< gd.length; i++) {
 		dat.push(gd[i].getElementsByTagName("BID_CURVE_DATE")[0].childNodes[0].nodeValue);
-		m1m = gbc[i].getElementsByTagName("BC_1MONTH")[0].childNodes[0].nodeValue;
-		m3m = gbc[i].getElementsByTagName("BC_3MONTH")[0].childNodes[0].nodeValue;
-		m6m = gbc[i].getElementsByTagName("BC_6MONTH")[0].childNodes[0].nodeValue;
-		m1y = gbc[i].getElementsByTagName("BC_1YEAR")[0].childNodes[0].nodeValue;
-		m2y = gbc[i].getElementsByTagName("BC_2YEAR")[0].childNodes[0].nodeValue;
-		m3y = gbc[i].getElementsByTagName("BC_3YEAR")[0].childNodes[0].nodeValue;
-		m5y = gbc[i].getElementsByTagName("BC_5YEAR")[0].childNodes[0].nodeValue;
-		m7y = gbc[i].getElementsByTagName("BC_7YEAR")[0].childNodes[0].nodeValue;
-		m10y = gbc[i].getElementsByTagName("BC_10YEAR")[0].childNodes[0].nodeValue;
-		m20y = gbc[i].getElementsByTagName("BC_20YEAR")[0].childNodes[0].nodeValue;
-		m30y = gbc[i].getElementsByTagName("BC_30YEAR")[0].childNodes[0].nodeValue;
+		if (typeof gbc[i].getElementsByTagName("BC_1MONTH")[0].childNodes[0]=='undefined') {
+			m1m=null;
+			m3m=null;
+			m6m=null;
+			m1y =null;
+			m2y = null;
+			m3y = null;
+			m5y = null;
+			m7y = null;
+			m10y = null;
+			m20y =null;
+			m30y = null;
+			} else {
+				m1m = gbc[i].getElementsByTagName("BC_1MONTH")[0].childNodes[0].nodeValue;
+				m3m = gbc[i].getElementsByTagName("BC_3MONTH")[0].childNodes[0].nodeValue;
+				m6m = gbc[i].getElementsByTagName("BC_6MONTH")[0].childNodes[0].nodeValue;
+				m1y = gbc[i].getElementsByTagName("BC_1YEAR")[0].childNodes[0].nodeValue;
+				m2y = gbc[i].getElementsByTagName("BC_2YEAR")[0].childNodes[0].nodeValue;
+				m3y = gbc[i].getElementsByTagName("BC_3YEAR")[0].childNodes[0].nodeValue;
+				m5y = gbc[i].getElementsByTagName("BC_5YEAR")[0].childNodes[0].nodeValue;
+				m7y = gbc[i].getElementsByTagName("BC_7YEAR")[0].childNodes[0].nodeValue;
+				m10y = gbc[i].getElementsByTagName("BC_10YEAR")[0].childNodes[0].nodeValue;
+				m20y = gbc[i].getElementsByTagName("BC_20YEAR")[0].childNodes[0].nodeValue;
+				m30y = gbc[i].getElementsByTagName("BC_30YEAR")[0].childNodes[0].nodeValue;
+		}
 		TYield.push([Number(m1m), Number(m3m), Number(m6m), Number(m1y), Number(m2y), Number(m3y), Number(m5y), Number(m7y), Number(m10y), Number(m20y),Number(m30y)]);
 	}
 	date_TY = cdateFormat(dat);
