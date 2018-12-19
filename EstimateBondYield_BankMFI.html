@@ -194,7 +194,7 @@ function EstimateBondYield() {
 function bondYield(adjRatingNum, Rec, Rec_sec) {
 	var OASTY_atAdate = prepareSpreadTYield(ldate); // at a date
 	var OAS_atRating = OASTY_atAdate.OAS[RatingsNum.indexOf(adjRatingNum)];
-	var OAS_B = OASTY_atAdate.OAS[Ratings.indexOf("B")];
+	var OAS_Bp = OASTY_atAdate.OAS[Ratings.indexOf("B+")];
 	var Tyield = OASTY_atAdate.Yield;
 	var mat = [1,2,3,5,7,10]; // maturity in year
 	var BYield_USD = []; // bond yield for USD-denominated plain bond
@@ -202,7 +202,7 @@ function bondYield(adjRatingNum, Rec, Rec_sec) {
 	var BYield_KHR =[]; // KHR-denominated plain bond
 	var BYield_KHRsecured =[]; // KHR-denominated secured bond
 	for (var i=0; i<mat.length; i++) {
-		var sp_u = OAS_B+OAS_atRating; // spread of plain bond
+		var sp_u = OAS_Bp+OAS_atRating; // spread of plain bond
 		var y_u = Tyield[i+3]+sp_u; // yield of unsecured bond
 		var adj = (Rec_sec-Rec)*sp_u/(1-Rec);
 		var y_s = y_u-adj; // yield for secured bond
