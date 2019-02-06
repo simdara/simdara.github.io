@@ -1,657 +1,507 @@
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-	
-	 <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>
-      Mortgage Loan Cal
-    </title>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-      google.charts.load('current', {packages: ['corechart','table']});
-	  google.charts.setOnLoadCallback(drawCharts);
-	//
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    	<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+	    <script type='text/javascript' src='https://simdara.github.io/FinCal.js'></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <title>Mortgage Loan Cal</title>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+            google.charts.load('current', {packages: ['corechart','table']});
+	        google.charts.setOnLoadCallback(drawCharts);
+	        //
+            function drawCharts() {
+                //
+                // Input 1
+                var loanAmount = document.getElementById("loanPrincipal").value/1.0; // loan principal
+                // Input 2
+                var IntRate = document.getElementById("IntRate").value/100; // interest rate
+                if (IntRate<0 || IntRate>.9999) {
+                    alert('Interest rate must be positive and less than 100! However, '+numToStr(IntRate,'percent')+ ' is input!');
+                } else if (loanAmount>=10000000 || loanAmount<0) {
+                    alert('Principal must be positive and below 100,000,000! However, '+numToStr(loanAmount,'decimal')+ ' is input!');
+                } else {
+                    // Option1 Chosen
+                    var FreqOption = [1, 12];// monthly, annually
+                    var Freqid = document.getElementById("MonOrAnn").selectedIndex;
+                    var mIntRate = IntRate/FreqOption[Freqid]; // monthly interest rate
+                    // Option2 Chosen
+                    var yearOption =[10,15,30];
+                    var mYid = document.getElementById("maxYear").selectedIndex;
+                    var mYear = yearOption[mYid];
+                    //
+                    // Create a datatable
+                    var DT = new google.visualization.DataTable();
+                    DT.addColumn('number', 'Payback Year'); // Year 
+                    DT.addColumn('number','Monthly Payment'); // monthly payment	
+                    DT.addColumn('number','Principal+Interest');// total payment
+                    DT.addColumn('number','Total Interest');// Interest Only
+                    DT.addColumn('number','Principal');// Principal
+                    //
+                    DT.addColumn('string','MPaymentAnnnotations');//
+                    DT.addColumn('string','TPaymentAnnnotations');//
+                    DT.addColumn('string','YearString');// YearString
+                    for (var y = 1; y<mYear+1; y++) {
+                        var mPay_y = loanAmount*mIntRate/(1-Math.pow(1+mIntRate,-12*y)); // monthly payment
+                        var tPay_y = mPay_y*12*y; // total payment
+                        var IntOnly = tPay_y - loanAmount; // Interest only
+                        DT.addRow([y, mPay_y, tPay_y, IntOnly, loanAmount,
+                                    numToStr(mPay_y,'decimal'), numToStr(tPay_y,'decimal'), y.toString()]);
+                    }
+                    // Draw Charts
+                    var chart1 = new google.visualization.ColumnChart(document.getElementById('chart1_div'));
+                    var option1 = {
+                        height: 320 + (20-mYear)*15,
+                        width: '100%',
+                        title: 'Monthly payment for different payback year',
+                        vAxis: {title: 'Monthly Payment(USD)',gridlines:{count:12}},
+                        hAxis: {title: 'Year'},
+                        legend: {position:'none'},
+                        colors:['DodgerBlue'],
+                        annotations:{ textStyle:{auraColor: 'white'}},
+                    };
+                    var table1 = new google.visualization.Table(document.getElementById('table1_div'));
+                    var tabOption = {
+                        width:'100%',
+                        allowHTML:true,
+                    };
+                    //
+                    numFormatter = new google.visualization.NumberFormat({prefix:'$',fractionDigits:0});
+                    numFormatter.format(DT,1);
+                    numFormatter.format(DT,2);
+                    numFormatter.format(DT,3);
+                    numFormatter.format(DT,4);
+                    // Data View
+                    DTview = new google.visualization.DataView(DT);
 
-function drawCharts() {
-	//
-	// Input 1
-	var loanAmount = document.getElementById("loanPrincipal").value/1.0; // loan principal
-	// Input 2
-	var IntRate = document.getElementById("IntRate").value/100; // interest rate
-	if (IntRate<0 || IntRate>.9999) {
-		alert('Interest rate must be positive and less than 100! However, '+numToStr(IntRate,'percent')+ ' is input!');
-	} else if (loanAmount>=10000000 || loanAmount<0) {
-		alert('Principal must be positive and below 100,000,000! However, '+numToStr(loanAmount,'decimal')+ ' is input!');
-	} else {
-		// Option1 Chosen
-		var FreqOption = [1, 12];// monthly, annually
-		var Freqid = document.getElementById("MonOrAnn").selectedIndex;
-		var mIntRate = IntRate/FreqOption[Freqid]; // monthly interest rate
-		// Option2 Chosen
-		var yearOption =[10,15,30];
-		var mYid = document.getElementById("maxYear").selectedIndex;
-		var mYear = yearOption[mYid];
-		//
-		// Create a datatable
-		var DT = new google.visualization.DataTable();
-		DT.addColumn('number', 'Payback Year'); // Year 
-		DT.addColumn('number','Monthly Payment'); // monthly payment	
-		DT.addColumn('number','Total Payment (Principal+Interest)');// total payment
-		DT.addColumn('number','Total Interest');// Interest Only
-		DT.addColumn('number','Principal');// Principal
-		//
-		DT.addColumn('string','MPaymentAnnnotations');//
-		DT.addColumn('string','TPaymentAnnnotations');//
-		DT.addColumn('string','YearString');// YearString
-		for (var y = 1; y<mYear+1; y++) {
-			var mPay_y = loanAmount*mIntRate/(1-Math.pow(1+mIntRate,-12*y)); // monthly payment
-			var tPay_y = mPay_y*12*y; // total payment
-			var IntOnly = tPay_y - loanAmount; // Interest only
-			DT.addRow([y, mPay_y, tPay_y, IntOnly, loanAmount,
-						numToStr(mPay_y,'decimal'), numToStr(tPay_y,'decimal'), y.toString()]);
-		}
-		// Draw Charts
-		var chart1 = new google.visualization.ColumnChart(document.getElementById('chart1_div'));
-		var option1 = {
-			height: 320 + (20-mYear)*15,
-			width: 900,
-			title: 'Monthly payment for different payback year',
-			vAxis: {title: 'Monthly Payment(USD)',gridlines:{count:12}},
-			hAxis: {title: 'Year'},
-			legend: {position:'none'},
-			annotations:{ textStyle:{auraColor: 'white'}},
-		};
-		var table1 = new google.visualization.Table(document.getElementById('table1_div'));
-		var tabOption = {
-			width:'100%',
-		};
-		//
-		numFormatter = new google.visualization.NumberFormat({prefix:'$',fractionDigits:0});
-		numFormatter.format(DT,1);
-		numFormatter.format(DT,2);
-		numFormatter.format(DT,3);
-		numFormatter.format(DT,4);
-		// Data View
-		DTview = new google.visualization.DataView(DT);
+                    // Table 1
+                    DTview.setColumns([0,4,1,2,3]);
+                    table1.draw(DTview,tabOption);
+                    //
+                    // Chart1
+                    //DTview.setColumns([7,1,{sourceColumn:5,role:'annotation'}]);
+                    //chart1.draw(DTview,option1);
+                    // Part 2
+                    constrPaybackYearOptions();
+                    constrPaidYearOptions();
+                    constrPaidYearOptions_Refin();
+                }
+            }
+            //
+            function drawTable2(){
+                // Draw table2 for prepayment case
+                // Input 1
+                var loanAmount = document.getElementById("loanPrincipal").value/1.0; // loan principal
+                // Input 2
+                var IntRate = document.getElementById("IntRate").value/100; // interest rate
+                var FreqOption = [1, 12];// monthly, annually
+                var Freqid = document.getElementById("MonOrAnn").selectedIndex;
+                var mIntRate = IntRate/FreqOption[Freqid]; // monthly interest rate
+                // Inputs
+                var selectedPaybackYear = document.getElementById("FixedPaybackYear").value;
+                var selectedPaidYear	= document.getElementById("PaidYear").value;
+                var Penalty	= document.getElementById("PrepaymentPenalty").value;
+                    //
+                if (Penalty >loanAmount) {
+                    alert('Prepayment Penalty is bigger than loan amount!');
+                } 
+                // MOnthly payment for the selectedPaybackYear
+                var mPay = loanAmount*mIntRate/(1-Math.pow(1+mIntRate,-12*selectedPaybackYear)); // monthly payment
+                document.getElementById("pre_mp").innerHTML = "Monthly Payment for the " + selectedPaybackYear 
+                                                            + "-year amortizing loan is "+ numToStr(mPay,"decimal") + ".";
+                //
+                // Create a datatable
+                var DT2 = new google.visualization.DataTable();
+                DT2.addColumn('number', 'Month*'); // Months 
+                DT2.addColumn('number','Remaining Balance'); // Remaining Balance	
+                DT2.addColumn('number','Effective Interest Rate (%)');// Effective rate
+                for (var m = 0; m<12; m++) {
+                    var mm = 12*selectedPaidYear+m; // Prepayment happens after mm months
+                    var RemBal_m = loanAmount*Math.pow(1+mIntRate,mm) + mPay*(1-Math.pow(1+mIntRate,mm))/mIntRate;  
+                    // Cashflow array
+                    var cfA = [loanAmount];
+                    for (var i=1; i<mm;i++) {
+                        cfA.push(mPay*(-1));
+                    }
+                    cfA.push(-mPay-RemBal_m-Penalty);
+                    //
 
-		// Table 1
-		DTview.setColumns([0,4,1,2,3]);
-		table1.draw(DTview,tabOption);
-		//
-		// Chart1
-		DTview.setColumns([7,1,{sourceColumn:5,role:'annotation'}]);
-		chart1.draw(DTview,option1);
-		// Part 2
-		constrPaybackYearOptions();
-		constrPaidYearOptions();
-		constrPaidYearOptions_Refin();
-	}
-}
-//
-function drawTable2(){
-	// Draw table2 for prepayment case
-	// Input 1
-	var loanAmount = document.getElementById("loanPrincipal").value/1.0; // loan principal
-	// Input 2
-	var IntRate = document.getElementById("IntRate").value/100; // interest rate
-	var FreqOption = [1, 12];// monthly, annually
-	var Freqid = document.getElementById("MonOrAnn").selectedIndex;
-	var mIntRate = IntRate/FreqOption[Freqid]; // monthly interest rate
-	// Inputs
-	var selectedPaybackYear = document.getElementById("FixedPaybackYear").value;
-	var selectedPaidYear	= document.getElementById("PaidYear").value;
-	var Penalty	= document.getElementById("PrepaymentPenalty").value;
-		//
-	if (Penalty >loanAmount) {
-		alert('Prepayment Penalty is bigger than loan amount!');
-	} 
-	// MOnthly payment for the selectedPaybackYear
-	var mPay = loanAmount*mIntRate/(1-Math.pow(1+mIntRate,-12*selectedPaybackYear)); // monthly payment
-	document.getElementById("pre_mp").innerHTML = "Monthly Payment for the " + selectedPaybackYear 
-												+ "-year amortizing loan is "+ numToStr(mPay,"decimal") + ".";
-	//
-	// Create a datatable
-	var DT2 = new google.visualization.DataTable();
-	DT2.addColumn('number', 'Prepayment happens after '+selectedPaidYear.toString()+' Years'+"...months"); // Months 
-	DT2.addColumn('number','Remaining Balance'); // Remaining Balance	
-	DT2.addColumn('number','Effective Interest Rate (%)');// Effective rate
-	for (var m = 0; m<12; m++) {
-		var mm = 12*selectedPaidYear+m; // Prepayment happens after mm months
-		var RemBal_m = loanAmount*Math.pow(1+mIntRate,mm) + mPay*(1-Math.pow(1+mIntRate,mm))/mIntRate;  
-		// Cashflow array
-		var cfA = [loanAmount];
-		for (var i=1; i<mm;i++) {
-			cfA.push(mPay*(-1));
-		}
-		cfA.push(-mPay-RemBal_m-Penalty);
-		//
+                    DT2.addRow([m, RemBal_m, IRR(cfA,mIntRate)*12*100]);
+                }
+                //
+                numFormatter = new google.visualization.NumberFormat({prefix:'$',fractionDigits:0});
+                numFormatter.format(DT2,1);
+                // Table2
+                var table2 = new google.visualization.Table(document.getElementById('table2_div'));
+                var tabOption = {
+                    width:'100%',
+                };
+                table2.draw(DT2,tabOption);
+                document.getElementById('tab2note').innerHTML = "* This means prepayment happens after "
+                                                                + selectedPaidYear.toString() + " years and...months";
+            }
+            function drawTable3(){
+                // Draw table3 for refinancing case
+                // Old Loan
+                var loanAmount = document.getElementById("loanPrincipal").value/1.0; // loan principal
+                var IntRate = document.getElementById("IntRate").value/100; // interest rate
+                var FreqOption = [1, 12];// monthly, annually
+                var Freqid = document.getElementById("MonOrAnn").selectedIndex;
+                var mIntRate = IntRate/FreqOption[Freqid]; // monthly interest rate
+                var selectedPaybackYear = document.getElementById("FixedPaybackYear_Refin").value;
+                //
+                var mPay = loanAmount*mIntRate/(1-Math.pow(1+mIntRate,-12*selectedPaybackYear)); // monthly payment
+                //
+                var selectedPaidYear	= document.getElementById("PaidYear_Refin").value;
+                var Penalty	= document.getElementById("PrepaymentPenalty_Refin").value*1.0;
+                
+                //
+                // New Loan
+                var IntRate_New = document.getElementById("IntRate_New").value/100.0; // interest rate new
+                var Freqid_New = document.getElementById("MonOrAnn_Refin").selectedIndex;
+                var mIntRate_New = IntRate_New/FreqOption[Freqid]; // monthly interest rate
+                var PaybackYear_New = document.getElementById("PaybackYear_New").value;
+                var ChargedOnNewLoan = document.getElementById("ChargedOnNewLoan").value/100.0;
+                var closingCost = document.getElementById("ClosingCost").value*1.0;
+                //
+                
+                if (Penalty + closingCost >loanAmount) {
+                    alert('Sum of penalty and closing cost is bigger than loan amount!');
+                } 
+                
+                // Create a datatable
+                var DT3 = new google.visualization.DataTable();
+                DT3.addColumn('number', 'Month*'); // Months 
+                DT3.addColumn('number','Remaining Balance'); // Remaining balance	
+                DT3.addColumn('number','New Loan');// New loan amount
+                DT3.addColumn('number','Monthly Payment (New)');// Monthly payment for new loan
+                DT3.addColumn('number','Effective Interest Rate (%)');// Effective rate
+                for (var m = 0; m<12; m++) {
+                    var mm = 12*selectedPaidYear+m; // Possible refinancing happens after mm months
+                    var RemBal_m = loanAmount*Math.pow(1+mIntRate,mm) + mPay*(1-Math.pow(1+mIntRate,mm))/mIntRate; // remaining balance
+                    var NewLoan_m = (RemBal_m + Penalty)*(1+ChargedOnNewLoan);// New loan amount
+                    var mPay_New = NewLoan_m*mIntRate_New/(1-Math.pow(1+mIntRate_New,-12*PaybackYear_New)); // monthly payment for new loan
+                    // Cashflow array
+                    var cfA = [RemBal_m];
+                    for (var i=1; i<=PaybackYear_New*12;i++) {
+                        cfA.push(mPay_New*(-1));
+                    }
+                    cfA[PaybackYear_New*12]=cfA[PaybackYear_New*12]-closingCost;
+                    DT3.addRow([m, RemBal_m, NewLoan_m, mPay_New, IRR(cfA,mIntRate_New)*12*100]);
+                }
+                //
+                // MOnthly payment for the selectedPaybackYear
+                var EfRateCase1 = DT3.getValue(1,4)/100;
+                var str1 = "Monthly payment for the " + selectedPaybackYear + "-year amortizing loan is "+ numToStr(mPay,"decimal") + ". ";
+                var str2 = "The effective interest rate for refinancing is " + numToStr(EfRateCase1,"percent") + ", ";
+                if (EfRateCase1 < mIntRate*12) {str3 = "smaller than the current interest rate of "+numToStr(mIntRate*12,"percent")+ ". Therefore, the borrower should go on with the refinancing plan!"} 
+                    else {str3= "larger than the current interest rate of "+numToStr(mIntRate*12,"percent")+". Therefore, the borrower should not go on with the refinancing plan!"}
+                document.getElementById("RefCase1").innerHTML = "Case1: New loan includes refinancing costs:"
+                document.getElementById("RefinCase1").innerHTML = str1 + str2 + str3;
+                //
+                numFormatter = new google.visualization.NumberFormat({prefix:'$',fractionDigits:0});
+                numFormatter.format(DT3,1);
+                numFormatter.format(DT3,2);
+                numFormatter.format(DT3,3);
+                // Table3
+                var table3 = new google.visualization.Table(document.getElementById('table3_div'));
+                var tabOption = {
+                    width:'100%',
+                };
+                table3.draw(DT3,tabOption);
+                // Create a datatable4
+                var DT4 = new google.visualization.DataTable();
+                DT4.addColumn('number', 'Month*'); // Months 
+                DT4.addColumn('number','Remaining Balance=New Loan'); // Remaining balance	
+                DT4.addColumn('number','Charged on New Loan');// New loan amount
+                DT4.addColumn('number','Monthly Payment (New)');// Monthly payment for new loan
+                DT4.addColumn('number','Effective Interest Rate (%)');// Effective rate
+                for (var m = 0; m<12; m++) {
+                    var mm = 12*selectedPaidYear+m; // Possible refinancing happens after mm months
+                    var RemBal_m = loanAmount*Math.pow(1+mIntRate,mm) + mPay*(1-Math.pow(1+mIntRate,mm))/mIntRate; // remaining balance
+                    var ChargedonNewLoan_m = RemBal_m*ChargedOnNewLoan;// New loan amount
+                    var mPay_New = RemBal_m*mIntRate_New/(1-Math.pow(1+mIntRate_New,-12*PaybackYear_New)); // monthly payment for new loan
+                    // Cashflow array
+                    var cfA = [RemBal_m-Penalty-ChargedonNewLoan_m];
+                    for (var i=1; i<=PaybackYear_New*12;i++) {
+                        cfA.push(mPay_New*(-1));
+                    }
+                    cfA[PaybackYear_New*12] -=closingCost;
+                    DT4.addRow([m, RemBal_m, ChargedonNewLoan_m, mPay_New, IRR(cfA,mIntRate_New)*12*100]);
+                }
+                //
+                // MOnthly payment for the selectedPaybackYear
+                var EfRateCase2 = DT4.getValue(1,4)/100;
+                var str1 = "Monthly payment for the " + selectedPaybackYear + "-year amortizing loan is "+ numToStr(mPay,"decimal") + ". ";
+                var str2 = "The effective interest rate for refinancing is " + numToStr(EfRateCase2,"percent") + ", ";
+                if (EfRateCase2 < mIntRate*12) {str3 = "smaller than the current interest rate of "+numToStr(mIntRate*12,"percent")+ ". Therefore, the borrower should go on with the refinancing plan!"} 
+                    else {str3= "larger than the current interest rate of "+numToStr(mIntRate*12,"percent")+". Therefore, the borrower should not go on with the refinancing plan!"}
+                document.getElementById("RefCase2").innerHTML = "Case2: New loan is equivalent to remaining balance:"
+                document.getElementById("RefinCase2").innerHTML = str1 + str2 + str3;
+                //
+                numFormatter = new google.visualization.NumberFormat({prefix:'$',fractionDigits:0});
+                numFormatter.format(DT4,1);
+                numFormatter.format(DT4,2);
+                numFormatter.format(DT4,3);
+                // Table4
+                var table4 = new google.visualization.Table(document.getElementById('table4_div'));
+                var tabOption = {
+                    width:'100%',
+                };
+                table4.draw(DT4,tabOption);
+                document.getElementById('tab34note').innerHTML = '*This means possible refinancing happens after '+
+                                                                selectedPaidYear.toString()+' Years'+" and ...months";
+            }
+            function constrPaybackYearOptions(){
+                //
+                var yearOption =[10,15,30];
+                var mYid = document.getElementById("maxYear").selectedIndex;
+                var mYear = yearOption[mYid];
+                var YearOption = document.forms[1].FixedPaybackYear;
+                var YearOption_Refin = document.forms[2].FixedPaybackYear_Refin;
+                YearOption.length=0;
+                YearOption_Refin.length=0;
+                for (var y=1;y<=mYear;y++) {
+                    YearOption[y-1]= new Option(y,y,false,false);
+                    YearOption_Refin[y-1]= new Option(y,y,false,false);
+                }
+                YearOption[mYear-1] = new Option(mYear,mYear,false,true);
+                YearOption_Refin[mYear-1] = new Option(mYear,mYear,false,true);
+            }
+            function constrPaidYearOptions(){
+                //
+                var FPayYear = document.getElementById("FixedPaybackYear").options[document.getElementById("FixedPaybackYear").selectedIndex].value;
+                var YearOption = document.forms[1].PaidYear;
+                YearOption.length=0;
+                for (var y=1;y<=FPayYear-1;y++) {
+                    YearOption[y-1]= new Option(y,y,false,false);
+                }
+                YearOption[FPayYear-2] = new Option(FPayYear-1,FPayYear-1,false,true);
+            }
+            function constrPaidYearOptions_Refin(){
+                //
+                var FPayYear = document.getElementById("FixedPaybackYear_Refin").options[document.getElementById("FixedPaybackYear_Refin").selectedIndex].value;
+                var YearOption = document.forms[2].PaidYear_Refin;
+                YearOption.length=0;
+                for (var y=1;y<=FPayYear-1;y++) {
+                    YearOption[y-1]= new Option(y,y,false,false);
+                }
+                YearOption[FPayYear-2] = new Option(FPayYear-1,FPayYear-1,false,true);
+            }
+            function ShowOrHide(){
+                var PrepOrRefin =["Prepayment", "Refinancing"];
+                var selectedOption = PrepOrRefin[document.getElementById("PrepayOrRefin").selectedIndex];
+                p = document.getElementById("Prepayment");
+                r = document.getElementById("Refinancing");
+                if (selectedOption =="Prepayment"){p.style.display="block"; r.style.display="none";
+                } else {p.style.display="none"; r.style.display="block";}
+            }
+            function displaySection(id) {
+                // display section with id
+                var x = document.getElementById(id);
+                if (x.className.indexOf("w3-show") == -1) {
+                    x.className += " w3-show";
+                } else { 
+                    x.className = x.className.replace(" w3-show", "");
+                }
+            }
+	    </script>
+        <style>
+            .google-visualization-table-td {
+                text-align: center !important;
+            }
+            html {
+                display: table;
+                margin: auto;
+            }
+            body {
+                width:820px;
+                display:table-cell;
+            }
+        </style>
+    </head>
+    <body>
+    <div class="w3-container">
+        <h2>Mortgage Loan Calculator Ver 1.2</h2>
+        <p><i> Last update: February 07, 2019 </i></p>
+        <!-- First Part -->
+        <div class="w3-panel w3-blue w3-card">
+            <h5>What is the fixed <em> monthly payment</em>for a given loan principal, interest rate, and payback year? </h5>
+        </div>
+        <!-- Input part -->
+        <div id="CMP"> <!-- Constant Monthly Payment -->
+            <!-- -->
+            <form>
+            <fieldset class="w3-panel w3-pale-blue w3-card-4 w3-round-large">
+            <legend class="w3-text-blue w3-large"><b>Mortgage Loan Info:</b></legend>
+                
+                <div class="w3-container">
+                    <label>Principal Amount in USD</label>
+                    <input class="w3-input" type="number" id="loanPrincipal" min="0" max="10000000" step="1000" value="100000" align="right">
+                    </br>
+                </div>
+                <div class="w3-row-padding">
+                    <div class="w3-third">
+                        <label>Interest Rate (%)</label>
+                        <input class="w3-input" type="number" id="IntRate" min="0" max="100" step="0.1" value="10">
+                    </div>
+                    <div class="w3-third">
+                        <label>&nbsp;</label>
+                        <select class="w3-select" id="MonOrAnn"> 
+                            <option value="Monthly">Monthly</option>
+                            <option value="Annually" selected>Annually</option>
+                        </select>
+                    </div>
+                    <div class="w3-third">
+                        <label>Max Payback Year</label>
+                        <select class="w3-select" id="maxYear" onchange="drawCharts()">
+                            <option value="10">10</option>
+                            <option value="15" selected>15</option>
+                            <option value="30">30</option>
+                        </select>
+                    </div>
+                  </div>
+                </br>
+            </fieldset>
+            </form>
+            </br>
+            <div id="Cal">
+                <button class = "w3-button w3-blue-gray w3-round w3-ripple w3-padding-small" type="button" onclick="drawCharts()" id="btn">Calculate</button>
+            </div>
+            <!-- Result Part-->
+            </br><br>
+            <div id="table1">
+                <div id="table1_div"> </div>
+            </div>
+            </br>
+            <div id="chart1">
+                <div id="chart1_div"> </div>
+            </div>
+            </br>
+        </div>
 
-		DT2.addRow([m, RemBal_m, IRR(cfA,mIntRate)*12*100]);
-	}
-	//
-	numFormatter = new google.visualization.NumberFormat({prefix:'$',fractionDigits:0});
-	numFormatter.format(DT2,1);
-	// Table2
-	var table2 = new google.visualization.Table(document.getElementById('table2_div'));
-	var tabOption = {
-		width:'100%',
-	};
-	table2.draw(DT2,tabOption);
-}
-function drawTable3(){
-	// Draw table3 for refinancing case
-	// Old Loan
-	var loanAmount = document.getElementById("loanPrincipal").value/1.0; // loan principal
-	var IntRate = document.getElementById("IntRate").value/100; // interest rate
-	var FreqOption = [1, 12];// monthly, annually
-	var Freqid = document.getElementById("MonOrAnn").selectedIndex;
-	var mIntRate = IntRate/FreqOption[Freqid]; // monthly interest rate
-	var selectedPaybackYear = document.getElementById("FixedPaybackYear_Refin").value;
-	//
-	var mPay = loanAmount*mIntRate/(1-Math.pow(1+mIntRate,-12*selectedPaybackYear)); // monthly payment
-	//
-	var selectedPaidYear	= document.getElementById("PaidYear_Refin").value;
-	var Penalty	= document.getElementById("PrepaymentPenalty_Refin").value*1.0;
-	
-	//
-	// New Loan
-	var IntRate_New = document.getElementById("IntRate_New").value/100.0; // interest rate new
-	var Freqid_New = document.getElementById("MonOrAnn_Refin").selectedIndex;
-	var mIntRate_New = IntRate_New/FreqOption[Freqid]; // monthly interest rate
-	var PaybackYear_New = document.getElementById("PaybackYear_New").value;
-	var ChargedOnNewLoan = document.getElementById("ChargedOnNewLoan").value/100.0;
-	var closingCost = document.getElementById("ClosingCost").value*1.0;
-	//
-	
-	if (Penalty + closingCost >loanAmount) {
-		alert('Sum of penalty and closing cost is bigger than loan amount!');
-	} 
-	
-	// Create a datatable
-	var DT3 = new google.visualization.DataTable();
-	DT3.addColumn('number', 'Possible refinancing happens after '+selectedPaidYear.toString()+' Years'+"...months"); // Months 
-	DT3.addColumn('number','Remaining Balance'); // Remaining balance	
-	DT3.addColumn('number','New Loan');// New loan amount
-	DT3.addColumn('number','Monthly Payment (New)');// Monthly payment for new loan
-	DT3.addColumn('number','Effective Interest Rate (%)');// Effective rate
-	for (var m = 0; m<12; m++) {
-		var mm = 12*selectedPaidYear+m; // Possible refinancing happens after mm months
-		var RemBal_m = loanAmount*Math.pow(1+mIntRate,mm) + mPay*(1-Math.pow(1+mIntRate,mm))/mIntRate; // remaining balance
-		var NewLoan_m = (RemBal_m + Penalty)*(1+ChargedOnNewLoan);// New loan amount
-		var mPay_New = NewLoan_m*mIntRate_New/(1-Math.pow(1+mIntRate_New,-12*PaybackYear_New)); // monthly payment for new loan
-		// Cashflow array
-		var cfA = [RemBal_m];
-		for (var i=1; i<=PaybackYear_New*12;i++) {
-			cfA.push(mPay_New*(-1));
-		}
-		cfA[PaybackYear_New*12]=cfA[PaybackYear_New*12]-closingCost;
-		DT3.addRow([m, RemBal_m, NewLoan_m, mPay_New, IRR(cfA,mIntRate_New)*12*100]);
-	}
-	//
-	// MOnthly payment for the selectedPaybackYear
-	var EfRateCase1 = DT3.getValue(1,4)/100;
-	var str1 = "Monthly payment for the " + selectedPaybackYear + "-year amortizing loan is "+ numToStr(mPay,"decimal") + ". ";
-	var str2 = "The effective interest rate for refinancing is " + numToStr(EfRateCase1,"percent") + ", ";
-	if (EfRateCase1 < mIntRate*12) {str3 = "smaller than the current interest rate of "+numToStr(mIntRate*12,"percent")+ ". Therefore, the borrower should go on with the refinancing plan!"} 
-		else {str3= "larger than the current interest rate of "+numToStr(mIntRate*12,"percent")+". Therefore, the borrower should not go on with the refinancing plan!"}
-	document.getElementById("RefCase1").innerHTML = "Case1: New loan includes refinancing costs:"
-	document.getElementById("RefinCase1").innerHTML = str1 + str2 + str3;
-	//
-	numFormatter = new google.visualization.NumberFormat({prefix:'$',fractionDigits:0});
-	numFormatter.format(DT3,1);
-	numFormatter.format(DT3,2);
-	numFormatter.format(DT3,3);
-	// Table3
-	var table3 = new google.visualization.Table(document.getElementById('table3_div'));
-	var tabOption = {
-		width:'100%',
-	};
-	table3.draw(DT3,tabOption);
-	// Create a datatable4
-	var DT4 = new google.visualization.DataTable();
-	DT4.addColumn('number', 'Possible refinancing happens after '+selectedPaidYear.toString()+' Years'+"...months"); // Months 
-	DT4.addColumn('number','Remaining Balance=New Loan'); // Remaining balance	
-	DT4.addColumn('number','Charged on New Loan');// New loan amount
-	DT4.addColumn('number','Monthly Payment (New)');// Monthly payment for new loan
-	DT4.addColumn('number','Effective Interest Rate (%)');// Effective rate
-	for (var m = 0; m<12; m++) {
-		var mm = 12*selectedPaidYear+m; // Possible refinancing happens after mm months
-		var RemBal_m = loanAmount*Math.pow(1+mIntRate,mm) + mPay*(1-Math.pow(1+mIntRate,mm))/mIntRate; // remaining balance
-		var ChargedonNewLoan_m = RemBal_m*ChargedOnNewLoan;// New loan amount
-		var mPay_New = RemBal_m*mIntRate_New/(1-Math.pow(1+mIntRate_New,-12*PaybackYear_New)); // monthly payment for new loan
-		// Cashflow array
-		var cfA = [RemBal_m-Penalty-ChargedonNewLoan_m];
-		for (var i=1; i<=PaybackYear_New*12;i++) {
-			cfA.push(mPay_New*(-1));
-		}
-		cfA[PaybackYear_New*12] -=closingCost;
-		DT4.addRow([m, RemBal_m, ChargedonNewLoan_m, mPay_New, IRR(cfA,mIntRate_New)*12*100]);
-	}
-	//
-	// MOnthly payment for the selectedPaybackYear
-	var EfRateCase2 = DT4.getValue(1,4)/100;
-	var str1 = "Monthly payment for the " + selectedPaybackYear + "-year amortizing loan is "+ numToStr(mPay,"decimal") + ". ";
-	var str2 = "The effective interest rate for refinancing is " + numToStr(EfRateCase2,"percent") + ", ";
-	if (EfRateCase2 < mIntRate*12) {str3 = "smaller than the current interest rate of "+numToStr(mIntRate*12,"percent")+ ". Therefore, the borrower should go on with the refinancing plan!"} 
-		else {str3= "larger than the current interest rate of "+numToStr(mIntRate*12,"percent")+". Therefore, the borrower should not go on with the refinancing plan!"}
-	document.getElementById("RefCase2").innerHTML = "Case2: New loan is equivalent to remaining balance:"
-	document.getElementById("RefinCase2").innerHTML = str1 + str2 + str3;
-	//
-	numFormatter = new google.visualization.NumberFormat({prefix:'$',fractionDigits:0});
-	numFormatter.format(DT4,1);
-	numFormatter.format(DT4,2);
-	numFormatter.format(DT4,3);
-	// Table4
-	var table4 = new google.visualization.Table(document.getElementById('table4_div'));
-	var tabOption = {
-		width:'100%',
-	};
-	table4.draw(DT4,tabOption);
-}
-function NPV(cfArray,r) {
-	// find NPV for a cash flow array and interest rate r
-	var ncf = cfArray.length;
-	var NPVal = 0.0;
-	for (n=0;n<ncf; n++) {
-		NPVal+=cfArray[n]/Math.pow(1+r,n);
-	}
-	return NPVal;
-}
-function IRR(cfArray,guest){
-	// Inputs: 
-	//	1. cfArray is a cashflow array
-	// 2. guest for IRR
-	// If cfArray[0] > 0 , NPV is increasing function of interest rate; else, NPV is decreasing function of interest rate
-	// we consider NPL is increasing function of r only
-	// Set tolerance for NPV
-	npvTol = 0.000001;
-	//
-	if (guest<=0) {alert('The interest rate should be positive!');}
-	//
-	if (NPV(cfArray,guest*1.1)-NPV(cfArray,guest)<0) {cfArray = cfArray*(-1.0);}// if decreasing, make it increasing
-	//
-	var ra = guest*1.0;
-	var rb = guest*1.0;
-	// find rate at positive NPV
-	do {
-		rb *=1.1;
-		NPV_rb = NPV(cfArray,rb);
-	}
-	while (NPV_rb<0);
-	// find rate at negative NPV
-	do {
-		ra *=0.9;
-		NPV_ra = NPV(cfArray,ra);
-	}
-	while (NPV_ra>0);
-	//
-	do {
-		// IRR Candidate
-		IRRC = ra - NPV_ra*(rb-ra)/(NPV_rb-NPV_ra); // interpolation
-		NPV_IRRC = NPV(cfArray,IRRC);
-		if (Math.abs(NPV_IRRC)<npvTol) {return IRRC;}
-		else {
-			if (NPV_IRRC<0) {ra = IRRC; NPV_ra = NPV(cfArray,ra);} 
-			else { rb = IRRC; NPV_rb = NPV(cfArray,rb);}
-		}
-	}
-	while (Math.abs(NPV_IRRC)>npvTol);
-}
-function alertMessage()
-{
-    alert(document.getElementById('loanPrincipal').value);
-}
-function constrPaybackYearOptions(){
-	//
-	var yearOption =[10,15,30];
-	var mYid = document.getElementById("maxYear").selectedIndex;
-	var mYear = yearOption[mYid];
-	var YearOption = document.forms[1].FixedPaybackYear;
-	var YearOption_Refin = document.forms[2].FixedPaybackYear_Refin;
-	YearOption.length=0;
-	YearOption_Refin.length=0;
-	for (var y=1;y<=mYear;y++) {
-		YearOption[y-1]= new Option(y,y,false,false);
-		YearOption_Refin[y-1]= new Option(y,y,false,false);
-	}
-	YearOption[mYear-1] = new Option(mYear,mYear,false,true);
-	YearOption_Refin[mYear-1] = new Option(mYear,mYear,false,true);
-}
-function constrPaidYearOptions(){
-	//
-	var FPayYear = document.getElementById("FixedPaybackYear").options[document.getElementById("FixedPaybackYear").selectedIndex].value;
-	var YearOption = document.forms[1].PaidYear;
-	YearOption.length=0;
-	for (var y=1;y<=FPayYear-1;y++) {
-		YearOption[y-1]= new Option(y,y,false,false);
-	}
-	YearOption[FPayYear-2] = new Option(FPayYear-1,FPayYear-1,false,true);
-}
-function constrPaidYearOptions_Refin(){
-	//
-	var FPayYear = document.getElementById("FixedPaybackYear_Refin").options[document.getElementById("FixedPaybackYear_Refin").selectedIndex].value;
-	var YearOption = document.forms[2].PaidYear_Refin;
-	YearOption.length=0;
-	for (var y=1;y<=FPayYear-1;y++) {
-		YearOption[y-1]= new Option(y,y,false,false);
-	}
-	YearOption[FPayYear-2] = new Option(FPayYear-1,FPayYear-1,false,true);
-}
-function numToStr(num,fo){
-	if (num==null){return null;}
-	if (fo=='decimal') {
-		return '$'+num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");;
-	} else {
-		return (num*100).toFixed(2)+'%';
-	}
-} 
-function ShowOrHide(){
-	var PrepOrRefin =["Prepayment", "Refinancing"];
-	var selectedOption = PrepOrRefin[document.getElementById("PrepayOrRefin").selectedIndex];
-	p = document.getElementById("Prepayment");
-	r = document.getElementById("Refinancing");
-	if (selectedOption =="Prepayment"){p.style.display="block"; r.style.display="none";
-	} else {p.style.display="none"; r.style.display="block";}
-}
-	</script>
-<style>
-html {
-	display: table;
-	margin: auto;
-}
+        <!-- Second Part -->
+        <div onclick="displaySection('Prepayment')" class="w3-panel w3-blue w3-hover-light-gray w3-card">
+            <h5>What is the effective interest rate in the case of Prepayment?</h5>
+        </div>
+        <div class="w3-hide" id="Prepayment"> 
+            <!-- -->
+            <h3 class="w3-text-blue"> Prepayment </h3>
+            <!-- Input part for Prepayment-->
+            <form>
+            <fieldset>
+            <legend>Prepayment Info:</legend>
+                Loan terms are the same as about with selected payback year: 
+                <select id="FixedPaybackYear" onchange="constrPaidYearOptions()">
+                    <option>10</option>
+                </select> &nbsp; years
+                </br>
+                </br>
+                Prepayment happens after: 
+                <select id="PaidYear">
+                    <option>9</option>
+                </select> &nbsp; years
+                </br>
+                </br>
+                Prepayment Penalty Amount: USD
+                <input type="number" id="PrepaymentPenalty" min="0" max="10000000" step="1000" value="3000" align="right">
+                </br>
+                </br>
+            </fieldset>
+            </form>
+            </br>
+            <button class = "w3-button w3-blue-gray w3-round w3-ripple w3-padding-small" type="button" onclick="drawTable2()" id="btn2">Calculate</button>
+            <!-- Result Part-->
+            <p id="pre_mp"></p>
+            <div id="table2">
+                <div id="table2_div"> </div>
+            </div>
+            <p id="tab2note"></p>
+        </div>
+        <div onclick="displaySection('Refinancing')" class="w3-panel w3-blue w3-hover-light-gray w3-card">
+            <h5>What is the effective interest rate in the case of Refinancing?</h5>
+        </div>
+        <div class="w3-hide" id="Refinancing"> 
+            <!-- -->
+            <h4> Refinancing </h4>
+            <!-- Input part for Refinancing-->
+            <form>
+            <fieldset>
+            <legend>Refinancing Info:</legend>
+                Loan terms are the same as about with selected payback year: 
+                <select id="FixedPaybackYear_Refin" onchange="constrPaidYearOptions_Refin()">
+                    <option>10</option>
+                </select> &nbsp; years
+                </br>
+                </br>
+                Possible refinancing happens after: 
+                <select id="PaidYear_Refin">
+                    <option>9</option>
+                </select> &nbsp; years
+                </br>
+                </br>
+                New Loan's Interest Rate:
+                <input type="number" id="IntRate_New" min="0" max="100" step="0.1" value="10"> % &nbsp;
+                <select id="MonOrAnn_Refin">
+                <option value="Monthly">Monthly</option>
+                <option value="Annually" selected>Annually</option>
+                </select>
+                </br>
+                </br>
+                New Loan's Payback Year: 
+                <input type="number" id="PaybackYear_New" min="0" max="100" step="1" value="10" align="right"> &nbsp; years
+                </br>
+                </br>
+                Prepayment Penalty Amount: USD
+                <input type="number" id="PrepaymentPenalty_Refin" min="0" max="10000000" step="1000" value="0" align="right">
+                </br>
+                </br>
+                Closing Costs: USD
+                <input type="number" id="ClosingCost" min="0" max="10000000" step="1000" value="2000" align="right">
+                </br>
+                </br>
+                Charged on New Loan:
+                <input type="number" id="ChargedOnNewLoan" min="0" max="100" step="0.1" value="3" align="right"> % &nbsp;
+                </br>
+                </br>
+            </fieldset>
+            </form>
+            </br>
+            <div id="Cal_Refin">
+                <button class = "w3-button w3-blue-gray w3-round w3-ripple w3-padding-small" type="button" onclick="drawTable3()" id="btn3">Calculate</button>
+            </div>
+            <!-- Result Part-->
+            <p id="RefCase1"></p>
+            <p id="RefinCase1"></p>
+            <div id="table3">
+                <div id="table3_div"> </div>
+            </div>
+            <!-- Result Part-->
+            <p id="RefCase2"></p>
+            <p id="RefinCase2"></p>
+            <div id="table4">
+                <div id="table4_div"> </div>
+            </div>
+            <p id="tab34note"></p>
+        </div><br><br>
+        <!-- *** Site Map *** -->
+        <div id="SiteMap">
+            <div id="SiteLinks">
+                <ul>
+                    <li><a href="https://simdara.github.io/index">Home</a></li>
+                    <li><a href="https://simdara.github.io/BankingDBViewer" >Banking-Database</a></li>
+                    <li><a href="https://simdara.github.io/MortgageLoan">Mortgage-Cal</a></li>
+                    <li><a href="https://simdara.github.io/PPAP">PPAP</a></li>
+                    <li><a href="http://www.yuantacambodia.com/">YSC</a></li>
 
-body {
-	display: table-cell;
-	font-family: Georgia;
-	width:900px;
-	padding:10px;
-}
-#filterLicense_div{
-	width:100%;
-	padding:3px;
-}
-#filterName_div{
-	width:100%;
-	padding:3px;
-}
-#filterYear_div{
-	width:100%;
-	padding:3px;
-}
-
-#dashboard{
-	background-color:rgb(234,242,248);
-	padding-left:20px;
-	border-radius: 15px;
-}
-
-footer {background-color:rgba(23,32,42,0.5);
-		color:white;
-		font-size:14px;
-		margin-top:10px;
-		padding:1px;
-		text-align:center;
-}
-header {text-align: left;
-		//background-color:#F5EEF8;
-		border-radius: 5px;
-		color:#273746;
-		margin-bottom:10px;
-		padding-left:2px;
-		padding-bottom:10px;
-		padding-top:10px;
-		font-size:25px;
-		font-weight:bold;
-}
-h3{
-	//background-color:#F4F6F6;
-	border-radius: 2px;
-	//color:#2E86C1;
-	color:#8E44AD;
-}
-#Setting{
-	//background-color:rgb(212,230,241);
-	//color:#4A235A;
-	border-radius: 2px;
-	padding:3px;
-	//font-weight:bold;
-}
-option{
-	padding:5px 0;
-}
-#chart1_div{
-	display:block;
-	margin:0 auto !important;
-}
-
-select{
-	font-family: Georgia;
-	font-size:100%;
-}
-.google-visualization-table-td {
-text-align: center !important;
-}
-<!-- *** Site map STYLE *** -->
-#SiteMap {
-	//background-color:rgb(234,242,248);
-	//border-radius: 15px;
-	height:30px;
-}
-
-#SiteLinks {
-	padding: 0px;
-	background-color:rgb(234,242,248);
-	border-radius: 5px;
-	height:30px;
-}
-#SiteLinks ul {
-   margin: 0;
-   padding: 0;    
-}
-#SiteLinks li {
-    float: left;
-    list-style-type: none;
-}
-#SiteLinks li a {
-    padding: 5px 5px;
-    margin: 0 3px 0 0;
-	display:block;
-	text-decoration: none;
-	color:blue;
-	//border-right:1px solid white;
-}
-#SiteLinks li a:hover {
-	text-decoration: bold;
-	background-color:#0000FF;
-	color:white;
-	text-decoration: underline;
-}
-br.clearLeft {
-   clear: left;        
-}​
-<!-- **************************** -->
-</style>
-  </head>
-  <body>
-  <header>
-	Mortgage Loan Calculator Ver 1.1
-</header>
-<h4><i> Last update: March 07, 2018 </i></h4>
-<!-- First Part --->
-<h3>What is the fixed <em> monthly payment</em> for a given loan principal, monthly interest rate, and payback year? </h3>
-<!-- Input part -->
-<div id="CMP"> <!-- Constant Monthly Payment -->
-	<!-- -->
-	<form>
-	<fieldset>
-	<legend>Mortgage Loan Info:</legend>
-		Principal Amount: USD
-		<input type="number" id="loanPrincipal" min="0" max="10000000" step="1000" value="100000" align="right">
-		</br>
-		</br>
-		Interest Rate:
-		<input type="number" id="IntRate" min="0" max="100" step="0.1" value="10"> % &nbsp;
-		<select id="MonOrAnn">
-			<option value="Monthly">Monthly</option>
-			<option value="Annually" selected>Annually</option>
-		</select>
-		</br>
-		</br>
-		Max Payback Year: 
-		<select id="maxYear" onchange="drawCharts()">
-			<option value="10">10</option>
-			<option value="15" selected>15</option>
-			<option value="30">30</option>
-		</select> &nbsp; years
-		</br>
-	</fieldset>
-	</form>
-	</br>
-	<div id="Cal">
-		<button type="button" onclick="drawCharts()" id="btn">Calculate</button>
-	</div>
-	<!-- Result Part---->
-	</br>
-	<div id="table1">
-		<div id="table1_div"> </div>
-	</div>
-	</br>
-	<div id="chart1">
-		<div id="chart1_div"> </div>
-	</div>
-	</br>
-</div>
-
-<!-- Second Part --->
-<h3>What is the effective interest rate in the case of Prepayment or Refinancing?</h3>
-<p> Choose one of the following option:
-		<select id="PrepayOrRefin" onchange="ShowOrHide()">
-			<option value="Prepayment">Prepayment</option>
-			<option value="Refinancing" selected>Refinancing</option>
-		</select>
-</p>
-<div id="Prepayment" style="display:none"> 
-	<!-- -->
-	<h4> Prepayment </h4>
-	<!-- Input part for Prepayment-->
-	<form>
-	<fieldset>
-	<legend>Prepayment Info:</legend>
-		Loan terms are the same as about with selected payback year: 
-		<select id="FixedPaybackYear" onchange="constrPaidYearOptions()">
-			<option>10</option>
-		</select> &nbsp; years
-		</br>
-		</br>
-		Prepayment happens after: 
-		<select id="PaidYear">
-			<option>9</option>
-		</select> &nbsp; years
-		</br>
-		</br>
-		Prepayment Penalty Amount: USD
-		<input type="number" id="PrepaymentPenalty" min="0" max="10000000" step="1000" value="3000" align="right">
-		</br>
-		</br>
-
-	</fieldset>
-	</form>
-	</br>
-	<div id="Cal">
-		<button type="button" onclick="drawTable2()" id="btn2">Calculate</button>
-	</div>
-<!-- Result Part---->
-	<p id="pre_mp"></p>
-	<div id="table2">
-		<div id="table2_div"> </div>
-	</div>
-</div>
-
-<div id="Refinancing"> 
-	<!-- -->
-	<h4> Refinancing </h4>
-<!-- Input part for Refinancing-->
-	<form>
-	<fieldset>
-	<legend>Refinancing Info:</legend>
-		Loan terms are the same as about with selected payback year: 
-		<select id="FixedPaybackYear_Refin" onchange="constrPaidYearOptions_Refin()">
-			<option>10</option>
-		</select> &nbsp; years
-		</br>
-		</br>
-		Possible refinancing happens after: 
-		<select id="PaidYear_Refin">
-			<option>9</option>
-		</select> &nbsp; years
-		</br>
-		</br>
-		New Loan's Interest Rate:
-		<input type="number" id="IntRate_New" min="0" max="100" step="0.1" value="10"> % &nbsp;
-		<select id="MonOrAnn_Refin">
-		<option value="Monthly">Monthly</option>
-		<option value="Annually" selected>Annually</option>
-		</select>
-		</br>
-		</br>
-		New Loan's Payback Year: 
-		<input type="number" id="PaybackYear_New" min="0" max="100" step="1" value="10" align="right"> &nbsp; years
-		</br>
-		</br>
-		Prepayment Penalty Amount: USD
-		<input type="number" id="PrepaymentPenalty_Refin" min="0" max="10000000" step="1000" value="0" align="right">
-		</br>
-		</br>
-		Closing Costs: USD
-		<input type="number" id="ClosingCost" min="0" max="10000000" step="1000" value="2000" align="right">
-		</br>
-		</br>
-		Charged on New Loan:
-		<input type="number" id="ChargedOnNewLoan" min="0" max="100" step="0.1" value="3" align="right"> % &nbsp;
-		</br>
-		</br>
-
-	</fieldset>
-	</form>
-	</br>
-	<div id="Cal_Refin">
-		<button type="button" onclick="drawTable3()" id="btn3">Calculate</button>
-	</div>
-	<!-- Result Part---->
-	<p id="RefCase1"></p>
-	<p id="RefinCase1"></p>
-	<div id="table3">
-		<div id="table3_div"> </div>
-	</div>
-	<!-- Result Part---->
-	<p id="RefCase2"></p>
-	<p id="RefinCase2"></p>
-	<div id="table4">
-		<div id="table4_div"> </div>
-	</div>
-</div>
-
-</br>
-</br>
-</br>
-</br>
-<!-- *** Site Map *** -->
-<div id="SiteMap">
-	<div id="SiteLinks">
-		<ul>
-			<li><a href="https://simdara.github.io/index">Home</a></li>
-			<li><a href="https://simdara.github.io/BankingDBViewer" >Banking-Database</a></li>
-			<li><a href="https://simdara.github.io/MortgageLoan">Mortgage-Cal</a></li>
-			<li><a href="https://simdara.github.io/PPAP">PPAP</a></li>
-			<li><a href="http://www.yuantacambodia.com/">YSC</a></li>
-
-		</ul>    
-		<br class="clearLeft" />
-	</div>
-</div>
-
-<footer>Copyright &copy; 2017, Yuanta Securities (Cambodia) Plc.</footer>
-</body>
+                </ul>    
+                <br class="clearLeft" />
+            </div>
+        </div>
+        <footer>Copyright &copy; 2017, Yuanta Securities (Cambodia) Plc.</footer>
+    </div>
+    </body>
 </html>
