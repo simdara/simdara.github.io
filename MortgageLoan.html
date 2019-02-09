@@ -7,6 +7,7 @@
 	    <script type='text/javascript' src='https://simdara.github.io/FinCal.js'></script>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <title>Mortgage Loan Cal</title>
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
         <script type="text/javascript">
@@ -35,9 +36,9 @@
                     //
                     // Create a datatable
                     var DT = new google.visualization.DataTable();
-                    DT.addColumn('number', 'Payback Year'); // Year 
-                    DT.addColumn('number','Monthly Payment'); // monthly payment	
-                    DT.addColumn('number','Principal+Interest');// total payment
+                    DT.addColumn('number', 'Year'); // Year 
+                    DT.addColumn('number','Mon. Payment'); // monthly payment	
+                    DT.addColumn('number','Principal+Int.');// total payment
                     DT.addColumn('number','Total Interest');// Interest Only
                     DT.addColumn('number','Principal');// Principal
                     //
@@ -117,7 +118,7 @@
                 var DT2 = new google.visualization.DataTable();
                 DT2.addColumn('number', 'Month*'); // Months 
                 DT2.addColumn('number','Remaining Balance'); // Remaining Balance	
-                DT2.addColumn('number','Effective Interest Rate (%)');// Effective rate
+                DT2.addColumn('number','Effective Rate (%)');// Effective rate
                 for (var m = 0; m<12; m++) {
                     var mm = 12*selectedPaidYear+m; // Prepayment happens after mm months
                     var RemBal_m = loanAmount*Math.pow(1+mIntRate,mm) + mPay*(1-Math.pow(1+mIntRate,mm))/mIntRate;  
@@ -175,10 +176,10 @@
                 // Create a datatable
                 var DT3 = new google.visualization.DataTable();
                 DT3.addColumn('number', 'Month*'); // Months 
-                DT3.addColumn('number','Remaining Balance'); // Remaining balance	
+                DT3.addColumn('number','Remaining Bal.'); // Remaining balance	
                 DT3.addColumn('number','New Loan');// New loan amount
-                DT3.addColumn('number','Monthly Payment (New)');// Monthly payment for new loan
-                DT3.addColumn('number','Effective Interest Rate (%)');// Effective rate
+                DT3.addColumn('number','Mon. Pay.');// Monthly payment for new loan
+                DT3.addColumn('number','Eff. Rate (%)');// Effective rate
                 for (var m = 0; m<12; m++) {
                     var mm = 12*selectedPaidYear+m; // Possible refinancing happens after mm months
                     var RemBal_m = loanAmount*Math.pow(1+mIntRate,mm) + mPay*(1-Math.pow(1+mIntRate,mm))/mIntRate; // remaining balance
@@ -215,10 +216,10 @@
                 // Create a datatable4
                 var DT4 = new google.visualization.DataTable();
                 DT4.addColumn('number', 'Month*'); // Months 
-                DT4.addColumn('number','Remaining Balance=New Loan'); // Remaining balance	
-                DT4.addColumn('number','Charged on New Loan');// New loan amount
-                DT4.addColumn('number','Monthly Payment (New)');// Monthly payment for new loan
-                DT4.addColumn('number','Effective Interest Rate (%)');// Effective rate
+                DT4.addColumn('number','New Loan'); // Remaining balance	
+                DT4.addColumn('number','Fee Charge');// New loan amount
+                DT4.addColumn('number','Mon. Pay.');// Monthly payment for new loan
+                DT4.addColumn('number','Eff. Rate (%)');// Effective rate
                 for (var m = 0; m<12; m++) {
                     var mm = 12*selectedPaidYear+m; // Possible refinancing happens after mm months
                     var RemBal_m = loanAmount*Math.pow(1+mIntRate,mm) + mPay*(1-Math.pow(1+mIntRate,mm))/mIntRate; // remaining balance
@@ -304,8 +305,12 @@
                 var x = document.getElementById(id);
                 if (x.className.indexOf("w3-show") == -1) {
                     x.className += " w3-show";
+                    x.previousElementSibling.className = 
+                    x.previousElementSibling.className.replace("w3-light-gray", "w3-blue");
                 } else { 
                     x.className = x.className.replace(" w3-show", "");
+                    x.previousElementSibling.className = 
+                    x.previousElementSibling.className.replace("w3-blue", "w3-light-gray");
                 }
             }
 	    </script>
@@ -325,39 +330,39 @@
     </head>
     <body>
     <div class="w3-container">
-        <h2>Mortgage Loan Calculator Ver 1.2</h2>
-        <p><i> Last update: February 07, 2019 </i></p>
+        <h2>Mortgage Loan Calculator Ver 1.2 <i class="fa fa-home"></i></h2>
+        <p style="text-align:right"><i> Last update: February 07, 2019 </i></p>
         <!-- First Part -->
-        <div class="w3-panel w3-blue w3-card">
+        <div class="w3-panel w3-blue w3-card w3-round">
             <h5>What is the fixed <em> monthly payment</em>for a given loan principal, interest rate, and payback year? </h5>
         </div>
         <!-- Input part -->
         <div id="CMP"> <!-- Constant Monthly Payment -->
             <!-- -->
             <form>
-            <fieldset class="w3-panel w3-pale-blue w3-card-4 w3-round-large">
-            <legend class="w3-text-blue w3-large"><b>Mortgage Loan Info:</b></legend>
+            <fieldset class="w3-panel w3-card-4 w3-round-large">
+            <legend class="w3-text-blue w3-medium"><b>Mortgage Loan Info:</b></legend>
                 
                 <div class="w3-container">
                     <label>Principal Amount in USD</label>
-                    <input class="w3-input" type="number" id="loanPrincipal" min="0" max="10000000" step="1000" value="100000" align="right">
+                    <input class="w3-input w3-border" type="number" id="loanPrincipal" min="0" max="10000000" step="1000" value="100000" align="right">
                     </br>
                 </div>
                 <div class="w3-row-padding">
                     <div class="w3-third">
                         <label>Interest Rate (%)</label>
-                        <input class="w3-input" type="number" id="IntRate" min="0" max="100" step="0.1" value="10">
+                        <input class="w3-input w3-border" type="number" id="IntRate" min="0" max="100" step="0.1" value="10">
                     </div>
                     <div class="w3-third">
                         <label>&nbsp;</label>
-                        <select class="w3-select" id="MonOrAnn"> 
+                        <select class="w3-select w3-border" id="MonOrAnn"> 
                             <option value="Monthly">Monthly</option>
                             <option value="Annually" selected>Annually</option>
                         </select>
                     </div>
                     <div class="w3-third">
                         <label>Max Payback Year</label>
-                        <select class="w3-select" id="maxYear" onchange="drawCharts()">
+                        <select class="w3-select w3-border" id="maxYear" onchange="drawCharts()">
                             <option value="10">10</option>
                             <option value="15" selected>15</option>
                             <option value="30">30</option>
@@ -374,7 +379,7 @@
             <!-- Result Part-->
             </br><br>
             <div id="table1">
-                <div id="table1_div"> </div>
+                <div id="table1_div" class="w3-animate-zoom"> </div>
             </div>
             </br>
             <div id="chart1">
@@ -384,32 +389,38 @@
         </div>
 
         <!-- Second Part -->
-        <div onclick="displaySection('Prepayment')" class="w3-panel w3-blue w3-hover-light-gray w3-card">
+        <div onclick="displaySection('Prepayment')" class="w3-panel w3-light-gray w3-hover-blue w3-card w3-round">
             <h5>What is the effective interest rate in the case of Prepayment?</h5>
         </div>
-        <div class="w3-hide" id="Prepayment"> 
+        <div class="w3-hide w3-animate-opacity" id="Prepayment"> 
             <!-- -->
             <h3 class="w3-text-blue"> Prepayment </h3>
             <!-- Input part for Prepayment-->
             <form>
-            <fieldset>
-            <legend>Prepayment Info:</legend>
-                Loan terms are the same as about with selected payback year: 
-                <select id="FixedPaybackYear" onchange="constrPaidYearOptions()">
-                    <option>10</option>
-                </select> &nbsp; years
-                </br>
-                </br>
-                Prepayment happens after: 
-                <select id="PaidYear">
-                    <option>9</option>
-                </select> &nbsp; years
-                </br>
-                </br>
-                Prepayment Penalty Amount: USD
-                <input type="number" id="PrepaymentPenalty" min="0" max="10000000" step="1000" value="3000" align="right">
-                </br>
-                </br>
+            <fieldset class="w3-panel w3-white w3-card-4 w3-round-large">
+            <legend class="w3-text-blue w3-medium"><b>Prepayment Info:</b></legend>
+                <div class="w3-container">
+                Assume the Loan terms are the same as above with:</div>
+                <br>
+                <div class="w3-row-padding">
+                    <div class="w3-third">
+                        <label>Selected Payback Year:</label> 
+                        <select class="w3-select w3-border" id="FixedPaybackYear" onchange="constrPaidYearOptions()">
+                            <option>10</option>
+                        </select>
+                    </div>
+                    <div class="w3-third">
+                        <label>Prepayment After (Years):</label>
+                        <select class="w3-select w3-border" id="PaidYear">
+                            <option>9</option>
+                        </select>
+                    </div>
+                    <div class="w3-third">
+                        <label>Penalty Amount (USD):</label>
+                        <input class="w3-input w3-border" type="number" id="PrepaymentPenalty" min="0" max="10000000" step="1000" value="0" align="right">
+                    </div>
+                </div>
+                    </br>
             </fieldset>
             </form>
             </br>
@@ -421,52 +432,67 @@
             </div>
             <p id="tab2note"></p>
         </div>
-        <div onclick="displaySection('Refinancing')" class="w3-panel w3-blue w3-hover-light-gray w3-card">
+        <div onclick="displaySection('Refinancing')" class="w3-panel w3-light-gray w3-hover-blue w3-card w3-round">
             <h5>What is the effective interest rate in the case of Refinancing?</h5>
         </div>
-        <div class="w3-hide" id="Refinancing"> 
+        <div class="w3-hide w3-animate-opacity" id="Refinancing"> 
             <!-- -->
-            <h4> Refinancing </h4>
+            <h3 class="w3-text-blue"> Refinancing </h3>
             <!-- Input part for Refinancing-->
             <form>
-            <fieldset>
-            <legend>Refinancing Info:</legend>
-                Loan terms are the same as about with selected payback year: 
-                <select id="FixedPaybackYear_Refin" onchange="constrPaidYearOptions_Refin()">
-                    <option>10</option>
-                </select> &nbsp; years
-                </br>
-                </br>
-                Possible refinancing happens after: 
-                <select id="PaidYear_Refin">
-                    <option>9</option>
-                </select> &nbsp; years
-                </br>
-                </br>
-                New Loan's Interest Rate:
-                <input type="number" id="IntRate_New" min="0" max="100" step="0.1" value="10"> % &nbsp;
-                <select id="MonOrAnn_Refin">
-                <option value="Monthly">Monthly</option>
-                <option value="Annually" selected>Annually</option>
-                </select>
-                </br>
-                </br>
-                New Loan's Payback Year: 
-                <input type="number" id="PaybackYear_New" min="0" max="100" step="1" value="10" align="right"> &nbsp; years
-                </br>
-                </br>
-                Prepayment Penalty Amount: USD
-                <input type="number" id="PrepaymentPenalty_Refin" min="0" max="10000000" step="1000" value="0" align="right">
-                </br>
-                </br>
-                Closing Costs: USD
-                <input type="number" id="ClosingCost" min="0" max="10000000" step="1000" value="2000" align="right">
-                </br>
-                </br>
-                Charged on New Loan:
-                <input type="number" id="ChargedOnNewLoan" min="0" max="100" step="0.1" value="3" align="right"> % &nbsp;
-                </br>
-                </br>
+            <fieldset class="w3-panel w3-card-4 w3-round-large">
+            <legend class="w3-text-blue w3-medium"><b>Refinancing Info:</b></legend>
+                <div class="w3-container">
+                    Assume loan terms are the same as about with:
+                </div>
+                <br>
+                <div class="w3-row-padding">
+                    <div class="w3-half">
+                        <label>Selected Payback Year:</label>
+                        <select class="w3-select w3-border" id="FixedPaybackYear_Refin" onchange="constrPaidYearOptions_Refin()">
+                            <option>10</option>
+                        </select>
+                    </div>
+                    <div class="w3-half">
+                        <label>Refinancing After (Years):</labe> 
+                        <select class="w3-select w3-border" id="PaidYear_Refin">
+                            <option>9</option>
+                        </select>
+                    </div>
+                </div>
+                <br>
+                <div class="w3-row-padding">
+                    <div class="w3-third">
+                        <label>New Loan's Payback Year:</label> 
+                        <input class="w3-input w3-border" type="number" id="PaybackYear_New" min="0" max="100" step="1" value="10" align="right">
+                    </div>
+                    <div class="w3-third">
+                        <label>New Loan's Int. Rate (%):</label>
+                        <input class="w3-input w3-border" type="number" id="IntRate_New" min="0" max="100" step="0.1" value="10">
+                    </div>
+                    <div class="w3-third">
+                        <label> &nbsp;</label>
+                        <select class="w3-select w3-border" id="MonOrAnn_Refin">
+                            <option value="Monthly">Monthly</option>
+                            <option value="Annually" selected>Annually</option>
+                        </select>
+                    </div>
+
+                </div>
+                <br>
+                <div class="w3-row-padding">
+                    <div class="w3-third">
+                        <label>Prepayment Penalty (USD):</label>
+                        <input class="w3-input w3-border" type="number" id="PrepaymentPenalty_Refin" min="0" max="10000000" step="1000" value="0" align="right">
+                    </div>
+                    <div class="w3-third">
+                        <label>Closing Cost (USD):</label>
+                        <input class="w3-input w3-border" type="number" id="ClosingCost" min="0" max="10000000" step="1000" value="2000" align="right">
+                    </div>
+                    <div class="w3-third">
+                        <label>Charged on New Loan (%):</label>
+                        <input class="w3-input w3-border" type="number" id="ChargedOnNewLoan" min="0" max="100" step="0.1" value="3" align="right">
+                    </br>
             </fieldset>
             </form>
             </br>
