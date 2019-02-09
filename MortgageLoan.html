@@ -163,7 +163,7 @@
                 // New Loan
                 var IntRate_New = document.getElementById("IntRate_New").value/100.0; // interest rate new
                 var Freqid_New = document.getElementById("MonOrAnn_Refin").selectedIndex;
-                var mIntRate_New = IntRate_New/FreqOption[Freqid]; // monthly interest rate
+                var mIntRate_New = IntRate_New/FreqOption[Freqid_New]; // monthly interest rate
                 var PaybackYear_New = document.getElementById("PaybackYear_New").value;
                 var ChargedOnNewLoan = document.getElementById("ChargedOnNewLoan").value/100.0;
                 var closingCost = document.getElementById("ClosingCost").value*1.0;
@@ -326,6 +326,9 @@
                 width:820px;
                 display:table-cell;
             }
+            html,body,h1,h2,h3,h4,h5,h6,p {
+                font-family: "Comic Sans MS", cursive, sans-serif;
+            }
         </style>
     </head>
     <body>
@@ -334,7 +337,7 @@
         <p style="text-align:right"><i> Last update: February 07, 2019 </i></p>
         <!-- First Part -->
         <div class="w3-panel w3-blue w3-card w3-round">
-            <h5>What is the fixed <em> monthly payment</em>for a given loan principal, interest rate, and payback year? </h5>
+            <h5>What is the fixed <em> monthly payment</em> for a given loan principal, interest rate, and payback year? </h5>
         </div>
         <!-- Input part -->
         <div id="CMP"> <!-- Constant Monthly Payment -->
@@ -441,7 +444,7 @@
             <!-- Input part for Refinancing-->
             <form>
             <fieldset class="w3-panel w3-card-4 w3-round-large">
-            <legend class="w3-text-blue w3-medium"><b>Refinancing Info:</b></legend>
+            <legend class="w3-text-blue w3-medium"><h4>Refinancing Info:</h4></legend>
                 <div class="w3-container">
                     Assume loan terms are the same as about with:
                 </div>
