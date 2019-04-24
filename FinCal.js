@@ -580,7 +580,7 @@ function DCS(settleDate,IssDate,cDateArr) {
 	var IcDateArr = cDateArr.slice(0);// shallow copy
 	IcDateArr.unshift(IssDate);
 	var nc = IcDateArr.length;//number of coupon payments+1
-	if (settleDate.getTime()>IcDateArr[nc-1].getTime() || settleDate.getTime()<IcDateArr[0].getTime()) {
+	if (settleDate.getTime()>IcDateArr[nc-1].getTime() || settleDate.getTime()<=IcDateArr[0].getTime()) {
 		//alert("Input settlement date must be within the bond life!")
 		return;
 	}
