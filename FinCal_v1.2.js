@@ -59,8 +59,9 @@ function IRR(cfArray,guest){
 	while (Math.abs(NPV_IRRC)>npvTol);
 }
 //
-function numToStr(num,fo,nplace=0){
+function numToStr(num,fo,nplace){
     // Covert numeric to string
+	if (nplace===undefined) {nplace=0;}
 	if (num==null){return null;}
 	if (fo=='decimal') {
 		return ''+num.toFixed(nplace).replace(/\B(?=(\d{3})+(?!\d))/g, ",");;
