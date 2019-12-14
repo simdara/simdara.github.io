@@ -105,7 +105,9 @@ class Bond {
 		//
 		this.Holidays = holiArr;
 		// generate additional information
-		[this.CouponDateArray,this.DaysEachCperiod] = genCouponDateArray(this.IssueDate,this.IssueTerm,this.PaymentFrequency);
+		var CoupA = genCouponDateArray(this.IssueDate,this.IssueTerm,this.PaymentFrequency);
+		this.CouponDateArray = CoupA[0];
+		this.DaysEachCperiod = CoupA[1]; 
 		this.RecordDateArray = recordDateArray(this.CouponDateArray,holiArr,this.RecordDate,this.RecordDateType);
 		this.ExCoupDateArray = genExCouponDatesArray(this.CouponDateArray,this.RecordDateArray,holiArr);
 		this.WithinExPeriodDateArray = genWithinExPeriodDatesArray(this.CouponDateArray,this.RecordDateArray,holiArr);
