@@ -173,11 +173,15 @@ class Bond {
 		var pf = this.PaymentFrequency;
 		// gross price
 		var gPrice = 0; // Gross Price
-		for (var i=0;i<this.RemainingCouponArray.length;i++) {
-			var d2NC = this.DaysToRemainingCouponArray[i];// days to next coupon
-			gPrice += this.RemainingCouponArray[i]*Math.pow((1+YTM/pf),-pf*d2NC/365);
+		var nRemainingCoup =this.RemainingCouponArray.length;
+		for (var i=0;i<nRemainingCoup;i++) {
+			gPrice += this.RemainingCouponArray[i]*Math.pow((1+YTM/pf),-(i));
 		}
-		gPrice += this.FaceValue*Math.pow((1+YTM/pf),-pf*d2NC/365);
+		
+		gPrice += this.FaceValue*Math.pow((1+YTM/pf),-(nRemainingCoup-1));
+		var d2NC=this.DaysToRemainingCouponArray[0];
+		var DwithinC=this.DaysEachCperiod[this.DaysEachCperiod.length-nRemainingCoup];
+		gPrice = gPrice*Math.pow(1+YTM*d2NC/(pf*DwithinC),-1);
 		return gPrice;
 	}
 	grossCleanPrice(settlementDate,YTM) {
