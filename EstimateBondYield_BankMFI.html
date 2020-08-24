@@ -17,7 +17,8 @@ var Compet = []; // competitiveness
 var ModelData;
 // Get bank data
 function getLogitData() {
-    var query = new google.visualization.Query('http://spreadsheets.google.com/tq?key=16JUWqdOFvo32TwIuESMPhz5ICfVellQMsM2d6Wcvs4Q&gid=1669767426');
+	//var query = new google.visualization.Query('http://spreadsheets.google.com/tq?key=16JUWqdOFvo32TwIuESMPhz5ICfVellQMsM2d6Wcvs4Q&gid=1669767426');
+	var query = new google.visualization.Query('http://spreadsheets.google.com/d/16JUWqdOFvo32TwIuESMPhz5ICfVellQMsM2d6Wcvs4Q/gviz/tq?sheet=Sheet2');
 	//
     query.send(handleQueryResponse);
 }
