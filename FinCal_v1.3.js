@@ -181,7 +181,7 @@ class Bond {
 		gPrice += this.FaceValue*Math.pow((1+YTM/pf),-(nRemainingCoup-1));
 		var d2NC=this.DaysToRemainingCouponArray[0];
 		var DwithinC=this.DaysEachCperiod[this.DaysEachCperiod.length-nRemainingCoup];
-		gPrice = gPrice*Math.pow(1+YTM*d2NC/(pf*DwithinC),-1);
+		gPrice = gPrice*Math.pow(1+YTM/pf,-d2NC/DwithinC);
 		return gPrice;
 	}
 	grossCleanPrice(settlementDate,YTM) {
