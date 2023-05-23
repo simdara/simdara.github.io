@@ -177,7 +177,7 @@ table.table6 th{
     padding: 5px;
   }
 table.table6 td{
-     padding: 3px;
+     padding: 1px;
      background-color: white;
 }
 table.table6 td[colspan="6"]{
