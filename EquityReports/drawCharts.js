@@ -9,7 +9,7 @@ function drawCharts() {
     drawAgrowth();
     drawStock();
 }
-var chartHeight = 170;
+var chartHeight = 200;
 // -------------------EPS -------------------------------
 var EPS_data =[
     [{label:'TTM', type: 'string'},{label:'EPS (KHR)', type: 'number'}],
