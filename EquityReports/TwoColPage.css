@@ -56,7 +56,7 @@ header {
   /*
   header:hover {background-color:#0000cc}
   */
-ul {
+ul, li {
     font-size: 12px;
   }
 div.footnote {
