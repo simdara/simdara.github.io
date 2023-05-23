@@ -107,7 +107,7 @@ table.table2 th{
     padding: 5px;
   }
 table.table2 td{
-     padding: 3px;
+     padding: 2px;
 }
 table.table2 td:nth-child(1) {
   text-align: left;
