@@ -9,7 +9,7 @@ function drawCharts() {
     drawAgrowth();
     drawStock();
 }
-
+var chartHeight = 170;
 // -------------------EPS -------------------------------
 var EPS_data =[
     [{label:'TTM', type: 'string'},{label:'EPS (KHR)', type: 'number'}],
@@ -24,6 +24,7 @@ var EPS_data =[
 var EPS_option = {
     title:'EPS (ttm, KHR)',
     chartArea: {left:'10%','width': '85%', 'height': '60%'},
+    height: chartHeight,
     series: {0: {color:'#5B9BD5'}},
     bar: {groupWidth: "50%"},
     vAxis:{format:'short'},
@@ -44,6 +45,7 @@ var Qrevenue_data = [
 var Qrevenue_option = {
         //title:"KHR'bn",
         chartArea: {left:'10%','width': '85%', 'height': '70%'},
+        height: chartHeight,
         series: {0: {color:'#5B9BD5'}, 1: {color:'#0F70C0'}},
         bar: {groupWidth: "60%"},
         vAxis:{format:'short',
@@ -70,6 +72,7 @@ var Qmargin_option = {
     seriesType:'bars',
     //vAxis:{format:'percent'},
     chartArea: {left:'10%','width': '90%', 'height': '70%'},
+    height: chartHeight,
     legend: {position:'top'},
     annotations: {
 
@@ -95,6 +98,7 @@ var Qgrowth_option = {
         max:90}
     },
     chartArea: {left:'10%','width': '90%', 'height': '70%'},
+    height: chartHeight,
     legend: {position:'top'},
 };
 
@@ -113,6 +117,7 @@ var Arevenue_data = [
 var Arevenue_option = {
         //title:"KHR'bn",
         chartArea: {left:'10%','width': '85%', 'height': '70%'},
+        height: chartHeight,
         series: {0: {color:'#5B9BD5'}, 1:{color:'#0F70C0'}},
         bar: {groupWidth: "60%"},
         vAxis:{format:'short', 
@@ -139,6 +144,7 @@ var AMargin_option = {
     seriesType:'bars',
     //vAxis:{format:'percent'},
     chartArea: {left:'10%','width': '90%', 'height': '70%'},
+    height: chartHeight,
     legend: {position:'top'},
     annotations: {
 
@@ -164,6 +170,7 @@ var Agrowth_option = {
         max:75}
     },
     chartArea: {left:'10%','width': '90%', 'height': '70%'},
+    height: chartHeight,
     legend: {position:'top'},
 };
 
@@ -313,3 +320,4 @@ function setAnnotation(numCols,annotCols) {
     }
     return OutArr;
 }
+
