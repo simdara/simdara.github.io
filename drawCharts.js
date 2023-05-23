@@ -7,23 +7,23 @@ function drawCharts() {
     drawArevenue();
     drawAMargin();
     drawAgrowth();
-    //drawStock();
+    drawStock();
 }
 
 // -------------------EPS -------------------------------
 var EPS_data =[
     [{label:'TTM', type: 'string'},{label:'EPS (KHR)', type: 'number'}],
-    ['3Q21',2313.6],
-    ['4Q21',2513.],
-    ['1Q22',2497.9],
-    ['2Q22',2810.6],
-    ['3Q22',2900.3],
-    ['4Q22',2873.]
+    ['3Q21',2314],
+    ['4Q21',2513],
+    ['1Q22',2498],
+    ['2Q22',2811],
+    ['3Q22',2900],
+    ['4Q22',2873]
     ];     
     
 var EPS_option = {
     title:'EPS (ttm, KHR)',
-    chartArea: {left:'10%','width': '85%', 'height': '70%'},
+    chartArea: {left:'10%','width': '85%', 'height': '60%'},
     series: {0: {color:'#5B9BD5'}},
     bar: {groupWidth: "50%"},
     vAxis:{format:'short'},
@@ -313,4 +313,3 @@ function setAnnotation(numCols,annotCols) {
     }
     return OutArr;
 }
-
