@@ -49,11 +49,13 @@ header {
     color: #0070C0;
     font-size: 15px;
     font-weight: bold;
+    padding-top: 10px;
   }
 #hh4 {
     color: #002060;
     font-size: 13px;
     font-weight: bold;
+    padding-top: 9px;
   }
   /*
   header:hover {background-color:#0000cc}
@@ -177,7 +179,7 @@ table.table6 th{
     padding: 5px;
   }
 table.table6 td{
-     padding: 1px;
+     padding: 3px;
      background-color: white;
 }
 table.table6 td[colspan="6"]{
