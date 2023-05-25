@@ -5,15 +5,16 @@ div.bbody {
   margin-right: auto;
   font-family:arial, sans-serif;
   font-size:12px;
+  display: flex;
 }
 div.leftcolumn {
-    width:63%;
+    flex:63%;
     float:left;
     margin-right:0.5%;
     margin-left:0.5%;
   }
 div.rightcolumn {
-    width:35%;
+    flex:35%;
     float:right;
     margin-left:0.5%;
     margin-right:0.5%;
