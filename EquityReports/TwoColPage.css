@@ -107,7 +107,7 @@ table.table2 th{
     border: 2px solid #0070C0;
     border-left: 0px;
     border-right: 0px;
-    padding: 5px;
+    padding: 4px;
   }
 table.table2 td{
      padding: 2px;
@@ -178,7 +178,7 @@ table.table6 th{
     padding: 4px;
   }
 table.table6 td{
-     padding: 2px;
+     padding: 1px;
      background-color: white;
 }
 table.table6 td[colspan="6"]{
