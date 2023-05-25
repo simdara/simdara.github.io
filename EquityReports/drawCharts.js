@@ -9,7 +9,7 @@ function drawCharts() {
     drawAgrowth();
     drawStock();
 }
-var chartHeight = 200;
+var chartHeight = 170;
 // -------------------EPS -------------------------------
 var EPS_data =[
     [{label:'TTM', type: 'string'},{label:'EPS (KHR)', type: 'number'}],
@@ -22,8 +22,8 @@ var EPS_data =[
     ];     
     
 var EPS_option = {
-    title:'EPS (ttm, KHR)',
-    chartArea: {left:'10%','width': '85%', 'height': '60%'},
+    //title:'EPS (ttm, KHR)',
+    chartArea: {left:'10%','width': '85%', 'height': '70%'},
     height: chartHeight,
     series: {0: {color:'#5B9BD5'}},
     bar: {groupWidth: "50%"},
@@ -43,18 +43,13 @@ var Qrevenue_data = [
     ['4Q22',32.88,12.52],
     ];
 var Qrevenue_option = {
-        //title:"KHR'bn",
-        chartArea: {left:'10%','width': '85%', 'height': '70%'},
-        height: chartHeight,
-        series: {0: {color:'#5B9BD5'}, 1: {color:'#0F70C0'}},
-        bar: {groupWidth: "60%"},
-        vAxis:{format:'short',
-            viewWindow:{
-                min:0,
-                max:50}
-            },
-        legend: {position:'top'},
-    };
+    chartArea: {left:'10%','width': '85%', 'height': '70%'},
+    height: chartHeight,
+    series: {0: {color:'#5B9BD5'}, 1: {color:'#0F70C0'}},
+    bar: {groupWidth: "60%"},
+    vAxis:{format:'short', viewWindow:{min:0, max:60}},
+    legend: {position:'top'},
+};
 function drawQrevenue() {
     drawColumnChart(Qrevenue_data,Qrevenue_option,[1,2],"Qrevenue_Chart_div")
 }
@@ -68,15 +63,12 @@ var Qmargin_data = [
     ['4Q22',66.7,38.1],
 ];
 var Qmargin_option = {
-    series: {0: {color:'#FA6026'},1:{color:'#0F70C0'}},
-    seriesType:'bars',
-    //vAxis:{format:'percent'},
     chartArea: {left:'10%','width': '90%', 'height': '70%'},
     height: chartHeight,
+    series: {0: {color:'#FA6026'},1:{color:'#0F70C0'}},
+    bar: {groupWidth: "60%"},
+    vAxis:{format:'short', viewWindow:{min:0, max:100}},
     legend: {position:'top'},
-    annotations: {
-
-    }
 };
 function drawQmargin() {
     drawColumnChart(Qmargin_data,Qmargin_option,[1,2,3],"Qmargin_Chart_div")
@@ -91,14 +83,11 @@ var Qgrowth_data = [
     ['4Q22',1.8,-4.3],
 ];
 var Qgrowth_option = {
-    series: {0: {color:'#5B9BD5'},1:{color:'#0F70C0'}},
-    seriesType:'bars',
-    vAxis:{viewWindow:{
-        min:-5,
-        max:90}
-    },
-    chartArea: {left:'10%','width': '90%', 'height': '70%'},
+    chartArea: {left:'10%','width': '85%', 'height': '70%'},
     height: chartHeight,
+    series: {0: {color:'#5B9BD5'},1:{color:'#0F70C0'}},
+    bar: {groupWidth: "60%"},
+    vAxis:{format:'short', viewWindow:{min:-10, max:80}},
     legend: {position:'top'},
 };
 
@@ -107,26 +96,21 @@ function drawQgrowth() {
 };
 //------------------Annual -----------------------------------------
 var Arevenue_data = [
-[{label: 'Year', type:'string'},{label: 'Revenue', type:'number'},{label: 'Net profit', type:'number'}],
-['2018',83.8,32.8],
-['2019',110.2,46.8],
-['2020',110.3,40.2],
-['2021',125.2,51.7],
-['2022',148.8,58.5]
+    [{label: 'Year', type:'string'},{label: 'Revenue', type:'number'},{label: 'Net profit', type:'number'}],
+    ['2018',83.8,32.8],
+    ['2019',110.2,46.8],
+    ['2020',110.3,40.2],
+    ['2021',125.2,51.7],
+    ['2022',148.8,58.5]
 ];
 var Arevenue_option = {
-        //title:"KHR'bn",
-        chartArea: {left:'10%','width': '85%', 'height': '70%'},
-        height: chartHeight,
-        series: {0: {color:'#5B9BD5'}, 1:{color:'#0F70C0'}},
-        bar: {groupWidth: "60%"},
-        vAxis:{format:'short', 
-            viewWindow:{
-            min:0,
-            max:170}
-        },
-        legend: {position:'top'}
-    };
+    chartArea: {left:'10%','width': '85%', 'height': '70%'},
+    height: chartHeight,
+    series: {0: {color:'#5B9BD5'}, 1:{color:'#0F70C0'}},
+    bar: {groupWidth: "60%"},
+    vAxis:{format:'short', viewWindow:{min:0, max:170}},
+    legend: {position:'top'}
+};
 function drawArevenue() {
     drawColumnChart(Arevenue_data,Arevenue_option,[1,2],"Arevenue_Chart_div")
 }
@@ -140,15 +124,12 @@ var AMargin_data = [
     ['2022',64.3,39.3],
 ];
 var AMargin_option = {
-    series: {0: {color:'#FA6026'},1:{color:'#0F70C0'}},
-    seriesType:'bars',
-    //vAxis:{format:'percent'},
     chartArea: {left:'10%','width': '90%', 'height': '70%'},
     height: chartHeight,
+    series: {0: {color:'#FA6026'},1:{color:'#0F70C0'}},
+    bar: {groupWidth: "60%"},
+    vAxis:{format:'short', viewWindow:{min:0, max:100}},
     legend: {position:'top'},
-    annotations: {
-
-    }
 };
 function drawAMargin() {
     drawColumnChart(AMargin_data,AMargin_option,[1,2],"AMargin_Chart_div")
@@ -163,14 +144,11 @@ var Agrowth_data = [
     ['2022',18.8,13.2],
     ];
 var Agrowth_option = {
-    series: {0: {color:'#5B9BD5'},1:{color:'#0F70C0'}},
-    seriesType:'bars',
-    vAxis:{viewWindow:{
-        min:-15,
-        max:75}
-    },
-    chartArea: {left:'10%','width': '90%', 'height': '70%'},
+    chartArea: {left:'10%','width': '85%', 'height': '70%'},
     height: chartHeight,
+    series: {0: {color:'#5B9BD5'},1:{color:'#0F70C0'}},
+    bar: {groupWidth: "60%"},
+    vAxis:{format:'short', viewWindow:{min:-10, max:80}},
     legend: {position:'top'},
 };
 

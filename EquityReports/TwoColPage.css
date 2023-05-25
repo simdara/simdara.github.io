@@ -56,9 +56,9 @@ header {
   /*
   header:hover {background-color:#0000cc}
   */
-ul, li {
-    font-size: 12px;
-  }
+ul.ereport li {
+  font-size: 9px;
+}
 div.footnote {
     text-align:left;
     font-size: x-small;
