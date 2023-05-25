@@ -15,6 +15,9 @@ div.bbody:after {
   clear: both;
 }
 @media screen and (max-width: 600px) {
+  table {
+    font-size: 10px;
+  }
   div.rightcolumn {
     width: 99% !important;
   }
