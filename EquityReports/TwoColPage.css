@@ -15,11 +15,11 @@ div.bbody:after {
   clear: both;
 }
 @media screen and (max-width: 600px) {
-  div.leftcolumn {
-    width: 100% !important;
-  }
   div.rightcolumn {
-    width: 100% !important;
+    width: 99% !important;
+  }
+  div.leftcolumn {
+    width: 99% !important;
   }
 }
 div.leftcolumn {
