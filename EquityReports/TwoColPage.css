@@ -202,8 +202,7 @@ table.table6 th:nth-child(1) {
 .periodDateList li {
   float: left;
   border-right:2px solid silver;
-  /*width:60px; */
-  font-size:11px;
+  font-size:9px;
   list-style-type: none;
   
 }
