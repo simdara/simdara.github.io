@@ -4,16 +4,16 @@ div.bbody {
   margin-left: auto;
   margin-right: auto;
   font-family:arial, sans-serif;
-  font-size:12px;
+  font-size:11px;
 }
 div.leftcolumn {
-    width:66%;
+    width:63%;
     float:left;
     margin-right:0.5%;
     margin-left:0.5%;
   }
 div.rightcolumn {
-    width:32%;
+    width:35%;
     float:right;
     margin-left:0.5%;
     margin-right:0.5%;
@@ -30,7 +30,7 @@ reportcontent {
     /*text-justify: inter-word;*/
   }
 reportcontent ul {
-    padding:1em;
+    padding:0.1em;
     list-style-type:disc;
   }
 header {
@@ -43,13 +43,13 @@ header {
   }
 #hh3 {
     color: #0070C0;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: bold;
     padding-top: 10px;
   }
 #hh4 {
     color: #002060;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: bold;
     padding-top: 9px;
   }
@@ -57,7 +57,7 @@ header {
   header:hover {background-color:#0000cc}
   */
 ul.ereport li {
-  font-size: 12px;
+  font-size: 11px;
 }
 div.footnote {
     text-align:left;
@@ -127,7 +127,7 @@ table.table3 tr {
 }
 table.table3 td:nth-child(2){
   text-align: right;
-  padding: 4px;
+  padding: 3px;
 }
 
 table.table4 {
@@ -150,7 +150,7 @@ table.table5 th{
     color:white;
     border:1px solid #dddddd;
     padding: 2px;
-    font-size: 12px;
+    font-size: 11px;
   }
 table.table5 td{
     border: 1px solid #dddddd;
@@ -202,6 +202,7 @@ table.table6 th:nth-child(1) {
 .periodDateList li {
   float: left;
   border-right:2px solid silver;
+  /*width:60px; */
   font-size:10px;
   list-style-type: none;
   
