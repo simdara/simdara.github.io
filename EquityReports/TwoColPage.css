@@ -202,7 +202,7 @@ table.table6 th:nth-child(1) {
 .periodDateList li {
   float: left;
   border-right:2px solid silver;
-  font-size:9px;
+  font-size:10px;
   list-style-type: none;
   
 }
@@ -215,7 +215,7 @@ table.table6 th:nth-child(1) {
   display: block;
   color: black;
   text-align: center;
-  padding: 3px;
+  padding: 2px;
   border-bottom:2px solid silver;
   text-decoration: none;
 }
@@ -225,7 +225,7 @@ color:red;
 }
 
 .periodDateList #sixm {
-  border-bottom: 3.5px solid red;
-  padding:2.5px;
+  border-bottom: 3px solid red;
+  padding:2px;
   color:red;
 }
