@@ -57,7 +57,7 @@ header {
   header:hover {background-color:#0000cc}
   */
 ul.ereport li {
-  font-size: 9px;
+  font-size: 12px;
 }
 div.footnote {
     text-align:left;
@@ -203,7 +203,7 @@ table.table6 th:nth-child(1) {
   float: left;
   border-right:2px solid silver;
   /*width:60px; */
-  font-size:12px;
+  font-size:11px;
   list-style-type: none;
   
 }
