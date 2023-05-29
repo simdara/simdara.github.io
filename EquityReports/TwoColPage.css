@@ -26,7 +26,7 @@ div.bbody:after {
     width: 99% !important;
   }
   
-  div.periodDateList li a {
+  div.periodDateList ul li {
     font-size:10px !important;
   }
 }
