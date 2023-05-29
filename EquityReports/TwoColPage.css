@@ -12,7 +12,7 @@ div.bbody:after {
   display: table;
   clear: both;
 }
-@media screen and (max-width: 750px) {
+@media screen and (max-width: 770px) {
   table {
     font-size: 10px !important;
   }
