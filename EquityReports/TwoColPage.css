@@ -26,9 +26,8 @@ div.bbody:after {
     width: 99% !important;
   }
   
-  div.periodDateList li {
+  div.periodDateList li a {
     font-size:10px !important;
-    
   }
 }
 div.leftcolumn {
