@@ -25,6 +25,11 @@ div.bbody:after {
   div.leftcolumn {
     width: 99% !important;
   }
+  
+  div.periodDateList li {
+    font-size:10px !important;
+    
+  }
 }
 div.leftcolumn {
   width:63%;
