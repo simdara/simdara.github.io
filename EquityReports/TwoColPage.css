@@ -1,6 +1,6 @@
 
 div.bbody {
-  max-width: 900px;
+  max-width: 1200px;
   vertical-align: middle;
   margin-left: auto;
   margin-right: auto;
@@ -12,7 +12,7 @@ div.bbody:after {
   display: table;
   clear: both;
 }
-@media (max-width: 800px) {
+@media (max-width: 1100px) {
   table {
     font-size: 10px !important;
   }
