@@ -24,7 +24,7 @@ var data;
 var dataView;
 function drawStock() {
   var closing = new google.visualization.Query(
-  'http://spreadsheets.google.com/tq?key=1ta6m6AiteGlSDEc5NMOy3TjybPfHOjYx0YujTgUx4Dk&gid=1663071415');
+  'http://spreadsheets.google.com/tq?key=1ta6m6AiteGlSDEc5NMOy3TjybPfHOjYx0YujTgUx4Dk&gid='+GSpread_GID);
 
 // Apply query language statement.
   closing.setQuery(StockDataOnGSpread);
