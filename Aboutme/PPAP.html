@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<!-- Load all pages only one time -->
+<head>
+<title> PPAP </title>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script>
+var Sec1Nslide = 2; /* num. of slides in Section 1*/
+var Sec2Nslide = 4; /* num. of slides in Section 2 */
+var Sec3Nslide = 1; 
+var Sec4Nslide = 1;
+var Sec5Nslide = 1;
+var locations = ["#slide1", "#slide2","#slide3", "#slide4","#slide5","#slide6","#slide7","#slide8","#slide9"];
+var currentIndex = 0;
+var len = locations.length;
+$(document).ready(function(){
+	<!-- click nav -->
+	$("a").click(function(){
+		$("a").removeClass('active');
+		$("a").addClass('nonactive');
+		$(this).addClass('active');
+	});
+	$("#Section1").click(function(){
+		currentIndex = 0;
+		$("iframe").hide();
+		$("#slide1").fadeIn(); 
+		
+    }),
+	$("#Section2").click(function(){
+		currentIndex = 2;
+		$("iframe").hide();
+		$("#slide3").fadeIn();
+		
+    }),
+	$("#Section3").click(function(){
+		currentIndex = 6;
+		$("iframe").hide();
+		$("#slide7").fadeIn();		
+    }),	
+	$("#Section4").click(function(){
+		currentIndex = 7;
+		$("iframe").hide();
+		$("#slide8").fadeIn();	
+		$("#Sec4").slideToggle("slow");
+    }),	
+	$("#Section5").click(function(){
+		currentIndex = 8;
+		$("iframe").hide();
+		$("#slide9").fadeIn();	
+    }),	
+	<!-- Click button -->
+	$(':button').click(function() {
+        currentIndex = this.value == "Next" ? 
+            currentIndex < len - 1 ? ++currentIndex : 0 : 
+            currentIndex > 0 ? --currentIndex : len - 1;
+		
+		$("iframe").hide();
+		$(locations[currentIndex]).show();
+		
+		if (currentIndex>Sec1Nslide-1 && currentIndex<Sec1Nslide+Sec2Nslide) {
+			$("a").removeClass('active');
+			$('a').addClass('nonactive');
+			$("#Section2").addClass('active');
+		} else if (currentIndex>Sec1Nslide+Sec2Nslide-1 && currentIndex<Sec1Nslide+Sec2Nslide+Sec3Nslide) {
+			$("a").removeClass('active');
+			$('a').addClass('nonactive');
+			$("#Section3").addClass('active');	
+		} else if (currentIndex>Sec1Nslide+Sec2Nslide+Sec3Nslide-1 && currentIndex<Sec1Nslide+Sec2Nslide+Sec3Nslide+Sec4Nslide) {
+			$("a").removeClass('active');
+			$('a').addClass('nonactive');
+			$("#Section4").addClass('active');			
+		} else if (currentIndex>Sec1Nslide+Sec2Nslide+Sec3Nslide+Sec4Nslide-1) {
+			$("a").removeClass('active');
+			$('a').addClass('nonactive');
+			$("#Section5").addClass('active');			
+		} else{
+			$("a").removeClass('active');
+			$('a').addClass('nonactive');
+			$("#Section1").addClass('active');
+		}
+    });
+});
+</script>
+<style> 
+.flex-container {
+    display: -webkit-flex;
+    display: flex;  
+    -webkit-flex-flow: row wrap;
+    flex-flow: row wrap;
+    text-align: center;
+	background-image: url('https://simdara.github.io/Port2.jpg');
+}
+.flex-container > * {
+    padding: 0px;
+    -webkit-flex: 1 100%;
+    flex: 1 100%;
+}
+.article {
+    text-align: left;
+}
+header {text-align: left;
+		font-family:verdana;
+		background-color:rgb(31,73,125);
+		color:white;
+		margin-bottom:5px;
+		padding-top:2px !important;
+}
+footer {background: #555;
+		color:white;
+		font-size:14px;
+		padding:5px !important;
+		margin-top:120px;
+}
+iframe {overflow:hidden; background-color:white;}
+.nav {
+	<!-- background:#e6f2ff; -->
+	width:10%;
+	font-family:verdana;
+}
+ol {
+	<--! list-style-type:none; -->
+	padding:0px;
+	width:160px;
+}
+
+ol li {
+	margin-left:2px;
+}
+ol li a{
+	display:block;
+	margin:2px;
+	padding: 5px;
+	color: blue;
+	text-decoration: none;	
+}
+
+#Sec4{
+	display:none;
+}
+			
+ol li a:hover:not(.active){
+	background-color: #4d94ff;
+	color:white;
+}
+.active {
+	color:white !important;
+	background-color:#1a1aff !important;
+}
+.nonactive{
+	color:blue;
+	background-color:transparent;
+}
+img {
+	display: inline-block;
+}
+@media all and (min-width: 768px) {
+    .nav {text-align:left;-webkit-flex: 1 auto;flex:1 auto;-webkit-order:1;order:1;}
+    .article {-webkit-flex:5 0px;flex:5 0px;-webkit-order:2;order:2;}
+    footer {-webkit-order:3;order:3;}
+}
+<!-- *** Site map STYLE *** -->
+#SiteMap {
+	//background-color:rgb(234,242,248);
+	//border-radius: 15px;
+	height:30px;
+}
+
+#SiteLinks {
+	padding: 0px;
+	background-color:rgb(234,242,248);
+	border-radius: 5px;
+	height:30px;
+}
+#SiteLinks ul {
+   margin: 0;
+   padding: 0;    
+}
+#SiteLinks li {
+    float: left !important;
+    list-style-type: none !important;
+}
+#SiteLinks li a {
+    padding: 5px 5px;
+    margin: 0 3px 0 0;
+	display:block;
+	text-decoration: none;
+	color:blue;
+	//border-right:1px solid white;
+}
+#SiteLinks li a:hover {
+	text-decoration: bold;
+	background-color:#0000FF;
+	color:white;
+	text-decoration: underline;
+}
+br.clearLeft {
+   clear: left;        
+}
+<!-- **************************** -->
+</style>
+</head>
+<body onload="InitialPage()">
+
+<div class="flex-container">
+<script>
+function InitialPage() {
+	$("#Section1").addClass('active')
+}
+</script>
+<header>
+  <img src='https://simdara.github.io/PPAPlogo.png' height="80" alt="PPAP"><img src='https://simdara.github.io/logo.png' height="77" alt="PPAP's logo" align="right">
+</header>
+
+<nav class="nav">
+<ol>
+  <li><a id="Section1" href="#">Company</a></li>
+  <li><a id="Section2" href="#">Business</a></li>
+  <li><a id="Section3" href="#">Expansion plan</a></li>
+  <li><a id="Section4" href="#">Financials</a></li>
+  <li><a id="Section5" href="#">Stock price</a></li>
+</ol>
+</nav>
+
+<article class="article">
+	<!-- Slide 1 -->
+	<iframe seamless frameborder=0 height="550px" scrolling="no" width="700" src="https://simdara.github.io/Sec1Slide1.html" id="slide1">
+	</iframe>
+	<!-- Slide 2 -->
+	<iframe style="display:none" seamless frameborder=0 height="550px" scrolling="no" width="700" src="https://simdara.github.io/Sec1Slide2.html" id="slide2">
+	</iframe>
+	<!-- Slide 3 -->
+	<iframe style="display:none" frameborder=0 height="550px" scrolling="no" width="700" src="https://simdara.github.io/Sec2Slide3.html" id="slide3">
+	</iframe>
+	<!-- Slide 4 -->
+	<iframe style="display:none" seamless frameborder=0 height="550px" scrolling="no" width="700" src="https://simdara.github.io/Sec2Slide4.html" id="slide4">
+	</iframe>
+	<!-- Slide 5 -->
+	<iframe style="display:none" seamless frameborder=0 height="550px" scrolling="no" width="700" src="https://simdara.github.io/Sec2Slide5.html" id="slide5">
+	</iframe>
+	<!-- Slide 6 -->
+	<iframe style="display:none" seamless frameborder=0 height="550px" scrolling="no" width="700" src="https://simdara.github.io/Sec2Slide6.html" id="slide6">
+	</iframe>
+	<!-- Slide 7 -->
+	<iframe style="display:none" seamless frameborder=0 height="550px" scrolling="no" width="700" src="https://simdara.github.io/Sec3Slide7.html" id="slide7">
+	</iframe>
+	<!-- Slide 8 -->
+	<iframe style="display:none" seamless frameborder=0 height="550px" scrolling="no" width="700" src="https://simdara.github.io/Sec4Slide8.html" id="slide8">
+	</iframe>
+	<!-- Slide 9 -->
+	<iframe style="display:none" seamless frameborder=0 height="550px" scrolling="no" width="700" src="https://simdara.github.io/Sec5Slide9.html" id="slide9">
+	</iframe>
+	<!-- Previous Next -->
+	<input type = "button" value = "Previous" />&nbsp;<input type = "button" value = "Next" />
+	</br>
+	</br>
+</article>
+	</br>
+</div>
+</br>
+<!-- *** Site Map *** -->
+<div id="SiteMap">
+	<div id="SiteLinks">
+		<ul>
+			<li><a href="https://simdara.github.io/index">Home</a></li>
+			<li><a href="https://simdara.github.io/BankingDBViewer" >Banking-Database</a></li>
+			<li><a href="https://simdara.github.io/MortgageLoan">Mortgage-Cal</a></li>
+			<li><a href="https://simdara.github.io/PPAP">PPAP</a></li>
+			<li><a href="http://www.yuantacambodia.com/">YSC</a></li>
+
+		</ul>    
+		<br class="clearLeft" />
+	</div>
+</div>
+<footer>Copyright &copy; 2016, Yuanta Securities (Cambodia) Plc.</footer>
+</body>
+</html>
