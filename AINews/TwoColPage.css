@@ -43,7 +43,7 @@ div.rightcolumn {
   margin-right:2%;
 }
 div.spantwocols {
-  width:95%;
+  width:96%;
   margin-left:2%;
   margin-right:2%;
   float: left;
@@ -259,5 +259,9 @@ table.table6 th:nth-child(1) {
 }
 
 #WorldNews {
+  text-align: justify;
+}
+
+#AIcommentonUSTYield {
   text-align: justify;
 }
