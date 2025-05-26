@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  	<link rel="stylesheet" href="TwoColPage.css">
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/showdown/dist/showdown.min.js"></script>
+    <!--
+    <script type="text/javascript" src="drawCharts.js"></script>
+    -->
+    <script type="text/javascript">
+
+      // Load the Visualization API and the corechart package.
+      google.charts.load('current', {'packages':['corechart',"timeline"]});
+      //
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(getDatafromGSpread);
+      //
+      // Get Data google spreadsheet
+      var data;
+      //let DataOnGSpread = 'SELECT A,B,D';
+      function getDatafromGSpread() {
+        var gData = new google.visualization.Query(
+        'http://spreadsheets.google.com/tq?key=15188Pc1S_o3GquQMRMqjpquRkwm48zl9ua7RhUB7Oe0&gid=1855781631&range=B3:E3#');
+
+      // Apply query language statement.
+        //closing.setQuery(DataOnGSpread);
+
+      // Send the query with a callback function.
+        gData.send(handleDataResponse);
+      };
+
+      function handleDataResponse(response) {
+        if (response.isError()) {
+          alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+          return;
+        }
+        data = dataTableToArray(response.getDataTable());
+        //
+        let mdownTohtml = new showdown.Converter();
+        //
+        let khNews_date = data[1][0]
+        let WorldNews_date = data[1][2]
+        let khNews = mdownTohtml.makeHtml(data[1][1])
+        let WorldNews = mdownTohtml.makeHtml(data[1][3])
+        // Inject string data to html body
+        document.getElementById('KhNews').innerHTML = khNews
+        document.getElementById('WorldNews').innerHTML = WorldNews
+        let msg ="The news are summarized by AI on " + khNews_date + "."
+        document.getElementById('aiGenDate').innerHTML = msg
+      };
+      //
+      function dataTableToArray(dataTable) {
+        const rows = dataTable.getNumberOfRows();
+        const cols = dataTable.getNumberOfColumns();
+        const arr = [];
+        // Add header row
+        const header = [];
+        for (let c = 0; c < cols; c++) {
+          header.push(dataTable.getColumnLabel(c));
+        }
+        arr.push(header);
+        // Add data rows
+        for (let r = 0; r < rows; r++) {
+          const row = [];
+          for (let c = 0; c < cols; c++) {
+            row.push(dataTable.getValue(r, c));
+          }
+          arr.push(row);
+        }
+        return arr;
+      }
+    </script>
+  </head>
+
+  <body> 
+    <!-- ------- BODY--------------- -->
+    <div class="bbody">
+    
+    <div class="leftcolumn" id="leftcolumn">
+      <table border="0" cellpadding="1px" cellspacing="1px" style="border-collapse:
+  collapse; width:100%">
+        <tbody>
+          <tr height="25" style="background-color:#0070C0">
+            <td colspan="9" height="20" style="height:15.0pt;text-align: center;">
+          <span style="font-size:14px;color:#ffffff;"><strong>Economic & Business News in Cambodia </strong></span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div id='KhNews'> </div>
+      
+    </div>
+    <div class="rightcolumn" id="rightcolumn">
+        <table>
+        <tbody>
+          <tr height="25" style="background-color:#0070C0">
+            <td colspan="9" height="20" style="height:15.0pt; text-align: center;">
+          <span style="font-size:14px;"><span style="color:#ffffff;"><strong>Economic & Business News in US & World</strong></span></span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div id='WorldNews'> </div>
+    </div>
+    <div class="spantwocols">
+      <p id="aiGenDate" style="font-style: italic;"> </p>
+    </div>
+  </div>
+</body>
+</html>
