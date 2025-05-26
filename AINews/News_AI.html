@@ -64,8 +64,16 @@
         var options = {
           title: 'US Treasury Bond Yield Curve',
           subtitle: 'As of ' + USTYieldData[0][0] + '. ' + USTYieldData[7][0],
-          hAxis: {title: 'Tenor (Year)',titleTextStyle:{fontSize:10},textStyle:{fontSize:10}},
-          vAxis: {title: 'Yield (%)',titleTextStyle:{fontSize:10},textStyle:{fontSize:10}},
+          hAxis: {title: 'Tenor (Year)',
+            titleTextStyle:{fontSize:10},
+            textStyle:{fontSize:10},
+            gridlines: {color: '#e0e0e0'},
+            },
+          vAxis: {title: 'Yield (%)',
+            titleTextStyle:{fontSize:10},
+            textStyle:{fontSize:10},
+            gridlines: {color: '#e0e0e0'},
+            },
           legend: { position: 'in', textStyle: {fontSize: 8},isHtml:true }, 
           pointSize: 3,
           series: {
@@ -99,7 +107,7 @@
         // Inject string data to html body
         document.getElementById('KhNews').innerHTML = khNews
         document.getElementById('WorldNews').innerHTML = WorldNews
-        let msg ="The news are summarized by AI on " + khNews_date + "."
+        let msg ="The news were summarized by AI on " + khNews_date + "!"
         document.getElementById('aiGenDate').innerHTML = msg
       };
       //-----------------------------------------------------------------------
