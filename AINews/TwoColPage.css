@@ -265,3 +265,12 @@ table.table6 th:nth-child(1) {
 #AIcommentonUSTYield {
   text-align: justify;
 }
+
+footer {
+  text-align: center;
+  font-size: 10px;
+  color: #f0eff4;
+  padding: 5px;
+  background-color: #0070C0;
+  font-weight: bold;
+}
