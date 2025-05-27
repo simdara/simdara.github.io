@@ -266,7 +266,7 @@ table.table6 th:nth-child(1) {
   text-align: justify;
 }
 
-footer {
+.footer {
   text-align: center;
   font-size: 10px;
   color: #f0eff4;
